@@ -408,12 +408,14 @@
     place();
     root.classList.add('is-grown');
     settle(active || target());
-    setTimeout(photos, calm ? 0 : 1000);
+    setTimeout(settled, calm ? 0 : 1000);
   }
 
-  /* The showcase's photos are far down the page: they load once the logo has
-     settled, so decoding them never stutters the opening. */
-  function photos() {
+  /* Once the logo has settled: the showcase's photos (far down the page) load
+     and the light on the blue starts drifting; doing either during the
+     opening made it stutter. */
+  function settled() {
+    root.classList.add('is-settled');
     [].forEach.call(document.querySelectorAll('img[data-src]'), function (im) {
       im.src = im.getAttribute('data-src');
       im.removeAttribute('data-src');
@@ -429,7 +431,7 @@
     root.classList.add('is-grown');
     settle(target());
     split = true;
-    photos();
+    settled();
   } else if (fromLavori) {
     // no transitions for the first frame: the logo must already be grown and
     // already in the page's tone, exactly as the Lavori page left it

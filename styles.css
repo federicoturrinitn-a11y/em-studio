@@ -433,6 +433,20 @@ html.on-showcase #studio {
   50% { transform: translate(-10%, -6%) rotate(12deg); }
   100% { transform: translate(6%, -12%) rotate(-8deg); }
 }
+/* the light waits, still and hidden, until the opening is over: drawn during
+   the logo's move and the page's fade-in, these big layers made it stutter
+   (main.js adds .is-settled once the logo has docked) */
+.sticky::before,
+.sticky::after {
+  opacity: 0;
+  animation-play-state: paused;
+  transition: opacity 1.6s ease;
+}
+html.is-settled .sticky::before,
+html.is-settled .sticky::after {
+  opacity: 1;
+  animation-play-state: running;
+}
 @media (prefers-reduced-motion: reduce) {
   .sticky::before,
   .sticky::after {
