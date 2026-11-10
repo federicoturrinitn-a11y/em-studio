@@ -427,6 +427,11 @@
 
   // the background first: its light fades in before anything else moves
   requestAnimationFrame(function () { root.classList.add('is-lit'); });
+  // and it stops drifting while it is scrolled out of sight
+  var glow = document.querySelector('.sticky');
+  if (glow && window.IntersectionObserver) new IntersectionObserver(function (es) {
+    glow.classList.toggle('is-away', !es[0].isIntersecting);
+  }).observe(glow);
 
   if (calm) {
     root.classList.add('is-grown');

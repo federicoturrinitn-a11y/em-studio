@@ -407,39 +407,40 @@ html.on-showcase #studio {
   padding: 0 0 clamp(80px, 12vh, 140px);
   overflow: hidden;   /* keeps the drifting light inside the first part */
 }
-/* soft light patches drifting over the blue: two oversized layers, each
-   carrying two patches on its own slow loop, moved only by transform, so they
-   cost the compositor and not the page */
+/* soft light patches drifting over the blue: two layers a little larger than
+   the screen (their edges never come into view: the drift stays inside that margin), each carrying two patches on its own slow loop. They only slide
+   (no scale or turn, which would redraw them), so they cost the compositor
+   almost nothing; main.js stops them once they are scrolled away. */
 .sticky::before,
 .sticky::after {
   content: "";
   position: absolute;
-  inset: -30%;
+  inset: -20%;
   z-index: 0;
   pointer-events: none;
   will-change: transform;
 }
 .sticky::before {
   background:
-    radial-gradient(26% 32% at 25% 35%, rgba(160, 190, 255, 0.6), transparent 70%),
-    radial-gradient(22% 28% at 70% 70%, rgba(200, 220, 255, 0.45), transparent 70%);
+    radial-gradient(30% 37% at 21% 33%, rgba(160, 190, 255, 0.6), transparent 70%),
+    radial-gradient(25% 32% at 73% 73%, rgba(200, 220, 255, 0.45), transparent 70%);
   animation: glow-a 11s ease-in-out infinite alternate;
 }
 .sticky::after {
   background:
-    radial-gradient(24% 30% at 65% 25%, rgba(130, 170, 255, 0.55), transparent 70%),
-    radial-gradient(20% 26% at 30% 75%, rgba(185, 205, 255, 0.45), transparent 70%);
+    radial-gradient(27% 34% at 67% 21%, rgba(130, 170, 255, 0.55), transparent 70%),
+    radial-gradient(23% 30% at 27% 79%, rgba(185, 205, 255, 0.45), transparent 70%);
   animation: glow-b 14s ease-in-out infinite alternate;
 }
 @keyframes glow-a {
-  0% { transform: translate(-12%, -6%) scale(1); }
-  50% { transform: translate(10%, 8%) scale(1.15); }
-  100% { transform: translate(-4%, 12%) scale(0.95); }
+  0% { transform: translate(-10%, -5%); }
+  50% { transform: translate(9%, 7%); }
+  100% { transform: translate(-3%, 10%); }
 }
 @keyframes glow-b {
-  0% { transform: translate(10%, 8%) rotate(0deg); }
-  50% { transform: translate(-10%, -6%) rotate(12deg); }
-  100% { transform: translate(6%, -12%) rotate(-8deg); }
+  0% { transform: translate(9%, 7%); }
+  50% { transform: translate(-9%, -5%); }
+  100% { transform: translate(5%, -10%); }
 }
 /* the light fades in first thing, before the logo and the words move
    (main.js adds .is-lit on the first frame) */
@@ -453,6 +454,10 @@ html.is-lit .sticky::before,
 html.is-lit .sticky::after {
   opacity: 1;
   animation-play-state: running;
+}
+html.is-lit .sticky.is-away::before,
+html.is-lit .sticky.is-away::after {
+  animation-play-state: paused;
 }
 @media (prefers-reduced-motion: reduce) {
   .sticky::before,
