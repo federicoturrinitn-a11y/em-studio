@@ -20,6 +20,8 @@
   --logo-h: min(11.8vw, 131px);
   --top-s: 0.36;
   --dock-s: calc(var(--top-s) * 0.75);
+  /* the left edge of the text on Home: clear of the logo docked in the corner, plus air */
+  --text-x: calc(var(--pad) + var(--logo-w, 440px) * var(--dock-s) + clamp(24px, 4vw, 64px));
   /* how far em climbs and studio drops */
   --travel: 34vh;
   /* the band left between them, where the pages live */
@@ -247,10 +249,6 @@ html.js .corner {
 html.is-grown .corner {
   opacity: 1;
 }
-.corner--tl {
-  top: var(--pad);
-  left: var(--pad);
-}
 .corner--tr {
   top: var(--pad);
   right: var(--pad);
@@ -260,10 +258,6 @@ html.is-grown .corner {
 .corner--bl {
   bottom: var(--pad);
   left: var(--pad);
-}
-.corner--br {
-  bottom: var(--pad);
-  right: var(--pad);
 }
 .corner--tr a {
   color: var(--ink);
@@ -349,41 +343,6 @@ html.js .view.is-active {
   visibility: visible;
 }
 
-/* The strip takes the band's full height, so its children's percentage
-   heights always fit the gap between em and studio. */
-.strip {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: clamp(20px, 3vw, 48px);
-  padding: 0 var(--pad);
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-  min-width: 0;
-  min-height: 0;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: none;
-  cursor: grab;
-  overscroll-behavior-x: contain;
-}
-.strip::-webkit-scrollbar {
-  display: none;
-}
-.strip.is-dragging {
-  cursor: grabbing;
-}
-.strip > * {
-  flex: 0 0 auto;
-}
-/* on the scroller itself, so the vanishing point stays mid-band while it scrolls */
-.strip--globe {
-  perspective: 1100px;
-  /* half a band of space each side, so the first and last cards can face front */
-  padding: 0 calc(50% - clamp(170px, 18vw, 270px) / 2);
-}
-
 .eyebrow,
 .label {
   margin: 0 0 12px;
@@ -420,6 +379,10 @@ html.on-showcase #studio {
 }
 .scene--stack > .wrap {
   scroll-snap-align: start;
+  /* on the same left edge as the rest of Home */
+  max-width: 760px;
+  margin: 0;
+  padding-left: var(--text-x);
 }
 
 /* first screen: a row pinned between em and studio that the vertical
@@ -486,12 +449,7 @@ html.on-showcase #studio {
   /* a left column kept clear for the logo docked in the corner (its width at
      the docked size, --logo-w from main.js, 0.75 of --top-s), plus air */
   padding: 0 var(--pad) 0
-    calc(var(--pad) + var(--logo-w, 440px) * var(--dock-s) + clamp(24px, 4vw, 64px));
-}
-@media (max-width: 640px) {
-  .track {
-    padding-left: var(--pad);
-  }
+    var(--text-x);
 }
 .intro {
   box-sizing: border-box;
@@ -521,14 +479,6 @@ html.on-showcase #studio {
 }
 .hblock .eyebrow {
   margin-bottom: 14px;
-}
-.hblock .big {
-  display: block;
-  font-size: clamp(2.6rem, 5vw, 4.4rem);
-  font-weight: 300;
-  line-height: 1;
-  letter-spacing: -0.04em;
-  color: var(--sky);
 }
 .hblock h3 {
   font-size: clamp(1rem, 1.4vw, 1.3rem);
@@ -746,63 +696,12 @@ html.js .intro .after {
   color: #334eac;
   border-color: #fff;
 }
-.dark .svc[open] .plus::before,
-.dark .svc[open] .plus::after {
-  background: #091956;
-}
 .dark .tags li {
   border-color: rgba(255, 255, 255, 0.4);
-}
-.dark .svc summary:hover {
-  background: rgba(255, 255, 255, 0.08);
 }
 /* menu links to #lavori glide down the page */
 #studio {
   scroll-behavior: smooth;
-}
-
-/* the section is as tall as the screen plus the reel's run (main.js); its
-   inside stays pinned, so the page stops here and scrolling turns the reel */
-.works {
-  position: relative;
-}
-.works-pin {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  height: 100dvh;
-  overflow: hidden;
-  box-sizing: border-box;
-  padding: calc(var(--pad) * 2 + 50px) 0 calc(var(--pad) * 1.5);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-.works-head,
-.shapes {
-  transition:
-    opacity 0.5s ease,
-    transform 0.6s var(--ease);
-}
-/* while a project opens, the heading and the switcher step out of the way */
-html.is-project .works-head,
-html.is-project .shapes {
-  opacity: 0;
-  transform: translateY(-24px);
-}
-.works-head {
-  width: 100%;
-  max-width: 1100px;
-  margin: 0 auto;
-  box-sizing: border-box;
-  padding: 0 var(--pad);
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 20px;
-}
-.works-head h2 {
-  margin-bottom: 0;
 }
 .count {
   margin: 0;
@@ -815,14 +714,6 @@ html.is-project .shapes {
   font-style: normal;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
-}
-.works .strip {
-  flex: 1 1 auto;
-  min-height: 0;
-  max-height: 560px;
-  margin: clamp(12px, 2vh, 28px) 0;
-  gap: clamp(56px, 8vw, 130px);
-  overflow: hidden;
 }
 
 .pull {
@@ -837,22 +728,6 @@ html.is-project .shapes {
   color: var(--body);
   line-height: 1.65;
 }
-.svc-t small {
-  display: block;
-  margin-top: 4px;
-  font-size: 0.8rem;
-  font-weight: 400;
-  letter-spacing: 0;
-  color: var(--muted);
-}
-.svc .inner .tagline {
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--blue);
-  margin: 0 0 0.6em;
-}
 
 /* projects: each card opens its project page (see PROJECT below) */
 .card {
@@ -860,25 +735,6 @@ html.is-project .shapes {
 }
 .card:focus-visible {
   outline: none;
-}
-.card:focus-visible .cover {
-  outline: 2px solid var(--sky);
-  outline-offset: 4px;
-}
-.did {
-  display: none;
-}
-.cover img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.cover span {
-  z-index: 1;
-  color: rgba(255, 255, 255, 0.7);
-  text-shadow: 0 2px 20px rgba(7, 24, 88, 0.35);
 }
 
 /* =========================================================  PROJECT  ===== */
@@ -900,234 +756,6 @@ html.is-project .shapes {
   transition:
     opacity 0.45s ease,
     visibility 0s 0.45s;
-}
-.project.is-open {
-  opacity: 1;
-  visibility: visible;
-  transition:
-    opacity 0.45s ease,
-    background-color 0.4s ease;
-}
-.project.is-arriving {
-  background-color: transparent;
-}
-html.is-project .bar {
-  opacity: 1;
-  background: color-mix(in srgb, #f6f7fb 70%, transparent);
-}
-html.is-project .mark img {
-  filter: none;
-}
-html.is-project .corner {
-  color: var(--muted);
-}
-html.is-project .corner--tr a,
-html.is-project .corner em {
-  color: var(--navy);
-}
-html.is-grown.is-project .corner--bl {
-  opacity: 0;
-}
-
-.p-top,
-.p-hero,
-.p-body,
-.p-gallery,
-.p-next {
-  max-width: 1240px;
-  margin-left: auto;
-  margin-right: auto;
-}
-.p-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 14px;
-}
-.p-back {
-  background: none;
-  border: 0;
-  padding: 6px 0;
-  font: 500 11px var(--font);
-  letter-spacing: 0.12em;
-  color: var(--navy);
-  cursor: pointer;
-}
-.p-back:hover {
-  text-decoration: underline;
-  text-underline-offset: 5px;
-}
-.p-count {
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  color: var(--muted);
-}
-
-.p-hero {
-  height: min(72vh, 760px);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-.p-hero img,
-.p-next-pic img,
-.morph img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.project.is-arriving .p-hero {
-  visibility: hidden;
-}
-
-.p-body {
-  margin-top: clamp(40px, 6vw, 90px);
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: clamp(28px, 5vw, 80px);
-}
-.p-name {
-  font-size: clamp(2.2rem, 5vw, 4.4rem);
-  font-weight: 500;
-  letter-spacing: -0.03em;
-  line-height: 1.02;
-  margin: 0 0 14px;
-}
-.p-meta {
-  margin: 0;
-  font-size: 0.8rem;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.p-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.p-list li {
-  padding: 10px 0;
-  border-top: 1px solid var(--mist);
-  line-height: 1.5;
-  font-size: 0.95rem;
-  color: var(--body);
-}
-
-/* the rest of the photos: a staggered pair, or one centred */
-.p-gallery {
-  margin-top: clamp(56px, 8vw, 110px);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: clamp(16px, 2.4vw, 32px);
-  align-items: start;
-}
-.p-gallery:empty {
-  display: none;
-}
-.p-gallery img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: var(--radius);
-}
-.p-gallery img:nth-child(2) {
-  margin-top: clamp(60px, 12vw, 180px);
-}
-.p-gallery img:only-child {
-  grid-column: 1/-1;
-  width: min(100%, 640px);
-  justify-self: center;
-}
-
-.p-next {
-  display: block;
-  width: 100%;
-  margin-top: clamp(90px, 11vw, 160px);
-  padding: 0;
-  border: 0;
-  background: none;
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-.p-next small {
-  display: block;
-  margin-bottom: 10px;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  color: var(--muted);
-}
-.p-next-name {
-  display: block;
-  margin-bottom: 24px;
-  font-size: clamp(2rem, 6vw, 5rem);
-  font-weight: 500;
-  letter-spacing: -0.03em;
-  line-height: 1;
-  transition: transform 0.5s var(--ease);
-}
-.p-next:hover .p-next-name {
-  transform: translateX(14px);
-}
-.p-next-pic {
-  display: block;
-  height: clamp(160px, 32vh, 340px);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-
-/* the text and the rest follow once the photo has landed */
-.p-body,
-.p-gallery,
-.p-next {
-  opacity: 0;
-  transform: translateY(30px);
-}
-.project.is-shown .p-body,
-.project.is-shown .p-gallery,
-.project.is-shown .p-next {
-  opacity: 1;
-  transform: none;
-  transition:
-    opacity 0.8s ease,
-    transform 0.9s var(--ease);
-}
-.project.is-shown .p-gallery {
-  transition-delay: 0.12s;
-}
-.project.is-shown .p-next {
-  transition-delay: 0.24s;
-}
-
-/* the travelling copy of a photo, card to hero and back */
-.morph {
-  position: fixed;
-  z-index: 30;
-  border-radius: var(--radius);
-  overflow: hidden;
-  pointer-events: none;
-  box-shadow: 0 30px 70px rgba(7, 24, 88, 0.25);
-}
-.morph.is-moving {
-  transition:
-    left 0.9s cubic-bezier(0.7, 0, 0.2, 1),
-    top 0.9s cubic-bezier(0.7, 0, 0.2, 1),
-    width 0.9s cubic-bezier(0.7, 0, 0.2, 1),
-    height 0.9s cubic-bezier(0.7, 0, 0.2, 1);
-}
-
-@media (max-width: 760px) {
-  .p-body,
-  .p-gallery {
-    grid-template-columns: 1fr;
-  }
-  .p-gallery img:nth-child(2) {
-    margin-top: 0;
-  }
 }
 
 .wrap {
@@ -1171,37 +799,6 @@ html.is-grown.is-project .corner--bl {
   font-weight: 500;
   color: var(--navy);
 }
-
-/* services: native <details>, so the accordion needs no script */
-.svcs {
-  border-bottom: 1px solid var(--mist);
-}
-.svc {
-  border-top: 1px solid var(--mist);
-}
-.svc summary {
-  list-style: none;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
-  padding: clamp(18px, 2.6vw, 26px) 14px;
-  font-size: clamp(1.1rem, 2.2vw, 1.6rem);
-  font-weight: 500;
-  letter-spacing: -0.015em;
-  color: var(--navy);
-  transition:
-    background 0.45s var(--ease),
-    padding 0.45s var(--ease);
-}
-.svc summary::-webkit-details-marker {
-  display: none;
-}
-.svc summary:hover {
-  background: rgba(87, 131, 228, 0.12);
-  padding-left: 26px;
-}
 .plus {
   flex: none;
   width: 36px;
@@ -1225,27 +822,6 @@ html.is-grown.is-project .corner--bl {
 .plus::after {
   transform: rotate(90deg);
   transition: transform 0.45s var(--ease);
-}
-.svc[open] .plus {
-  background: var(--blue);
-}
-.svc[open] .plus::before,
-.svc[open] .plus::after {
-  background: #fff;
-}
-.svc[open] .plus::after {
-  transform: rotate(0);
-}
-.svc .inner {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 28px;
-  padding: 0 14px 28px;
-  color: var(--body);
-  line-height: 1.65;
-}
-.svc .inner p {
-  margin: 0;
 }
 .tags {
   list-style: none;
@@ -1315,10 +891,12 @@ html:not(.js) #shuffle {
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
 }
+/* no inset: on the white page the card's own edge is invisible, so the
+   photo lines up with the text above */
 .people li {
   background: #fff;
   border-radius: var(--radius);
-  padding: 14px 14px 18px;
+  padding: 0 0 18px;
 }
 .people i {
   display: grid;
@@ -1341,20 +919,6 @@ html:not(.js) #shuffle {
   color: var(--muted);
 }
 
-.cta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: clamp(56px, 7vw, 90px);
-}
-
-.endcap {
-  width: clamp(170px, 16vw, 240px);
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
 /* ==========================================================  LAVORI  ===== */
 
 /* main.js wraps the cards round a turning cylinder as the reel scrolls: the
@@ -1368,124 +932,10 @@ html:not(.js) #shuffle {
   will-change: transform, opacity;
   backface-visibility: hidden;
 }
-.cover {
-  flex: 1 1 auto;
-  min-height: 0;
-  position: relative;
-  overflow: hidden;
-  border-radius: var(--radius);
-  box-shadow: 0 14px 34px rgba(7, 24, 88, 0.18);
-  transition: transform 0.5s var(--ease);
-}
-.card:hover .cover {
-  transform: scale(0.985);
-}
-.cover span {
-  position: absolute;
-  right: 0.15em;
-  bottom: -0.12em;
-  font-size: clamp(2.6rem, 6vw, 5.5rem);
-  font-weight: 300;
-  line-height: 1;
-  color: rgba(255, 255, 255, 0.18);
-  letter-spacing: -0.04em;
-  font-variant-numeric: tabular-nums;
-}
-.cover.a {
-  background: linear-gradient(160deg, #5783e4, #334eac 60%, #091956);
-}
-.cover.b {
-  background: linear-gradient(200deg, #c7cee7, #5783e4);
-}
-.cover.c {
-  background: linear-gradient(140deg, #ad988a, #091956);
-}
-.cover.d {
-  background: linear-gradient(180deg, #091956, #334eac);
-}
-.cover.e {
-  background: linear-gradient(170deg, #e6e9f4, #c7cee7 45%, #ad988a);
-}
-
-.meta {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-}
-.meta .n {
-  font-size: 9.5px;
-  letter-spacing: 0.16em;
-  font-weight: 500;
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-}
-.meta .t {
-  font-size: clamp(0.92rem, 1.15vw, 1.2rem);
-  font-weight: 500;
-  letter-spacing: -0.015em;
-  line-height: 1.14;
-}
 .card .k {
   margin: 0;
   font-size: 11px;
   color: var(--muted);
-}
-
-.chips {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.chips li {
-  border: 1px solid rgba(7, 24, 88, 0.25);
-  border-radius: 999px;
-  padding: 0.35em 0.9em;
-  font-size: 11px;
-}
-
-/* TEST: the shape switcher, under the reel */
-.shapes {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 4px;
-  width: max-content;
-  max-width: calc(100% - 32px);
-  margin: 12px auto 0;
-  padding: 4px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.7);
-  box-shadow: 0 4px 18px rgba(7, 24, 88, 0.08);
-}
-.shapes button {
-  border: 0;
-  background: none;
-  border-radius: 999px;
-  padding: 0.5em 1em;
-  font: 500 11px var(--font);
-  color: var(--muted);
-  cursor: pointer;
-}
-.shapes button:hover {
-  color: var(--navy);
-}
-.shapes button[aria-pressed="true"] {
-  background: var(--navy);
-  color: #fff;
-}
-.dark .shapes {
-  background: rgba(255, 255, 255, 0.14);
-  box-shadow: none;
-}
-.dark .shapes button {
-  color: #e6e9f4;
-}
-.dark .shapes button[aria-pressed="true"] {
-  background: #fff;
-  color: #334eac;
 }
 
 /* ========================================================  CONTATTI  ===== */
@@ -1498,9 +948,10 @@ html:not(.js) #shuffle {
   color: #fff;
   padding: clamp(80px, 10vw, 120px) var(--pad) clamp(56px, 7vw, 90px);
 }
+/* on the same left edge as the text on Home (#contatti already has --pad) */
 .contact {
-  max-width: 1100px;
-  margin: 0 auto;
+  max-width: 1000px;
+  padding-left: calc(var(--text-x) - var(--pad));
 }
 #contatti .eyebrow {
   color: var(--pale);
@@ -1603,6 +1054,7 @@ html.on-contatti.is-top .corner--bl {
     --band: 22vh;
     --top-s: 0.42;
     --dock-s: 0.42;
+    --text-x: var(--pad);
   }
   /* a tighter menu, as on the Lavori page, so it clears the logo beside it */
   .corner--tr {
@@ -1617,8 +1069,7 @@ html.on-contatti.is-top .corner--bl {
     grid-template-columns: repeat(2, 1fr);
   }
   /* side-by-side text is too narrow on a phone: one column */
-  .cols,
-  .svc .inner {
+  .cols {
     grid-template-columns: 1fr;
   }
   .steps {
@@ -1637,9 +1088,6 @@ html.on-contatti.is-top .corner--bl {
     top: 4px;
     width: 12px;
     height: 12px;
-  }
-  .corner--tl {
-    display: none;
   }
   .intro h1 {
     white-space: normal;
@@ -1813,6 +1261,18 @@ html.on-contatti.is-top .corner--bl {
   position: relative;
   overflow: hidden;
 }
+/* a soft shade at the foot of the photos, so the white name reads on a light photo too */
+.sc-right::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 45%;
+  z-index: 1;
+  background: linear-gradient(transparent, rgba(7, 24, 88, 0.5));
+  pointer-events: none;
+}
 /* each photo sits in a frame that rises from below while the photo inside
    is held in place by the opposite move: a wipe made of two transforms,
    which the compositor runs smoothly (clip-path would repaint each frame) */
@@ -1882,11 +1342,18 @@ html.on-showcase .bar {
 html.on-showcase .corner--bl {
   opacity: 0;
 }
-/* on a wide screen the menu sits over the photos: white, with a soft shadow */
+/* on a wide screen the menu sits over the photos: a soft white pill keeps it
+   readable on any photo, light or dark (the padding is taken back by the
+   margins, so the links do not move) */
+.corner--tr {
+  border-radius: 999px;
+  transition: background-color 0.4s ease;
+}
 @media (min-width: 761px) {
-  html.on-showcase .corner--tr a {
-    color: #fff;
-    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.45);
+  html.on-showcase .corner--tr {
+    margin: -8px -14px 0 0;
+    padding: 8px 14px;
+    background: rgba(255, 255, 255, 0.86);
   }
 }
 /* a phone: the photo on top, the text under it */
@@ -1956,11 +1423,11 @@ html.on-chi.is-top .bar,
 html.on-contatti.is-top .bar {
   opacity: 1;
 }
+/* on the same left edge as the text on Home */
 .about {
-  max-width: 1100px;
-  margin: 0 auto;
+  max-width: calc(var(--text-x) + 1000px);
   box-sizing: border-box;
-  padding: calc(var(--pad) * 2 + 90px) var(--pad) clamp(80px, 10vw, 140px);
+  padding: calc(var(--pad) * 2 + 90px) var(--pad) clamp(80px, 10vw, 140px) var(--text-x);
 }
 .about .eyebrow ~ .eyebrow {
   margin-top: clamp(90px, 14vh, 160px);
@@ -2020,7 +1487,7 @@ html.on-contatti.is-top .bar {
   flex-direction: column;
   justify-content: center;
   padding: clamp(80px, 12vh, 140px) var(--pad) clamp(60px, 10vh, 120px)
-    calc(var(--pad) + var(--logo-w, 440px) * var(--dock-s) + clamp(24px, 4vw, 64px));
+    var(--text-x);
   scroll-snap-align: end;
 }
 .home-end h2 {
@@ -2040,11 +1507,6 @@ html.on-contatti.is-top .bar {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-}
-@media (max-width: 640px) {
-  .home-end {
-    padding-left: var(--pad);
-  }
 }
 
 /* the next page's colour, falling over the screen on a change of page (main.js) */

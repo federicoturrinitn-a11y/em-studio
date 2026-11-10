@@ -80,6 +80,7 @@
     root.classList.toggle('on-studio', v.id === 'studio');
     jump(v, 0);
     if (v.id === 'studio') size();
+    else showcaseAt(studio.scrollTop);   // left from inside the showcase: its state (and wheel) goes with it
   }
 
   // every page wears the logo small in the top left corner
@@ -159,11 +160,8 @@
   /* Studio's first part reads straight down: the slogan fills the first
      screen, and each block after it fades up as the scroll brings it in. */
   var studio = document.getElementById('studio'),
-      hscroll = document.getElementById('hscroll'),
-      track = document.getElementById('track'),
       steps = document.getElementById('steps'),
-      stepEls = [].slice.call(steps.children),
-      ey = 0, raf = 0;     // the eased scroll position the reveals follow
+      stepEls = [].slice.call(steps.children);
 
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
@@ -183,7 +181,7 @@
   };
 
   var sceneEls = [].slice.call(document.querySelectorAll('#studio [data-scene]')),
-      sceneTops = [], tone = '', bar = document.querySelector('.bar');
+      sceneTops = [], barH = 0, tone = '', bar = document.querySelector('.bar');
   sceneEls.forEach(function (el) { el.style.backgroundColor = SCENES[el.getAttribute('data-scene')][0]; });
 
   function setTone(t) {
@@ -205,50 +203,43 @@
 
   function atmosphere(y) {
     if (active !== studio) return;
-    var under = y + bar.offsetHeight / 2, j = 1;
+    var under = y + barH / 2, j = 1;
     for (; j < sceneEls.length && sceneTops[j] <= under; j++);
     var sc = SCENES[sceneEls[j - 1].getAttribute('data-scene')];
     setBase(sc[0]);
     setTone(sc[1]);
   }
 
-  function smooth(t) { return t * t * (3 - 2 * t); }
-
-  // pinned for: the rise, the sideways run (slowed by SLOW), then a hold so
-  // the last block rests on screen before the page turns downwards
+  // where an element sits inside a scroller (positioned ancestors become offset parents)
   function offsetIn(el, ref) {
     var x = 0, y = 0;
     for (; el && el !== ref; el = el.offsetParent) { x += el.offsetLeft; y += el.offsetTop; }
     return [x, y];
   }
 
+  /* Everything the scroll needs is measured here, on load and resize, so a
+     scroll event only reads scrollTop and never makes the page lay out. */
+  var scTop = 0, scN = 1, scH = 0, viewH = 0;
   function size() {
     sceneTops = sceneEls.map(function (el) { return el.offsetTop; });
-    ey = studio.scrollTop;
-    paint(ey);
-    atmosphere(studio.scrollTop);
+    barH = bar.offsetHeight;
+    viewH = studio.clientHeight;
+    if (showcase) {
+      scTop = offsetIn(showcase, studio)[1];
+      scH = showcase.offsetHeight;
+      scN = parseInt(getComputedStyle(showcase).getPropertyValue('--steps'), 10) || 1;
+    }
+    scrolled();
   }
 
-  // the row eases after the scroll instead of jumping with each wheel tick
-  function slide() { if (!raf) raf = requestAnimationFrame(step); }
-
-  function step() {
-    raf = 0;
+  function scrolled() {
     var y = studio.scrollTop;
-    ey = calm || Math.abs(y - ey) < 0.5 ? y : ey + (y - ey) * 0.12;
-    if (ey !== y) raf = requestAnimationFrame(step);
-    paint(ey);
     atmosphere(y);
     // the bar comes in once the slogan has scrolled half off, so text never runs under a bare logo
-    root.classList.toggle('is-docked', split && active === studio && y > studio.clientHeight * 0.5);
+    root.classList.toggle('is-docked', split && active === studio && y > viewH * 0.5);
+    showcaseAt(y);
   }
-
-
-  function paint(y) {
-    var h = studio.clientHeight;
-  }
-
-  studio.addEventListener('scroll', slide, { passive: true });
+  studio.addEventListener('scroll', scrolled, { passive: true });
 
   /* ---------------------------------------------- the services showcase -- */
 
@@ -256,14 +247,12 @@
      text block and photo learns whether it is past, now or still to come;
      the CSS does the moving. */
   var showcase = document.getElementById('showcase'), scStep = -1;
-  function showcaseAt() {
+  function showcaseAt(y) {
     if (!showcase) return;
-    var top = offsetIn(showcase, studio)[1],
-        n = parseInt(getComputedStyle(showcase).getPropertyValue('--steps'), 10) || 1,
-        y = studio.scrollTop, h = studio.clientHeight,
-        i = clamp(Math.floor((y - top) / h + 0.5), 0, n - 1);
+    var top = scTop, h = viewH,
+        i = clamp(Math.floor((y - top) / h + 0.5), 0, scN - 1);
     // while it is pinned nothing scrolls under the logo, so the frosted bar steps aside
-    var on = active === studio && y > top - h * 0.5 && y < top + showcase.offsetHeight - h * 0.5;
+    var on = active === studio && y > top - h * 0.5 && y < top + scH - h * 0.5;
     if (on !== root.classList.contains('on-showcase')) {
       root.classList.toggle('on-showcase', on);
       // the wheel is only taken over here: anywhere else the page scrolls without waiting on script
@@ -282,8 +271,6 @@
     // its tagline and paragraph rise line by line, a beat after the name
     if (!calm) [].forEach.call(showcase.querySelectorAll('.sc-text.is-now p'), function (p, k) { rise(p, 0.15 + k * 0.15); });
   }
-  studio.addEventListener('scroll', showcaseAt, { passive: true });
-  addEventListener('resize', showcaseAt);
 
   /* Inside the showcase the wheel walks the photos. A single tick is too
      short for the snapping to carry on to the next stop (it would settle
@@ -299,8 +286,7 @@
     if (wheelHeld) return;
     wheelHeld = true;
     setTimeout(function () { wheelHeld = false; }, 850);
-    var top = offsetIn(showcase, studio)[1], h = studio.clientHeight,
-        n = parseInt(getComputedStyle(showcase).getPropertyValue('--steps'), 10) || 1,
+    var top = scTop, h = viewH, n = scN,
         next = clamp(Math.round((studio.scrollTop - top) / h), 0, n - 1) + (e.deltaY > 0 ? 1 : -1),
         to;
     if (next < 0) to = offsetIn(showcase.previousElementSibling, studio)[1];                       // the heading above
@@ -308,7 +294,6 @@
     else to = top + next * h;
     studio.scrollTo({ top: to, behavior: calm ? 'auto' : 'smooth' });
   }
-  showcaseAt();
 
   // the way out from any photo: straight on to the end of Home
   var skipBtn = document.getElementById('sc-skip');
@@ -391,6 +376,12 @@
   }
   addEventListener('resize', size);
   addEventListener('load', size);
+  // the web font and the pictures arrive late and change the heights: measure again when a section does
+  if (window.ResizeObserver) {
+    var again = 0;
+    var ro = new ResizeObserver(function () { cancelAnimationFrame(again); again = requestAnimationFrame(size); });
+    sceneEls.forEach(function (el) { ro.observe(el); });
+  }
   size();
 
 
