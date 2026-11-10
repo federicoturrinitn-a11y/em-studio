@@ -328,6 +328,14 @@ html.is-top .middle {
   opacity: 1;
   transition: opacity 0.6s ease 0.5s;
 }
+/* Home is there from the very start, its blue and light under the opening
+   logo; its words wait on their own (they rise once the logo docks). No fade
+   of the whole page: drawing that over the big light layers made it stutter. */
+html.on-studio .middle {
+  visibility: visible;
+  opacity: 1;
+  transition: none;
+}
 
 /* one view at a time; the hidden ones keep their layout so Lavori can be
    measured before it is shown */
@@ -433,17 +441,16 @@ html.on-showcase #studio {
   50% { transform: translate(-10%, -6%) rotate(12deg); }
   100% { transform: translate(6%, -12%) rotate(-8deg); }
 }
-/* the light waits, still and hidden, until the opening is over: drawn during
-   the logo's move and the page's fade-in, these big layers made it stutter
-   (main.js adds .is-settled once the logo has docked) */
+/* the light fades in first thing, before the logo and the words move
+   (main.js adds .is-lit on the first frame) */
 .sticky::before,
 .sticky::after {
   opacity: 0;
   animation-play-state: paused;
   transition: opacity 1.6s ease;
 }
-html.is-settled .sticky::before,
-html.is-settled .sticky::after {
+html.is-lit .sticky::before,
+html.is-lit .sticky::after {
   opacity: 1;
   animation-play-state: running;
 }

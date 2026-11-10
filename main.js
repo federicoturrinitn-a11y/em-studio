@@ -411,11 +411,9 @@
     setTimeout(settled, calm ? 0 : 1000);
   }
 
-  /* Once the logo has settled: the showcase's photos (far down the page) load
-     and the light on the blue starts drifting; doing either during the
-     opening made it stutter. */
+  /* Once the logo has settled the showcase's photos (far down the page) load;
+     decoding them during the opening made it stutter. */
   function settled() {
-    root.classList.add('is-settled');
     [].forEach.call(document.querySelectorAll('img[data-src]'), function (im) {
       im.src = im.getAttribute('data-src');
       im.removeAttribute('data-src');
@@ -426,6 +424,9 @@
   // middle: start from there instead of from nothing, and dock straight away
   var fromLavori = false;
   try { fromLavori = sessionStorage.getItem('em-from') === 'lavori'; sessionStorage.removeItem('em-from'); } catch (e) {}
+
+  // the background first: its light fades in before anything else moves
+  requestAnimationFrame(function () { root.classList.add('is-lit'); });
 
   if (calm) {
     root.classList.add('is-grown');
