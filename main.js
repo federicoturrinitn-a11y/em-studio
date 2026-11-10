@@ -408,6 +408,16 @@
     place();
     root.classList.add('is-grown');
     settle(active || target());
+    setTimeout(photos, calm ? 0 : 1000);
+  }
+
+  /* The showcase's photos are far down the page: they load once the logo has
+     settled, so decoding them never stutters the opening. */
+  function photos() {
+    [].forEach.call(document.querySelectorAll('img[data-src]'), function (im) {
+      im.src = im.getAttribute('data-src');
+      im.removeAttribute('data-src');
+    });
   }
 
   // arriving from the Lavori page, whose last frame is this logo whole in the
@@ -419,6 +429,7 @@
     root.classList.add('is-grown');
     settle(target());
     split = true;
+    photos();
   } else if (fromLavori) {
     // no transitions for the first frame: the logo must already be grown and
     // already in the page's tone, exactly as the Lavori page left it
