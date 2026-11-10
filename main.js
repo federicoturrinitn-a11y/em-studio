@@ -235,8 +235,8 @@
   function scrolled() {
     var y = studio.scrollTop;
     atmosphere(y);
-    // the bar comes in once the slogan has scrolled half off, so text never runs under a bare logo
-    root.classList.toggle('is-docked', split && active === studio && y > viewH * 0.5);
+    // the bar comes in as soon as the page moves: the text sits under the logo's column, so it must never run under a bare logo
+    root.classList.toggle('is-docked', split && active === studio && y > 8);
     showcaseAt(y);
   }
   studio.addEventListener('scroll', scrolled, { passive: true });
