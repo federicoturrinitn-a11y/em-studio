@@ -227,11 +227,13 @@
   /* ------------------------------------------ the services' examples -- */
 
   /* Each service has a project as its example, and the list starts all
-     closed, with no photo. Opening a row brings its photo up in the frame
-     beside the list, over those before it (the CSS does the wipe), and the
-     row to the middle of the screen. Closing it takes the photos away and the
-     page back where it was before the first row was opened; opening another
-     one instead moves on to that one. */
+     closed, with no photo. On a wide screen opening a row brings its photo up
+     in the frame beside the list, over those before it (the CSS does the
+     wipe), and the row to the middle of the screen; closing it takes the
+     photos away and the page back where it was before the first row was
+     opened; opening another one instead moves on to that one.
+     On a phone none of this: the photo is inside the row, rows open and close
+     on their own (several can be open), so nothing moves under the finger. */
   var svc = document.querySelector('.svc'),
       rows = [].slice.call(document.querySelectorAll('.svc details')),
       shots = [].slice.call(document.querySelectorAll('.svc-shot')),
@@ -246,32 +248,25 @@
     var top = rows[0].getBoundingClientRect().top + studio.scrollTop, k = 0;
     for (; k < i; k++) top += rows[k].firstElementChild.offsetHeight + 1;
     var h = rows[i].firstElementChild.offsetHeight + 1 + rows[i].lastElementChild.offsetHeight,
-        held = parseFloat(getComputedStyle(shotsBox).top),   // where the photo is held on the screen
-        // what covers the top of the screen: the bar, and on a phone the photo held under it
-        edge = narrow.matches ? held + shotsBox.offsetHeight : barH,
-        free = studio.clientHeight - edge,
-        to = top - edge - Math.max(0, (free - h) / 2);   // a row taller than the room starts at its top
+        free = studio.clientHeight - barH,
+        to = top - barH - Math.max(0, (free - h) / 2);   // a row taller than the room starts at its top
     // the photo cannot rise above the top of the section: for the first rows the page
     // stops there, so the whole photo is in the picture
-    glideTo(Math.max(to, svc.getBoundingClientRect().top + studio.scrollTop - held));
+    glideTo(Math.max(to, svc.getBoundingClientRect().top + studio.scrollTop - parseFloat(getComputedStyle(shotsBox).top)));
   }
-  /* On a phone the photo has its place above the list only while a row is
-     open; the scroll moves by as much at that moment, so the list stays put. */
-  function room(on) {
-    if (svc.classList.contains('has-open') === on) return;
-    svc.classList.toggle('has-open', on);
-    if (narrow.matches) jump(studio, studio.scrollTop + (on ? 1 : -1) * shotsBox.offsetHeight);
-  }
+  // rows that share a name close one another: only on a wide screen
+  function share() { rows.forEach(function (d) { if (narrow.matches) d.removeAttribute('name'); else d.setAttribute('name', 'svc'); }); }
+  share();
+  narrow.addEventListener('change', share);
   rows.forEach(function (d, i) {
     d.addEventListener('toggle', function () {
+      if (narrow.matches) return;
       var at = rows.findIndex(function (r) { return r.open; });   // -1: all closed, no photo
       shots.forEach(function (s, k) { s.classList.toggle('is-on', k <= at); });
       if (d.open) {
         if (back === null) back = studio.scrollTop;
-        room(true);
         centre(i);
       } else if (at < 0) {
-        room(false);
         if (back !== null) glideTo(back);
         back = null;
       }

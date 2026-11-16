@@ -1346,6 +1346,10 @@ html:not(.js) #shuffle {
   letter-spacing: 0.16em;
   opacity: 0.8;
 }
+/* the same photo inside the row, for a phone (see below) */
+.svc-pic {
+  display: none;
+}
 /* where the browser can animate to a height of auto, the row opens smoothly */
 @supports (interpolate-size: allow-keywords) {
   .svc {
@@ -1478,28 +1482,34 @@ html:not(.js) #shuffle {
 }
 /* a phone: three across, all the same size, so the whole wall fits a screen */
 @media (max-width: 760px) {
-  /* the example on top, held under the bar while the list scrolls beneath it */
+  /* no frame beside the list here: each row opens on its own example and
+     its text, right under the finger, and the page does not move */
   .svc {
     display: block;
   }
   .svc-shots {
-    z-index: 1;
-    top: calc(var(--pad) * 2 + 30px);
-    aspect-ratio: auto;
-    max-width: none;
-    height: 32vh;
-    height: 32dvh;
-    /* with nothing open it takes no room: the list is all there is. While a
-       row is open it has its place above the list (main.js sets .has-open
-       and moves the scroll by as much, so nothing jumps) */
-    margin-bottom: -32vh;
-    margin-bottom: -32dvh;
-  }
-  .svc.has-open .svc-shots {
-    margin-bottom: 0;
+    display: none;
   }
   .svc-list {
     padding-bottom: clamp(80px, 12vh, 150px);
+  }
+  .svc-pic {
+    display: block;
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 12px;
+    color: #fff;
+    text-decoration: none;
+    /* as wide as the row, not indented with the text */
+    margin-left: calc(-2em - clamp(12px, 2vw, 28px));
+  }
+  .svc-pic img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
   .svc summary {
     grid-template-columns: 2em minmax(0, 1fr) 1.2rem;
