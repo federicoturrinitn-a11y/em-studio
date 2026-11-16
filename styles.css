@@ -1477,10 +1477,14 @@ html:not(.js) #shuffle {
     max-width: none;
     height: 32vh;
     height: 32dvh;
-    /* it takes no room of its own: with nothing open the list is all there is,
-       and an opened row's photo comes up over the top of it */
+    /* with nothing open it takes no room: the list is all there is. While a
+       row is open it has its place above the list (main.js sets .has-open
+       and moves the scroll by as much, so nothing jumps) */
     margin-bottom: -32vh;
     margin-bottom: -32dvh;
+  }
+  .svc.has-open .svc-shots {
+    margin-bottom: 0;
   }
   .svc-list {
     padding-bottom: clamp(80px, 12vh, 150px);
