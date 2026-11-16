@@ -716,9 +716,12 @@ html.js .intro .after {
 .dark .tags li {
   border-color: rgba(255, 255, 255, 0.4);
 }
-/* menu links to #lavori glide down the page */
+/* menu links to #lavori glide down the page; main.js brings an opened
+   service to the middle itself, so the browser does not shift the page as the
+   rows above it close */
 #studio {
   scroll-behavior: smooth;
+  overflow-anchor: none;
 }
 .count {
   margin: 0;
@@ -1168,10 +1171,17 @@ html:not(.js) #shuffle {
 .svc {
   box-sizing: border-box;
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: clamp(32px, 6vw, 110px);
   align-items: start;
-  padding: 0 var(--pad) clamp(80px, 12vh, 150px) var(--text-x);
+  padding: 0 var(--pad) 0 var(--text-x);
+}
+/* the room under the list is the list's own, so the photo beside it can stay
+   in sight down to the last row */
+.svc-list {
+  grid-area: 1 / 1;
+  max-width: 860px;
+  padding-bottom: clamp(110px, 22vh, 220px);
 }
 .svc details {
   border-top: 1px solid rgba(255, 255, 255, 0.24);
@@ -1265,11 +1275,14 @@ html:not(.js) #shuffle {
    transforms (the compositor runs it; clip-path would repaint each frame).
    The frame stays in sight while the list beside it scrolls. */
 .svc-shots {
+  grid-area: 1 / 2;
   position: sticky;
-  top: calc(var(--pad) * 2 + 56px);
+  top: calc(var(--pad) * 2 + 40px);
+  /* as tall as the screen allows under the logo, and upright */
+  height: min(calc(100vh - var(--pad) * 2 - 80px), 780px);
+  height: min(calc(100dvh - var(--pad) * 2 - 80px), 780px);
   aspect-ratio: 4 / 5;
-  max-height: calc(100vh - var(--pad) * 4 - 90px);
-  max-height: calc(100dvh - var(--pad) * 4 - 90px);
+  max-width: 42vw;
   overflow: hidden;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.06);
@@ -1452,16 +1465,19 @@ html:not(.js) #shuffle {
 @media (max-width: 760px) {
   /* the example on top, held under the bar while the list scrolls beneath it */
   .svc {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 8px;
+    display: block;
   }
   .svc-shots {
-    order: -1;
     z-index: 1;
     top: calc(var(--pad) * 2 + 30px);
     aspect-ratio: auto;
-    height: 30vh;
-    height: 30dvh;
+    max-width: none;
+    height: 32vh;
+    height: 32dvh;
+    margin-bottom: 8px;
+  }
+  .svc-list {
+    padding-bottom: clamp(80px, 12vh, 150px);
   }
   .svc summary {
     grid-template-columns: 2em minmax(0, 1fr) 1.2rem;

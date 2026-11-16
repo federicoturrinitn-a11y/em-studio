@@ -227,20 +227,41 @@
   /* ------------------------------------------ the services' examples -- */
 
   /* Each service has a project as its example. The photos are stacked in one
-     frame beside the list: the one of the row under the pointer, or of the
-     row just opened, comes up over those before it (the CSS does the wipe);
-     when the pointer leaves the list, the open row's photo comes back. */
+     frame beside the list; opening a row brings its photo up over those
+     before it (the CSS does the wipe) and the row to the middle of the
+     screen. Closing it takes the page back where it was before the first row
+     was opened; opening another one instead moves on to that one. */
   var rows = [].slice.call(document.querySelectorAll('.svc details')),
-      shots = [].slice.call(document.querySelectorAll('.svc-shot'));
-  function shot(i) {
-    if (i < 0) return;
-    shots.forEach(function (s, k) { s.classList.toggle('is-on', k <= i); });
+      shots = [].slice.call(document.querySelectorAll('.svc-shot')),
+      shotsBox = document.querySelector('.svc-shots'),
+      narrow = matchMedia('(max-width: 760px)'),
+      back = null, byHand = false;
+  function glideTo(top) { studio.scrollTo({ top: top, behavior: calm ? 'auto' : 'smooth' }); }
+  function centre(i) {
+    /* The rows are still opening and closing, so where this one will end up
+       is added up from the closed heights of those above it (a summary and
+       its rule), and its own height from its summary and text. */
+    var top = rows[0].getBoundingClientRect().top + studio.scrollTop, k = 0;
+    for (; k < i; k++) top += rows[k].firstElementChild.offsetHeight + 1;
+    var h = rows[i].firstElementChild.offsetHeight + 1 + rows[i].lastElementChild.offsetHeight,
+        // what covers the top of the screen: the bar, and on a phone the photo held under it
+        edge = narrow.matches ? parseFloat(getComputedStyle(shotsBox).top) + shotsBox.offsetHeight : barH,
+        free = studio.clientHeight - edge;
+    glideTo(top - edge - Math.max(0, (free - h) / 2));   // a row taller than the room starts at its top
   }
-  function openRow() { return rows.findIndex(function (d) { return d.open; }); }
   rows.forEach(function (d, i) {
-    d.addEventListener('mouseenter', function () { shot(i); });
-    d.addEventListener('toggle', function () { if (d.open) shot(i); });
-    d.addEventListener('mouseleave', function () { shot(openRow()); });
+    d.firstElementChild.addEventListener('click', function () { byHand = true; });
+    d.addEventListener('toggle', function () {
+      if (d.open) shots.forEach(function (s, k) { s.classList.toggle('is-on', k <= i); });
+      if (!byHand) return;   // the row that is open from the start: nobody asked, so nothing moves
+      if (d.open) {
+        if (back === null) back = studio.scrollTop;
+        centre(i);
+      } else if (back !== null && !rows.some(function (r) { return r.open; })) {
+        glideTo(back);
+        back = null;
+      }
+    });
   });
 
 
