@@ -518,14 +518,26 @@
 
   /* ------------------------------------------------------------ form -- */
 
-  // the quote form opens a pre-filled email, as on the landing page
+  /* The quote form opens a pre-filled email in the visitor's mail program.
+     Where there is none (many computers) nothing would seem to happen, and
+     the page cannot tell: so it always says what it did, and offers the
+     message to copy into an email written by hand. */
+  var done = document.getElementById('quote-done'), copy = done.querySelector('button'), written = '';
   document.getElementById('quote').addEventListener('submit', function (e) {
     e.preventDefault();
     var f = new FormData(e.target);
-    var body = 'Nome: ' + f.get('nome') + '\nEmail: ' + f.get('email') +
-               '\nAzienda: ' + f.get('azienda') + '\nServizio: ' + f.get('servizio') +
-               '\n\n' + f.get('msg');
+    written = 'Nome: ' + f.get('nome') + '\nEmail: ' + f.get('email') +
+              '\nAzienda: ' + f.get('azienda') + '\nServizio: ' + f.get('servizio') +
+              '\n\n' + f.get('msg');
+    done.hidden = false;
+    copy.textContent = 'Copia il messaggio';
     location.href = 'mailto:emstudio.work@gmail.com?subject=' +
-      encodeURIComponent('Richiesta preventivo') + '&body=' + encodeURIComponent(body);
+      encodeURIComponent('Richiesta preventivo') + '&body=' + encodeURIComponent(written);
+  });
+  if (!navigator.clipboard) copy.hidden = true;   // an old browser: the address is there to write to
+  copy.addEventListener('click', function () {
+    navigator.clipboard.writeText(written).then(
+      function () { copy.textContent = 'Messaggio copiato'; },
+      function () { copy.textContent = 'Copia non riuscita'; });   // the browser refused: the text is still in the form
   });
 })();

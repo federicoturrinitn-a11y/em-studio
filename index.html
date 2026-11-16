@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>EM Studio — Comunicazione e marketing</title>
     <!-- shortcut: the ?v= is bumped by hand so a browser never pairs a new page with old styles; a build step should stamp it if the site gets one -->
-    <link rel="stylesheet" href="styles.css?v=10" />
-    <script src="main.js?v=10" defer></script>
+    <link rel="stylesheet" href="styles.css?v=11" />
+    <script src="main.js?v=11" defer></script>
   </head>
   <body>
     <!-- the font loads without holding up the first paint: until it arrives the page shows
@@ -403,6 +403,16 @@
             <button class="btn btn--solid" type="submit">
               Richiedi un preventivo
             </button>
+            <!-- shown once the button is pressed: the form only opens the
+                 visitor's mail program, and where there is none nothing would
+                 seem to happen -->
+            <p class="form-note form-done" id="quote-done" role="status" hidden>
+              Abbiamo preparato l'email nel tuo programma di posta: controllala
+              e premi Invia. Non si è aperto niente?
+              <button type="button">Copia il messaggio</button>
+              e incollalo in un'email a
+              <a href="mailto:emstudio.work@gmail.com">emstudio.work@gmail.com</a>.
+            </p>
             <!-- what happens to what is typed here, said where it is typed -->
             <p class="form-note">
               Il modulo prepara un'email da inviare dal tuo programma di posta:
