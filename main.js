@@ -224,6 +224,26 @@
   }
   studio.addEventListener('scroll', scrolled, { passive: true });
 
+  /* ------------------------------------------ the services' examples -- */
+
+  /* Each service has a project as its example. The photos are stacked in one
+     frame beside the list: the one of the row under the pointer, or of the
+     row just opened, comes up over those before it (the CSS does the wipe);
+     when the pointer leaves the list, the open row's photo comes back. */
+  var rows = [].slice.call(document.querySelectorAll('.svc details')),
+      shots = [].slice.call(document.querySelectorAll('.svc-shot'));
+  function shot(i) {
+    if (i < 0) return;
+    shots.forEach(function (s, k) { s.classList.toggle('is-on', k <= i); });
+  }
+  function openRow() { return rows.findIndex(function (d) { return d.open; }); }
+  rows.forEach(function (d, i) {
+    d.addEventListener('mouseenter', function () { shot(i); });
+    d.addEventListener('toggle', function () { if (d.open) shot(i); });
+    d.addEventListener('mouseleave', function () { shot(openRow()); });
+  });
+
+
   /* ------------------------------------------------ the wall of projects -- */
 
   /* Every project at once. The photos wait as a pile in the middle of the
