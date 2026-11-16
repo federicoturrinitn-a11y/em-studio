@@ -226,16 +226,17 @@
 
   /* ------------------------------------------ the services' examples -- */
 
-  /* Each service has a project as its example. The photos are stacked in one
-     frame beside the list; opening a row brings its photo up over those
-     before it (the CSS does the wipe) and the row to the middle of the
-     screen. Closing it takes the page back where it was before the first row
-     was opened; opening another one instead moves on to that one. */
+  /* Each service has a project as its example, and the list starts all
+     closed, with no photo. Opening a row brings its photo up in the frame
+     beside the list, over those before it (the CSS does the wipe), and the
+     row to the middle of the screen. Closing it takes the photos away and the
+     page back where it was before the first row was opened; opening another
+     one instead moves on to that one. */
   var rows = [].slice.call(document.querySelectorAll('.svc details')),
       shots = [].slice.call(document.querySelectorAll('.svc-shot')),
       shotsBox = document.querySelector('.svc-shots'),
       narrow = matchMedia('(max-width: 760px)'),
-      back = null, byHand = false;
+      back = null;
   function glideTo(top) { studio.scrollTo({ top: top, behavior: calm ? 'auto' : 'smooth' }); }
   function centre(i) {
     /* The rows are still opening and closing, so where this one will end up
@@ -250,14 +251,13 @@
     glideTo(top - edge - Math.max(0, (free - h) / 2));   // a row taller than the room starts at its top
   }
   rows.forEach(function (d, i) {
-    d.firstElementChild.addEventListener('click', function () { byHand = true; });
     d.addEventListener('toggle', function () {
-      if (d.open) shots.forEach(function (s, k) { s.classList.toggle('is-on', k <= i); });
-      if (!byHand) return;   // the row that is open from the start: nobody asked, so nothing moves
+      var at = rows.findIndex(function (r) { return r.open; });   // -1: all closed, no photo
+      shots.forEach(function (s, k) { s.classList.toggle('is-on', k <= at); });
       if (d.open) {
         if (back === null) back = studio.scrollTop;
         centre(i);
-      } else if (back !== null && !rows.some(function (r) { return r.open; })) {
+      } else if (at < 0 && back !== null) {
         glideTo(back);
         back = null;
       }
