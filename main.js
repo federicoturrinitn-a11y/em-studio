@@ -80,7 +80,6 @@
     root.classList.toggle('on-studio', v.id === 'studio');
     jump(v, 0);
     if (v.id === 'studio') size();
-    else showcaseAt(studio.scrollTop);   // left from inside the showcase: its state (and wheel) goes with it
   }
 
   // every page wears the logo small in the top left corner
@@ -163,8 +162,6 @@
       steps = document.getElementById('steps'),
       stepEls = [].slice.call(steps.children);
 
-  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
-
   /* ------------------------------------------------------- colour -- */
 
   /* Studio's pages each have a colour of their own, so a boundary between
@@ -176,7 +173,7 @@
     lilac: ['#ffffff', 'light'],   // straight to white after the blue of the first part
     navy:  ['#091956', 'dark'],
     sand:  ['#eee5dc', 'light'],
-    paper: ['#ffffff', 'light'],   // the services showcase
+    paper: ['#ffffff', 'light'],   // the wall of projects
     sky:   ['#5783e4', 'dark']
   };
 
@@ -210,25 +207,12 @@
     setTone(sc[1]);
   }
 
-  // where an element sits inside a scroller (positioned ancestors become offset parents)
-  function offsetIn(el, ref) {
-    var x = 0, y = 0;
-    for (; el && el !== ref; el = el.offsetParent) { x += el.offsetLeft; y += el.offsetTop; }
-    return [x, y];
-  }
-
   /* Everything the scroll needs is measured here, on load and resize, so a
      scroll event only reads scrollTop and never makes the page lay out. */
-  var scTop = 0, scN = 1, scH = 0, viewH = 0;
   function size() {
     sceneTops = sceneEls.map(function (el) { return el.offsetTop; });
     barH = bar.offsetHeight;
-    viewH = studio.clientHeight;
-    if (showcase) {
-      scTop = offsetIn(showcase, studio)[1];
-      scH = showcase.offsetHeight;
-      scN = parseInt(getComputedStyle(showcase).getPropertyValue('--steps'), 10) || 1;
-    }
+    pile();
     scrolled();
   }
 
@@ -237,70 +221,36 @@
     atmosphere(y);
     // the bar comes in as soon as the page moves: the text sits under the logo's column, so it must never run under a bare logo
     root.classList.toggle('is-docked', split && active === studio && y > 8);
-    showcaseAt(y);
   }
   studio.addEventListener('scroll', scrolled, { passive: true });
 
-  /* ---------------------------------------------- the services showcase -- */
+  /* ------------------------------------------------ the wall of projects -- */
 
-  /* One step per screen of scroll through the showcase. Each rolling slot,
-     text block and photo learns whether it is past, now or still to come;
-     the CSS does the moving. */
-  var showcase = document.getElementById('showcase'), scStep = -1;
-  function showcaseAt(y) {
-    if (!showcase) return;
-    var top = scTop, h = viewH,
-        i = clamp(Math.floor((y - top) / h + 0.5), 0, scN - 1);
-    // while it is pinned nothing scrolls under the logo, so the frosted bar steps aside
-    var on = active === studio && y > top - h * 0.5 && y < top + scH - h * 0.5;
-    if (on !== root.classList.contains('on-showcase')) {
-      root.classList.toggle('on-showcase', on);
-      // the wheel is only taken over here: anywhere else the page scrolls without waiting on script
-      if (on) studio.addEventListener('wheel', walk, { passive: false });
-      else studio.removeEventListener('wheel', walk, { passive: false });
-    }
-    if (i === scStep) return;
-    scStep = i;
-    [].forEach.call(showcase.querySelectorAll('.roll, .sc-copy, .sc-right'), function (slot) {
-      [].forEach.call(slot.children, function (el, k) {
-        if (el.tagName === 'A') return;   // the card rides over the photos
-        el.classList.toggle('is-past', k < i);
-        el.classList.toggle('is-now', k === i);
-      });
+  /* Every project at once. The photos wait as a pile in the middle of the
+     wall, each a little turned; when the scroll brings the wall in they are
+     dealt out to their places one after the other, and gathered again once it
+     is out of sight. Each tile is told here how far it sits from the middle
+     (offsetLeft ignores transforms, so this can be measured at any time); the
+     CSS does the moving. */
+  var wall = document.getElementById('wall'),
+      grid = wall && wall.querySelector('.wall-grid'),
+      tiles = grid && !calm && window.IntersectionObserver ? [].slice.call(grid.children) : [];
+  function pile() {
+    if (!tiles || !tiles.length) return;   // not set up yet, or no motion wanted
+    var cx = grid.offsetWidth / 2, cy = grid.offsetHeight / 2;
+    tiles.forEach(function (t, i) {
+      t.style.setProperty('--dx', (cx - t.offsetLeft - t.offsetWidth / 2).toFixed(1) + 'px');
+      t.style.setProperty('--dy', (cy - t.offsetTop - t.offsetHeight / 2).toFixed(1) + 'px');
+      t.style.setProperty('--r', (i * 37 % 29 - 14) + 'deg');   // scattered, but the same every time
+      t.style.setProperty('--d', (i * 0.045).toFixed(3) + 's');
     });
-    // its tagline and paragraph rise line by line, a beat after the name
-    if (!calm) [].forEach.call(showcase.querySelectorAll('.sc-text.is-now p'), function (p, k) { rise(p, 0.15 + k * 0.15); });
+    wall.classList.add('is-piled');
   }
-
-  /* Inside the showcase the wheel walks the photos. A single tick is too
-     short for the snapping to carry on to the next stop (it would settle
-     back where it was), and a hard flick is many ticks: so each tick is
-     taken here and turned into one glide to the next stop, at most one every
-     0.85s (a flick lasts less). Scrolling on and on walks through them, and
-     out of either end (to the heading above, or the end of Home below), so
-     the page is never held. A swipe is left to the browser's snapping. */
-  var wheelHeld = false, homeEnd = document.querySelector('.home-end');
-  function walk(e) {
-    if (!root.classList.contains('on-showcase') || Math.abs(e.deltaY) < 1) return;
-    e.preventDefault();
-    if (wheelHeld) return;
-    wheelHeld = true;
-    setTimeout(function () { wheelHeld = false; }, 850);
-    var top = scTop, h = viewH, n = scN,
-        next = clamp(Math.round((studio.scrollTop - top) / h), 0, n - 1) + (e.deltaY > 0 ? 1 : -1),
-        to;
-    if (next < 0) to = offsetIn(showcase.previousElementSibling, studio)[1];                       // the heading above
-    else if (next > n - 1) to = offsetIn(homeEnd, studio)[1] + homeEnd.offsetHeight - h;           // the end of Home
-    else to = top + next * h;
-    studio.scrollTo({ top: to, behavior: calm ? 'auto' : 'smooth' });
-  }
-
-  // the way out from any photo: straight on to the end of Home
-  var skipBtn = document.getElementById('sc-skip');
-  if (skipBtn && homeEnd) skipBtn.addEventListener('click', function () {
-    var top = offsetIn(homeEnd, studio)[1] + homeEnd.offsetHeight - studio.clientHeight;
-    studio.scrollTo({ top: top, behavior: calm ? 'auto' : 'smooth' });
-  });
+  if (tiles.length) new IntersectionObserver(function (es) {
+    var e = es[es.length - 1];
+    if (e.intersectionRatio >= 0.55) wall.classList.add('is-dealt');
+    else if (!e.isIntersecting) wall.classList.remove('is-dealt');
+  }, { threshold: [0, 0.55] }).observe(grid);
 
 
   /* ------------------------------------------------- the text rising -- */
@@ -312,7 +262,7 @@
      rises as one block. Once in, the element gets its own markup back. */
   var risers = calm || !('IntersectionObserver' in window) ? [] :
     [].slice.call(document.querySelectorAll('#studio h2, #studio h3, #studio p, #chi-siamo h2, #chi-siamo h3, #chi-siamo p'))
-      .filter(function (el) { return !el.closest('.intro, .steps, .hint, .showcase') && el.textContent.trim(); });
+      .filter(function (el) { return !el.closest('.intro, .steps, .hint, .svc') && el.textContent.trim(); });
 
   function esc(t) { return t.replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
 
@@ -389,14 +339,7 @@
   mark.addEventListener('click', function () {
     if (!split) return;
     if (active.id === 'contatti') location.hash = '#home';
-    else {
-      // the showcase's snapping would catch the glide on its way up: off until it is at the top
-      var el = active, back = function () { el.style.scrollSnapType = ''; };
-      el.style.scrollSnapType = 'none';
-      el.addEventListener('scrollend', back, { once: true });
-      setTimeout(back, 2500);   // where scrollend is not supported
-      el.scrollTo({ top: 0, behavior: calm ? 'auto' : 'smooth' });
-    }
+    else active.scrollTo({ top: 0, behavior: calm ? 'auto' : 'smooth' });
   });
 
   /* ------------------------------------------------------ the sequence -- */
@@ -411,7 +354,7 @@
     setTimeout(settled, calm ? 0 : 1000);
   }
 
-  /* Once the logo has settled the showcase's photos (far down the page) load;
+  /* Once the logo has settled the wall's photos (far down the page) load;
      decoding them during the opening made it stutter. */
   function settled() {
     [].forEach.call(document.querySelectorAll('img[data-src]'), function (im) {
