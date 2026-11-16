@@ -33,7 +33,7 @@ body{transition:background-color .75s ease;}
 /* the logo, docked small in the top left corner as on the home page; it
    arrives from (and leaves for) the middle, whole, at the home page's size */
 .mark{
-  position:fixed;inset:0;z-index:16;display:flex;align-items:center;justify-content:center;gap:.6vw;
+  position:fixed;inset:0;z-index:16;display:flex;align-items:center;justify-content:center;
   pointer-events:none;
   transform:translate(calc(-50% + var(--pad) + var(--logo-w,440px) * var(--dock-s) / 2),calc(-50% + var(--pad) + var(--logo-h) * var(--dock-s) / 2)) scale(var(--dock-s));
   /* slow and calm, on a layer of its own so the row moving under it never holds it up */
@@ -221,7 +221,7 @@ html.is-project body::before{content:'';position:fixed;z-index:15;top:0;left:0;r
     // the logo's width, for docking it in the corner
     var w = 0;
     [].forEach.call(mark.querySelectorAll('img'), function (im) { w += im.offsetWidth; });
-    root.style.setProperty('--logo-w', (w + w0 * 0.006) + 'px');
+    root.style.setProperty('--logo-w', w + 'px');
   }
   addEventListener('resize', measure);
   addEventListener('load', measure);

@@ -1078,6 +1078,18 @@ html:not(.js) #shuffle {
   font-size: 0.8rem;
   color: var(--pale);
 }
+.legal a,
+.form-note a {
+  color: inherit;
+  text-underline-offset: 3px;
+}
+.form-note {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--pale);
+}
 #contatti .btn {
   border-color: rgba(255, 255, 255, 0.7);
   color: #fff;
