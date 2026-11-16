@@ -1261,6 +1261,37 @@ html:not(.js) #shuffle {
   padding: 4px 0 clamp(24px, 3.5vh, 38px) calc(3em + clamp(12px, 2vw, 28px));
   animation: svc-in 0.7s var(--ease);
 }
+@keyframes svc-fold {
+  from {
+    grid-template-rows: 0fr;
+  }
+  to {
+    grid-template-rows: 1fr;
+  }
+}
+@keyframes svc-unfold {
+  from {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+  to {
+    grid-template-rows: 0fr;
+    opacity: 0;
+  }
+}
+@keyframes svc-uncover {
+  from {
+    clip-path: inset(0 0 100% 0 round 12px);
+  }
+  to {
+    clip-path: inset(0 0 0 0 round 12px);
+  }
+}
+@keyframes svc-zoom {
+  from {
+    transform: scale(1.18);
+  }
+}
 @keyframes svc-in {
   from {
     opacity: 0;
@@ -1496,7 +1527,7 @@ html:not(.js) #shuffle {
   .svc-pic {
     display: block;
     position: relative;
-    aspect-ratio: 1;
+    aspect-ratio: 3 / 2;   /* wide and low, so the text under it is in sight too */
     overflow: hidden;
     border-radius: 12px;
     color: #fff;
@@ -1510,6 +1541,38 @@ html:not(.js) #shuffle {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    animation: svc-zoom 1.3s var(--ease) both;
+  }
+  /* The row unfolds: its fold is a grid whose one row grows from nothing to
+     the height of what is in it (0fr to 1fr, which every browser can
+     animate, to any height). As it opens the photo is uncovered from the top
+     and settles, then the text and the tags come up one after the other.
+     Closing folds it back (main.js holds the row open until it has). */
+  .svc details::details-content {
+    height: auto;
+    overflow: visible;
+    transition: none;
+  }
+  .svc-fold {
+    display: grid;
+    animation: svc-fold 0.7s var(--ease);
+  }
+  .svc details.is-closing .svc-fold {
+    animation: svc-unfold 0.45s cubic-bezier(0.5, 0, 0.3, 1) forwards;
+  }
+  .svc-body {
+    min-height: 0;
+    overflow: hidden;
+    animation: none;
+  }
+  .svc-pic {
+    animation: svc-uncover 1s var(--ease) both;
+  }
+  .svc-body > div {
+    animation: svc-in 0.8s var(--ease) 0.25s both;
+  }
+  .svc-body > .tags {
+    animation: svc-in 0.8s var(--ease) 0.4s both;
   }
   .svc summary {
     grid-template-columns: 2em minmax(0, 1fr) 1.2rem;

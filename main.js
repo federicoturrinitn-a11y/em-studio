@@ -259,6 +259,14 @@
   share();
   narrow.addEventListener('change', share);
   rows.forEach(function (d, i) {
+    // on a phone a row folds back before it closes (on its own the browser would just cut it off)
+    d.firstElementChild.addEventListener('click', function (e) {
+      if (!narrow.matches || !d.open || calm) return;
+      e.preventDefault();
+      if (d.classList.contains('is-closing')) return;
+      d.classList.add('is-closing');
+      setTimeout(function () { d.open = false; d.classList.remove('is-closing'); }, 450);   // the fold's time in the CSS
+    });
     d.addEventListener('toggle', function () {
       if (narrow.matches) return;
       var at = rows.findIndex(function (r) { return r.open; });   // -1: all closed, no photo
