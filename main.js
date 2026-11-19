@@ -238,7 +238,7 @@
       rows = [].slice.call(document.querySelectorAll('.svc details')),
       shots = [].slice.call(document.querySelectorAll('.svc-shot')),
       shotsBox = document.querySelector('.svc-shots'),
-      narrow = matchMedia('(max-width: 760px)'),
+      narrow = matchMedia('(max-width: 1100px)'),   // as in the CSS: the services' phone layout
       back = null;
   function glideTo(top) { studio.scrollTo({ top: top, behavior: calm ? 'auto' : 'smooth' }); }
   function centre(i) {

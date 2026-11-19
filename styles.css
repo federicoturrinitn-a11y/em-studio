@@ -610,7 +610,11 @@ html:not(.js) .steps h3 span {
   transform: none;
 }
 /* in the free bottom-right corner, clear of the studio half */
+html.is-docked .hint {
+  opacity: 0;
+}
 .hint {
+  transition: opacity 0.4s ease;
   position: absolute;
   right: var(--pad);
   top: calc(100vh - var(--pad) - 1em);
@@ -1528,8 +1532,9 @@ html:not(.js) #shuffle {
     grid-area: 3 / 4 / span 2 / span 2;
   }
 }
-/* a phone: three across, all the same size, so the whole wall fits a screen */
-@media (max-width: 760px) {
+/* up to a small laptop the services read as on a phone: no frame beside
+   the list (it squeezed the list), the photo inside the opened row */
+@media (max-width: 1100px) {
   /* no frame beside the list here: each row opens on its own example and
      its text, right under the finger, and the page does not move */
   .svc {
@@ -1600,6 +1605,9 @@ html:not(.js) #shuffle {
   .svc-body {
     padding-left: calc(2em + clamp(12px, 2vw, 28px));
   }
+}
+/* a phone: three across, all the same size, so the whole wall fits a screen */
+@media (max-width: 760px) {
   .wall-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -1643,6 +1651,9 @@ html.on-contatti.is-top .bar {
   margin-top: clamp(90px, 14vh, 160px);
 }
 
+#chi-siamo .home-end {
+  background: #091956;
+}
 /* the end of Home: where to go next */
 .home-end {
   box-sizing: border-box;
