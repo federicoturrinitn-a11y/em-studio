@@ -494,6 +494,13 @@ html.is-lit .sticky.is-away::after {
 .hblock p {
   margin: 0;
 }
+/* under a statement on the first part: what it means, in a few lines */
+.hblock .hblock-lead {
+  max-width: 46ch;
+  margin-top: clamp(16px, 2vw, 24px);
+  font-size: clamp(1rem, 1.25vw, 1.2rem);
+  line-height: 1.6;
+}
 .hblock .eyebrow {
   margin-bottom: 14px;
 }
