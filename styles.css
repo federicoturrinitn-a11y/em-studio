@@ -409,6 +409,10 @@ html.js .view.is-active {
   z-index: 0;
   pointer-events: none;
   will-change: transform;
+  /* the light ends well above the fade to navy, its drift (up to 10%) included:
+     reaching the section's edge, it was cut there, and a fast scroll showed
+     the cut as a line */
+  bottom: calc(60vh + 15%);
 }
 .sticky::before {
   background:
@@ -499,20 +503,11 @@ html.is-lit .sticky.is-away::after {
 .hblock--wide .hblock-lead {
   margin-inline: auto;
 }
-/* the blue fades into the navy of the services instead of a hard edge;
-   over the drifting light (z 0), under the text (z 1) */
-.hscroll::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -2px;   /* past the edge: no hairline of blue where the sections meet */
-  height: 60vh;
-  z-index: 0;
-  pointer-events: none;
-  background: linear-gradient(to bottom, rgba(9, 25, 86, 0), #091956 calc(100% - 6px));
-}
-/* under the light too, so nothing blue is left at the bottom */
+/* the blue fades into the navy of the services instead of a hard edge. It is
+   painted in the section's own background, which scrolls in one piece with the
+   navy below: an overlay on a layer of its own came in late on a fast scroll
+   and showed the old cut. The drifting light fades out before it (mask on
+   .sticky::before/after). */
 .hscroll {
   background-image: linear-gradient(to bottom, transparent calc(100% - 60vh), #091956);
 }
