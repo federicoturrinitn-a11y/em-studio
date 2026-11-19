@@ -196,13 +196,27 @@
   }
 
   // a page outside Studio (Contatti) simply wears its colour
-  function wear(name) { setBase(SCENES[name][0]); setTone(SCENES[name][1]); }
+  function wear(name) { setBase(SCENES[name][0]); setTone(SCENES[name][1]); barColour(''); }
+
+  // the bar follows the blue-to-navy fade at the end of the first part (CSS
+  // .hscroll::after, 60vh) instead of switching at the edge; only the bar is
+  // restyled, --scene would restyle the whole page on every frame
+  var barC = '';
+  function barColour(c) { if (c !== barC) { barC = c; bar.style.backgroundColor = c; } }
+  function hex(c) { return [1, 3, 5].map(function (i) { return parseInt(c.substr(i, 2), 16); }); }
+  function mix(a, b, t) {
+    a = hex(a); b = hex(b);
+    return 'rgba(' + a.map(function (v, i) { return Math.round(v + (b[i] - v) * t); }).join(',') + ',0.9)';
+  }
 
   function atmosphere(y) {
     if (active !== studio) return;
     var under = y + barH / 2, j = 1;
     for (; j < sceneEls.length && sceneTops[j] <= under; j++);
-    var sc = SCENES[sceneEls[j - 1].getAttribute('data-scene')];
+    var cur = sceneEls[j - 1], sc = SCENES[cur.getAttribute('data-scene')], t = 0;
+    if (cur.id === 'hscroll' && j < sceneEls.length)
+      t = Math.min(1, Math.max(0, 1 - (sceneTops[j] - under) / (innerHeight * 0.6)));
+    barColour(t > 0 ? mix(sc[0], SCENES[sceneEls[j].getAttribute('data-scene')][0], t) : '');
     setBase(sc[0]);
     setTone(sc[1]);
   }
