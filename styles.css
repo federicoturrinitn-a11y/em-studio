@@ -490,6 +490,28 @@ html.is-lit .sticky.is-away::after {
    "Cos'è EM Studio" slides in with the scroll like the blocks after it */
 .hblock--wide {
   width: min(100%, 760px);
+  align-self: center;
+  text-align: center;
+  /* centred on the page, not on the track, whose left padding is wider */
+  position: relative;
+  left: calc((var(--pad) - var(--text-x)) / 2);
+}
+.hblock--wide .statement,
+.hblock--wide .hblock-lead {
+  margin-inline: auto;
+}
+/* the blue fades into the navy of the services instead of a hard edge;
+   over the drifting light (z 0), under the text (z 1) */
+.hscroll::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 60vh;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(9, 25, 86, 0), #091956);
 }
 .hblock p {
   margin: 0;
