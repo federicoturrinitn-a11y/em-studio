@@ -216,8 +216,10 @@
     var cur = sceneEls[j - 1], sc = SCENES[cur.getAttribute('data-scene')], t = 0;
     if (cur.id === 'hscroll' && j < sceneEls.length)
       t = Math.min(1, Math.max(0, 1 - (sceneTops[j] - under) / (innerHeight * 0.6)));
-    barColour(t > 0 ? mix(sc[0], SCENES[sceneEls[j].getAttribute('data-scene')][0], t) : '');
-    setBase(sc[0]);
+    var nx = t > 0 && SCENES[sceneEls[j].getAttribute('data-scene')][0];
+    barColour(t > 0 ? mix(sc[0], nx, t) : '');
+    // in the fade the base is already navy: a fast scroll shows it where the page is not drawn yet
+    setBase(nx || sc[0]);
     setTone(sc[1]);
   }
 
