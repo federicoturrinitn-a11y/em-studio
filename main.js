@@ -173,7 +173,7 @@
     lilac: ['#ffffff', 'light'],   // straight to white after the blue of the first part
     navy:  ['#091956', 'dark'],
     sand:  ['#eee5dc', 'light'],
-    paper: ['#ffffff', 'light'],   // the wall of projects
+    paper: ['#ffffff', 'light'],
     sky:   ['#5783e4', 'dark']
   };
 
@@ -212,7 +212,6 @@
   function size() {
     sceneTops = sceneEls.map(function (el) { return el.offsetTop; });
     barH = bar.offsetHeight;
-    pile();
     scrolled();
   }
 
@@ -280,35 +279,6 @@
       }
     });
   });
-
-
-  /* ------------------------------------------------ the wall of projects -- */
-
-  /* Every project at once. The photos wait as a pile in the middle of the
-     wall, each a little turned; when the scroll brings the wall in they are
-     dealt out to their places one after the other, and gathered again once it
-     is out of sight. Each tile is told here how far it sits from the middle
-     (offsetLeft ignores transforms, so this can be measured at any time); the
-     CSS does the moving. */
-  var wall = document.getElementById('wall'),
-      grid = wall && wall.querySelector('.wall-grid'),
-      tiles = grid && !calm && window.IntersectionObserver ? [].slice.call(grid.children) : [];
-  function pile() {
-    if (!tiles || !tiles.length) return;   // not set up yet, or no motion wanted
-    var cx = grid.offsetWidth / 2, cy = grid.offsetHeight / 2;
-    tiles.forEach(function (t, i) {
-      t.style.setProperty('--dx', (cx - t.offsetLeft - t.offsetWidth / 2).toFixed(1) + 'px');
-      t.style.setProperty('--dy', (cy - t.offsetTop - t.offsetHeight / 2).toFixed(1) + 'px');
-      t.style.setProperty('--r', (i * 37 % 29 - 14) + 'deg');   // scattered, but the same every time
-      t.style.setProperty('--d', (i * 0.045).toFixed(3) + 's');
-    });
-    wall.classList.add('is-piled');
-  }
-  if (tiles.length) new IntersectionObserver(function (es) {
-    var e = es[es.length - 1];
-    if (e.intersectionRatio >= 0.55) wall.classList.add('is-dealt');
-    else if (!e.isIntersecting) wall.classList.remove('is-dealt');
-  }, { threshold: [0, 0.55] }).observe(grid);
 
 
   /* ------------------------------------------------- the text rising -- */
@@ -412,7 +382,7 @@
     setTimeout(settled, calm ? 0 : 1000);
   }
 
-  /* Once the logo has settled the wall's photos (far down the page) load;
+  /* Once the logo has settled the services' photos (far down the page) load;
      decoding them during the opening made it stutter. */
   function settled() {
     [].forEach.call(document.querySelectorAll('img[data-src]'), function (im) {
@@ -533,6 +503,10 @@
     copy.textContent = 'Copia il messaggio';
     location.href = 'mailto:emstudio.work@gmail.com?subject=' +
       encodeURIComponent('Richiesta preventivo') + '&body=' + encodeURIComponent(written);
+  });
+  // a service's "Contattaci" opens the form with that service already chosen
+  [].forEach.call(document.querySelectorAll('.svc-cta'), function (a) {
+    a.addEventListener('click', function () { document.getElementById('quote').servizio.value = a.getAttribute('data-svc'); });
   });
   if (!navigator.clipboard) copy.hidden = true;   // an old browser: the address is there to write to
   copy.addEventListener('click', function () {
