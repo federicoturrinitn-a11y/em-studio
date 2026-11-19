@@ -1621,3 +1621,64 @@ html[data-menu="light"] .corner--tr a {
   font-size: 0.95rem;
   padding: 0.85em 1.6em;
 }
+
+/* =========================================  STUDIO, CENTRED  ===== */
+/* the whole Studio page reads on the middle of the screen */
+#chi-siamo .about {
+  margin-inline: auto;
+  max-width: 1100px;
+  padding-left: var(--pad);
+  text-align: center;
+}
+#chi-siamo .statement,
+#chi-siamo h2,
+#chi-siamo .intro-p {
+  margin-inline: auto;
+}
+/* one centred column of text instead of two side by side */
+#chi-siamo .cols {
+  grid-template-columns: 1fr;
+  max-width: 60ch;
+  margin-inline: auto;
+  gap: 0;
+}
+#chi-siamo .team-head {
+  flex-direction: column;
+  justify-content: center;
+}
+#chi-siamo .team-head .lead {
+  max-width: 60ch;
+}
+/* the flow: each dot at the middle of its column, the line from the first to the last */
+#chi-siamo .steps::before {
+  left: 10%;
+  right: 10%;
+}
+#chi-siamo .steps li {
+  padding: 84px clamp(8px, 1.2vw, 20px) 0;
+}
+#chi-siamo .steps li::before {
+  left: calc(50% - 9px);
+}
+#chi-siamo .home-end {
+  align-items: center;
+  text-align: center;
+  padding-left: var(--pad);
+}
+#chi-siamo .home-end h2 {
+  max-width: 20ch;
+}
+#chi-siamo .home-end .links {
+  justify-content: center;
+}
+@media (max-width: 640px) {
+  /* on a phone the steps run down: each dot over its step */
+  #chi-siamo .steps li {
+    padding: 26px 0 0;
+  }
+  #chi-siamo .steps li::before,
+  #chi-siamo .steps li:nth-child(even)::before {
+    left: calc(50% - 6px);
+    top: 0;
+  }
+}
