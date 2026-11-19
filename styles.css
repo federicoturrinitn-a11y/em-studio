@@ -1540,7 +1540,22 @@ html.on-contatti.is-top .bar {
   box-sizing: border-box;
   padding: calc(var(--pad) * 2 + 90px) var(--pad) clamp(80px, 10vw, 140px) var(--text-x);
 }
-.about .eyebrow ~ .eyebrow {
+/* Studio opens on a statement, its few lines under it */
+.about .statement + .intro-p {
+  margin-top: clamp(16px, 2vw, 24px);
+}
+.about .cols + .btn {
+  margin-top: 8px;
+}
+.about h2 {
+  max-width: 26ch;
+}
+.flow .flow-title + .intro-p {
+  margin-top: calc(clamp(28px, 4vh, 48px) * -0.5);
+  margin-bottom: clamp(28px, 4vh, 48px);
+}
+.about .eyebrow ~ .eyebrow,
+.about .intro-p + .eyebrow {
   margin-top: clamp(90px, 14vh, 160px);
 }
 
