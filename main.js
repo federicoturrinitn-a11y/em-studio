@@ -273,6 +273,15 @@
   function share() { rows.forEach(function (d) { if (narrow.matches) d.removeAttribute('name'); else d.setAttribute('name', 'svc'); }); }
   share();
   narrow.addEventListener('change', share);
+  // a small photo in the mosaic opens its row; the large one goes to Lavori
+  shots.forEach(function (s, k) {
+    s.addEventListener('click', function (e) {
+      if (s.classList.contains('is-on')) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();   // not the way to Lavori, which every lavori.html link has
+      rows[k].open = true;
+    }, true);   // capture: ahead of that Lavori handler
+  });
   rows.forEach(function (d, i) {
     // on a phone a row folds back before it closes (on its own the browser would just cut it off)
     d.firstElementChild.addEventListener('click', function (e) {
@@ -285,7 +294,14 @@
     d.addEventListener('toggle', function () {
       if (narrow.matches) return;
       var at = rows.findIndex(function (r) { return r.open; });   // -1: all closed, no photo
-      shots.forEach(function (s, k) { s.classList.toggle('is-on', k <= at); });
+      shots.forEach(function (s, k) {
+        // the one going back stays over the others until it is in its place
+        if (s.classList.contains('is-on') && k !== at) {
+          s.classList.add('is-back');
+          setTimeout(function () { s.classList.remove('is-back'); }, 800);
+        }
+        s.classList.toggle('is-on', k === at);
+      });
       if (d.open) {
         if (back === null) back = studio.scrollTop;
         centre(i);
