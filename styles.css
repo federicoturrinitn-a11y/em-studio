@@ -1682,3 +1682,27 @@ html[data-menu="light"] .corner--tr a {
     top: 0;
   }
 }
+
+/* =========================================  SERVICES, CENTRED  ===== */
+/* the heading of "Creative, strategy e digital" on the middle of the page */
+.scene--stack > .wrap {
+  margin-inline: auto;
+  padding-left: var(--pad);
+  text-align: center;
+}
+.scene--stack > .wrap .intro-p {
+  margin-inline: auto;
+}
+/* the list and its photo as one block in the middle; the rows keep their
+   number, name and plus in line */
+.svc {
+  grid-template-columns: minmax(0, 860px) auto;
+  justify-content: center;
+  padding-left: var(--pad);
+}
+@media (max-width: 1100px) {
+  .svc-list {
+    max-width: 860px;
+    margin-inline: auto;
+  }
+}
