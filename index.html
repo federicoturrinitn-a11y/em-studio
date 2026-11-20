@@ -16,7 +16,7 @@
     <meta property="og:image" content="https://federicoturrinitn-a11y.github.io/em-studio/img/og.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
     <!-- shortcut: the ?v= is bumped by hand so a browser never pairs a new page with old styles; a build step should stamp it if the site gets one -->
-    <link rel="stylesheet" href="styles.css?v=23" />
+    <link rel="stylesheet" href="styles.css?v=24" />
     <script src="main.js?v=16" defer></script>
   </head>
   <body>
@@ -125,6 +125,8 @@
              wide screen (main.js), inside the row itself on a phone -->
         <div class="svc">
           <div class="svc-shots">
+            <!-- before a row is opened: all six examples at once, so the frame is never empty -->
+            <div class="svc-cover" aria-hidden="true"><img data-src="img/gp-servizi-1.jpg" alt="" /><img data-src="img/horizon-1.jpg" alt="" /><img data-src="img/like-home-1.jpg" alt="" /><img data-src="img/calzature-dro-1.jpg" alt="" /><img data-src="img/garda-trentino-1.jpg" alt="" /><img data-src="img/gruppo-toscano-1.jpg" alt="" /></div>
             <a class="svc-shot" href="lavori.html"><img data-src="img/gp-servizi-1.jpg" alt="" /><span class="svc-cap"><small>Esempio · Azienda sicurezza lavoro</small>G&amp;P Servizi</span></a>
             <a class="svc-shot" href="lavori.html"><img data-src="img/horizon-1.jpg" alt="" /><span class="svc-cap"><small>Esempio · Organizzazione eventi</small>Horizon Music Festival</span></a>
             <a class="svc-shot" href="lavori.html"><img data-src="img/like-home-1.jpg" alt="" /><span class="svc-cap"><small>Esempio · Agenzia di interior design</small>Like Home Design</span></a>
