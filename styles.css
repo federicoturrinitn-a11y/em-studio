@@ -1359,8 +1359,21 @@ html:not(.js) #shuffle {
   color: #fff;
 }
 /* under each service, the way to ask about it */
-.svc-cta {
-  justify-self: start;
+/* bottom right of the text, solid white so it stands out on the navy */
+.svc .svc-cta {
+  justify-self: end;
+  margin-top: 6px;
+  padding: 0.9em 1.8em;
+  background: #fff;
+  border-color: #fff;
+  color: #091956;
+  font-weight: 600;
+  font-size: 0.9rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+.svc .svc-cta:hover {
+  background: #c7d6ff;
+  border-color: #c7d6ff;
 }
 /* The examples: one frame, the photos stacked in it. Each new one rises from
    below over the one before: the photo sits in a frame that comes up while
@@ -1543,9 +1556,6 @@ html:not(.js) #shuffle {
   }
   .svc-body > .tags {
     animation: svc-in 0.8s var(--ease) 0.4s both;
-  }
-  .svc-body > .svc-cta {
-    animation: svc-in 0.8s var(--ease) 0.5s both;
   }
   .svc summary {
     grid-template-columns: 2em minmax(0, 1fr) 1.2rem;
