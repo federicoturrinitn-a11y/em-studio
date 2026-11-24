@@ -1144,6 +1144,18 @@ html:not(.js) #shuffle {
   font-weight: 500;
   letter-spacing: -0.02em;
   line-height: 1.1;
+  transition:
+    transform 0.5s cubic-bezier(0.3, 1.4, 0.5, 1),   /* a slight overshoot: it swells, then settles */
+    opacity 0.4s ease;
+}
+/* pointing at a name: it grows, the others step back; leaving, it shrinks back */
+@media (hover: hover) {
+  .svc summary:hover .svc-name {
+    transform: scale(1.12);
+  }
+  .svc-list:hover summary:not(:hover) .svc-name {
+    opacity: 0.4;
+  }
 }
 /* the band darkens */
 .svc details[open] summary {
