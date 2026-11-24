@@ -495,6 +495,16 @@
       var strip = row.firstElementChild, a = strip.getAnimations()[0];
       if (!a) return;
       a.playbackRate = 0;
+      /* the first photo in must be whole: a photo's edge exactly on the row's
+         leading edge (its left side for the rows from the right, its right side
+         for the middle one, which slides the other way) */
+      var ims = strip.children, third = strip.offsetWidth / 3, dur = a.effect.getTiming().duration;
+      if (k !== 1) a.currentTime = 0;   // the strip at its start: a photo begins at the left edge
+      else {
+        var tile = ims[0].offsetWidth, pitch = ims[1].offsetLeft - ims[0].offsetLeft,
+            off = row.offsetWidth - tile - pitch * Math.ceil((row.offsetWidth - tile) / pitch);   // in (-pitch, 0]
+        a.currentTime = dur * (1 + off / third) % dur;   // played in reverse: at time t it sits at -third * (1 - t / dur)
+      }
       var arrive = landing * row.offsetWidth * 1.05 / INTO.duration,           // px per ms as it lands
           drift = strip.offsetWidth / 3 / a.effect.getTiming().duration,      // px per ms of its own slide
           fast = arrive / drift;
