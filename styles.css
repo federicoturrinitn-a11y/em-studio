@@ -1144,18 +1144,13 @@ html:not(.js) #shuffle {
   font-weight: 500;
   letter-spacing: -0.02em;
   line-height: 1.1;
+  /* a wave down the list from the name under the pointer (main.js sets --s,
+     --o and --d): it swells most, its neighbours less, each a beat later */
+  transform: scale(var(--s, 1));
+  opacity: var(--o, 1);
   transition:
-    transform 0.5s cubic-bezier(0.3, 1.4, 0.5, 1),   /* a slight overshoot: it swells, then settles */
-    opacity 0.4s ease;
-}
-/* pointing at a name: it grows, the others step back; leaving, it shrinks back */
-@media (hover: hover) {
-  .svc summary:hover .svc-name {
-    transform: scale(1.12);
-  }
-  .svc-list:hover summary:not(:hover) .svc-name {
-    opacity: 0.4;
-  }
+    transform 0.5s cubic-bezier(0.3, 1.4, 0.5, 1) var(--d, 0s),   /* a slight overshoot: it swells, then settles */
+    opacity 0.4s ease var(--d, 0s);
 }
 /* the band darkens */
 .svc details[open] summary {

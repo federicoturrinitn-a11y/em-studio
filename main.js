@@ -284,6 +284,25 @@
         to = top - barH - Math.max(0, (free - h) / 2);   // a row taller than the room starts at its top
     glideTo(to);
   }
+  /* Pointing at a name sends a wave down the list: that name swells most,
+     the ones beside it less and a beat later, the next ones less again; the
+     further ones step back. Leaving the list, the wave settles from there. */
+  var names = rows.map(function (d) { return d.querySelector('.svc-name'); }),
+      SWELL = [1.12, 1.05, 1.02], last = 0;
+  function wave(at) {
+    if (at >= 0) last = at;
+    names.forEach(function (n, k) {
+      var far = Math.abs(k - last);
+      n.style.setProperty('--s', at < 0 ? 1 : SWELL[far] || 1);
+      n.style.setProperty('--o', at < 0 ? 1 : Math.max(0.4, 1 - far * 0.22));
+      n.style.setProperty('--d', (far * 0.07).toFixed(2) + 's');
+    });
+  }
+  rows.forEach(function (d, i) {
+    d.firstElementChild.addEventListener('mouseenter', function () { if (pointer.matches) wave(i); });
+  });
+  document.querySelector('.svc-list').addEventListener('mouseleave', function () { wave(-1); });
+
   rows.forEach(function (d, i) {
     var head = d.firstElementChild;
     head.addEventListener('click', function (e) {
