@@ -16,8 +16,8 @@
     <meta property="og:image" content="https://federicoturrinitn-a11y.github.io/em-studio/img/og.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
     <!-- shortcut: the ?v= is bumped by hand so a browser never pairs a new page with old styles; a build step should stamp it if the site gets one -->
-    <link rel="stylesheet" href="styles.css?v=29" />
-    <script src="main.js?v=20" defer></script>
+    <link rel="stylesheet" href="styles.css?v=30" />
+    <script src="main.js?v=21" defer></script>
   </head>
   <body>
     <!-- the font loads without holding up the first paint: until it arrives the page shows
@@ -80,19 +80,46 @@
          block appearing as it comes in; after that the page carries on down. -->
         <div class="hscroll" id="hscroll" data-scene="blue">
           <div class="sticky">
-            <div class="track" id="track">
-              <div class="intro">
-                <h1>
-                  <span class="ln"><span>Creative thinking.</span></span
-                  ><span class="ln"><span>The right people.</span></span
-                  ><span class="ln"
-                    ><span>A project built around you.</span></span
-                  >
-                </h1>
-                <div class="after">
-                  <a class="btn" href="lavori.html">Vedi i lavori</a>
-                </div>
+            <!-- the first screen: the cover of each project, all the same size,
+                 in three rows sliding past (top and bottom to the left, middle
+                 to the right; main.js repeats each row so it never runs out),
+                 the slogan over the bottom row -->
+            <div class="intro hero">
+              <div class="slides" aria-hidden="true">
+                <div class="mrow"><div class="mstrip">
+                  <img src="img/home/horizon-1.jpg" width="720" height="480" alt="" decoding="async" />
+                  <img src="img/home/dolce-riva-1.jpg" width="720" height="480" alt="" decoding="async" />
+                  <img src="img/home/calzature-dro-1.jpg" width="720" height="480" alt="" decoding="async" />
+                  <img src="img/home/pedretti-1.jpg" width="720" height="480" alt="" decoding="async" />
+                  <img src="img/home/mc-house-1.jpg" width="720" height="480" alt="" decoding="async" />
+                  <img src="img/home/gruppo-toscano-1.jpg" width="720" height="480" alt="" decoding="async" />
+                </div></div>
+                <div class="mrow"><div class="mstrip">
+                  <img src="img/home/pallavolo-c9-1.jpg" width="720" height="480" alt="" decoding="async" />
+                  <img src="img/home/gp-servizi-1.jpg" width="720" height="480" alt="" decoding="async" />
+                  <img src="img/home/garda-host-1.jpg" width="720" height="480" alt="" decoding="async" />
+                  <img src="img/home/papillon-1.jpg" width="720" height="480" alt="" decoding="async" />
+                  <img src="img/home/moor-1.jpg" width="720" height="480" alt="" decoding="async" />
+                  <img src="img/home/atelier-1.jpg" width="720" height="480" alt="" decoding="async" />
+                </div></div>
+                <div class="mrow"><div class="mstrip">
+                  <img src="img/home/desiree-corona-1.jpg" width="720" height="480" alt="" decoding="async" />
+                  <img src="img/home/like-home-1.jpg" width="720" height="480" alt="" decoding="async" />
+                  <img src="img/home/sweet-retreat-1.jpg" width="720" height="480" alt="" decoding="async" />
+                  <img src="img/home/le-tre-terre-1.jpg" width="720" height="480" alt="" decoding="async" />
+                  <img src="img/home/la-lavagna-1.jpg" width="720" height="480" alt="" decoding="async" />
+                  <img src="img/home/garda-trentino-1.jpg" width="720" height="480" alt="" decoding="async" />
+                </div></div>
               </div>
+              <h1>
+                <span class="ln"><span>Creative thinking.</span></span
+                ><span class="ln"><span>The right people.</span></span
+                ><span class="ln"
+                  ><span>A project built around you.</span></span
+                >
+              </h1>
+            </div>
+            <div class="track" id="track">
               <div class="hblock hblock--wide">
                 <p class="statement">
                   Il bello è vedere quello che gli altri non vedono.
@@ -102,6 +129,7 @@
                   idee, competenze e punti di vista diversi si incontrano. Un
                   team che prende forma attorno a ogni progetto.
                 </p>
+                <a class="btn" href="lavori.html">Vedi i lavori</a>
               </div>
             </div>
             <p class="hint" aria-hidden="true">SCORRI ↓</p>
@@ -119,42 +147,34 @@
               coerenti con gli obiettivi del brand.
             </p>
           </div>
-        <!-- the six services, all in sight: each row opens on its text (one at
-             a time: the rows share a name), and with it comes the photo of a
-             project where we did just that: in the frame beside the list on a
-             wide screen (main.js), inside the row itself on a phone -->
+        <!-- the six services, their names large and stacked: pointing at one
+             darkens its band and brings up its project's photo beside it (on
+             the right and on the left in turn); opening the row moves that
+             photo to its place beside the text (main.js) -->
         <div class="svc">
-          <div class="svc-shots">
-            <a class="svc-shot" href="lavori.html"><img data-src="img/gp-servizi-1.jpg" alt="" /><span class="svc-cap"><small>Esempio · Azienda sicurezza lavoro</small>G&amp;P Servizi</span></a>
-            <a class="svc-shot" href="lavori.html"><img data-src="img/horizon-1.jpg" alt="" /><span class="svc-cap"><small>Esempio · Organizzazione eventi</small>Horizon Music Festival</span></a>
-            <a class="svc-shot" href="lavori.html"><img data-src="img/like-home-1.jpg" alt="" /><span class="svc-cap"><small>Esempio · Agenzia di interior design</small>Like Home Design</span></a>
-            <a class="svc-shot" href="lavori.html"><img data-src="img/calzature-dro-1.jpg" alt="" /><span class="svc-cap"><small>Esempio · Catena di negozi di scarpe</small>Calzature Dro</span></a>
-            <a class="svc-shot" href="lavori.html"><img data-src="img/garda-trentino-1.jpg" alt="" /><span class="svc-cap"><small>Esempio · APT Altogarda</small>Garda Trentino</span></a>
-            <a class="svc-shot" href="lavori.html"><img data-src="img/gruppo-toscano-1.jpg" alt="" /><span class="svc-cap"><small>Esempio · Agenzia immobiliare</small>Gruppo Toscano</span></a>
-          </div>
                   <div class="svc-list">
           <details name="svc">
-            <summary><span class="svc-n">01</span><span class="svc-name">Strategy &amp; Consulting</span><span class="svc-sub">Brand strategy, posizionamento e direzione creativa</span></summary>
+            <summary><span class="svc-n">01</span><span class="svc-name">Strategy &amp; Consulting</span><span class="svc-sub">Brand strategy, posizionamento e direzione creativa</span><span class="svc-float" aria-hidden="true"><img data-src="img/gp-servizi-1.jpg" alt="" /></span></summary>
             <div class="svc-fold"><div class="svc-body"><a class="svc-pic" href="lavori.html"><img data-src="img/gp-servizi-1.jpg" alt="" /><span class="svc-cap"><small>Esempio · Azienda sicurezza lavoro</small>G&amp;P Servizi</span></a><div><p class="svc-tag">Diamo una direzione alle tue idee</p><p>Affianchiamo brand e aziende nella definizione della propria identità, degli obiettivi e della direzione da seguire. Analizziamo il contesto, individuiamo opportunità e sviluppiamo strategie che mettono in relazione visione, creatività e obiettivi concreti.</p></div><ul class="tags"><li>Strategia</li><li>Consulenza</li><li>Posizionamento</li><li>Analisi di mercato</li><li>Direzione creativa</li><li>Pianificazione</li></ul><a class="btn svc-cta" href="#contatti" data-svc="Strategy &amp; Consulting">Contattaci</a></div></div>
           </details>
           <details name="svc">
-            <summary><span class="svc-n">02</span><span class="svc-name">Photo &amp; Video</span><span class="svc-sub">Fotografia, video, shooting e storytelling</span></summary>
+            <summary><span class="svc-n">02</span><span class="svc-name">Photo &amp; Video</span><span class="svc-sub">Fotografia, video, shooting e storytelling</span><span class="svc-float" aria-hidden="true"><img data-src="img/horizon-1.jpg" alt="" /></span></summary>
             <div class="svc-fold"><div class="svc-body"><a class="svc-pic" href="lavori.html"><img data-src="img/horizon-1.jpg" alt="" /><span class="svc-cap"><small>Esempio · Organizzazione eventi</small>Horizon Music Festival</span></a><div><p>Realizziamo contenuti visivi che raccontano brand, prodotti, servizi ed esperienze attraverso fotografia e video. Dallo sviluppo del concept alla produzione, curiamo ogni dettaglio per creare immagini e storie coerenti con l&#x27;identità del brand e pensate per i diversi canali di comunicazione.</p></div><ul class="tags"><li>Fotografia</li><li>Video production</li><li>Reels</li><li>Storytelling</li><li>Shooting di prodotto</li><li>Contenuti per eventi</li></ul><a class="btn svc-cta" href="#contatti" data-svc="Photo &amp; Video">Contattaci</a></div></div>
           </details>
           <details name="svc">
-            <summary><span class="svc-n">03</span><span class="svc-name">Branding &amp; Design</span><span class="svc-sub">Brand identity, grafica e materiali pubblicitari</span></summary>
+            <summary><span class="svc-n">03</span><span class="svc-name">Branding &amp; Design</span><span class="svc-sub">Brand identity, grafica e materiali pubblicitari</span><span class="svc-float" aria-hidden="true"><img data-src="img/like-home-1.jpg" alt="" /></span></summary>
             <div class="svc-fold"><div class="svc-body"><a class="svc-pic" href="lavori.html"><img data-src="img/like-home-1.jpg" alt="" /><span class="svc-cap"><small>Esempio · Agenzia di interior design</small>Like Home Design</span></a><div><p class="svc-tag">Diamo forma all&#x27;identità dei brand</p><p>Traduciamo valori, personalità e visione in un linguaggio visivo riconoscibile e coerente. Progettiamo identità che prendono forma attraverso colori, tipografia, immagini e materiali, costruendo un sistema grafico capace di distinguere il brand e accompagnarlo in ogni punto di contatto.</p></div><ul class="tags"><li>Brand identity</li><li>Visual identity</li><li>Graphic design</li><li>Art direction</li><li>Packaging</li><li>Materiali pubblicitari</li></ul><a class="btn svc-cta" href="#contatti" data-svc="Branding &amp; Design">Contattaci</a></div></div>
           </details>
           <details name="svc">
-            <summary><span class="svc-n">04</span><span class="svc-name">Digital Marketing</span><span class="svc-sub">Social media e campagne ads</span></summary>
+            <summary><span class="svc-n">04</span><span class="svc-name">Digital Marketing</span><span class="svc-sub">Social media e campagne ads</span><span class="svc-float" aria-hidden="true"><img data-src="img/calzature-dro-1.jpg" alt="" /></span></summary>
             <div class="svc-fold"><div class="svc-body"><a class="svc-pic" href="lavori.html"><img data-src="img/calzature-dro-1.jpg" alt="" /><span class="svc-cap"><small>Esempio · Catena di negozi di scarpe</small>Calzature Dro</span></a><div><p class="svc-tag">Costruiamo la tua presenza digitale</p><p>Sviluppiamo e gestiamo la comunicazione online dei brand, mettendo in relazione contenuti, canali social e campagne pubblicitarie. Dalla pianificazione editoriale alla gestione quotidiana, lavoriamo per dare continuità alla comunicazione e raggiungere il pubblico attraverso messaggi e contenuti pertinenti.</p></div><ul class="tags"><li>Social media management</li><li>Content planning</li><li>Meta Ads</li><li>Google Ads</li><li>Campagne digitali</li><li>Gestione dei canali</li></ul><a class="btn svc-cta" href="#contatti" data-svc="Digital Marketing">Contattaci</a></div></div>
           </details>
           <details name="svc">
-            <summary><span class="svc-n">05</span><span class="svc-name">Web &amp; Digital</span><span class="svc-sub">Siti web, e-commerce, landing page e UX/UI</span></summary>
+            <summary><span class="svc-n">05</span><span class="svc-name">Web &amp; Digital</span><span class="svc-sub">Siti web, e-commerce, landing page e UX/UI</span><span class="svc-float" aria-hidden="true"><img data-src="img/garda-trentino-1.jpg" alt="" /></span></summary>
             <div class="svc-fold"><div class="svc-body"><a class="svc-pic" href="lavori.html"><img data-src="img/garda-trentino-1.jpg" alt="" /><span class="svc-cap"><small>Esempio · APT Altogarda</small>Garda Trentino</span></a><div><p class="svc-tag">Progettiamo esperienze digitali</p><p>Diamo vita a spazi digitali che uniscono estetica, funzionalità e facilità di utilizzo. Progettiamo siti web, e-commerce e landing page in cui struttura, contenuti e identità visiva lavorano insieme, per offrire un&#x27;esperienza intuitiva e coerente con il brand.</p></div><ul class="tags"><li>Website design</li><li>Web development</li><li>E-commerce</li><li>Landing page</li><li>UX/UI design</li><li>Soluzioni digitali</li></ul><a class="btn svc-cta" href="#contatti" data-svc="Web &amp; Digital">Contattaci</a></div></div>
           </details>
           <details name="svc">
-            <summary><span class="svc-n">06</span><span class="svc-name">Analytics &amp; Optimization</span><span class="svc-sub">Analisi, report e monitoraggio delle performance</span></summary>
+            <summary><span class="svc-n">06</span><span class="svc-name">Analytics &amp; Optimization</span><span class="svc-sub">Analisi, report e monitoraggio delle performance</span><span class="svc-float" aria-hidden="true"><img data-src="img/gruppo-toscano-1.jpg" alt="" /></span></summary>
             <div class="svc-fold"><div class="svc-body"><a class="svc-pic" href="lavori.html"><img data-src="img/gruppo-toscano-1.jpg" alt="" /><span class="svc-cap"><small>Esempio · Agenzia immobiliare</small>Gruppo Toscano</span></a><div><p class="svc-tag">Osserviamo, analizziamo, miglioriamo</p><p>Monitoriamo l&#x27;andamento delle attività per comprendere i risultati, individuare ciò che funziona e riconoscere nuove opportunità. Attraverso l&#x27;analisi dei dati e la lettura delle performance, supportiamo le decisioni e ottimizziamo le attività nel tempo, adattandole all&#x27;evoluzione degli obiettivi.</p></div><ul class="tags"><li>Data analytics</li><li>Monitoraggio dei risultati</li><li>Reportistica</li><li>KPI</li><li>Analisi delle performance</li><li>Ottimizzazione</li></ul><a class="btn svc-cta" href="#contatti" data-svc="Analytics &amp; Optimization">Contattaci</a></div></div>
           </details>
           </div>

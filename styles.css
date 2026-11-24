@@ -706,15 +706,8 @@ html.js .rv.rv-on {
 .rv-in .rl > span {
   transform: none;
 }
-html.js.is-top .intro .after {
-  opacity: 1;
-  transition: opacity 0.9s ease 1.55s;
-}
 .ln:nth-child(3) > span {
   color: var(--pale);
-}
-html.js .intro .after {
-  opacity: 0;
 }
 .intro p {
   margin: 0 0 18px;
@@ -1219,93 +1212,148 @@ html:not(.js) #shuffle {
   }
 }
 
-/* =====================================================  SERVICES + WALL  ===== */
+/* =====================================================  SERVICES  ===== */
 
 .scene--stack {
   display: block;
 }
 
-/* The six services, all in sight: a row each, opening on its text; beside
-   the list, the photo of the project that is its example. */
+/* The six services: their names large and stacked in the middle of the page.
+   Pointing at one darkens its band and brings up its project's photo beside
+   it, on the right and on the left in turn; opening the row moves that photo
+   to its place beside the text (main.js). */
 .svc {
-  box-sizing: border-box;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: clamp(32px, 6vw, 110px);
-  align-items: start;
-  padding: 0 var(--pad) clamp(110px, 22vh, 220px) var(--text-x);
-}
-/* the photo beside the list is held in sight only as far as the list goes:
-   it stops with the last row */
-.svc-list {
-  grid-area: 1 / 1;
-  max-width: 860px;
-}
-.svc details {
-  border-top: 1px solid rgba(255, 255, 255, 0.24);
-}
-.svc details:last-child {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.24);
+  padding-bottom: clamp(110px, 22vh, 220px);
 }
 .svc summary {
-  display: grid;
-  grid-template-columns: 3em minmax(0, 1fr) 1.5rem;
-  align-items: baseline;
-  gap: clamp(12px, 2vw, 28px);
-  padding: clamp(16px, 2.4vh, 26px) 0;
+  position: relative;
+  display: block;
+  padding: clamp(6px, 1vh, 12px) var(--pad);
+  text-align: center;
   cursor: pointer;
   list-style: none;
+  transition: background-color 0.35s ease;
 }
 .svc summary::-webkit-details-marker {
   display: none;
 }
-.svc-n {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  font-variant-numeric: tabular-nums;
-  color: var(--pale);
+/* the number and the line under the name: the opened row says it all */
+.svc-n,
+.svc-sub {
+  display: none;
 }
 .svc-name {
-  font-size: clamp(1.2rem, 2.3vw, 2rem);
+  display: block;
+  font-size: clamp(1.9rem, 5vw, 4.4rem);
   font-weight: 500;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  letter-spacing: -0.02em;
   line-height: 1.1;
-  transition: transform 0.45s var(--ease);
 }
-.svc summary:hover .svc-name,
-.svc details[open] .svc-name {
-  transform: translateX(12px);
+/* the band darkens */
+.svc details[open] summary {
+  background-color: #020823;
 }
-.svc-sub {
-  grid-column: 2;   /* under the name */
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  line-height: 1.5;
-  color: var(--pale);
+@media (hover: hover) {
+  .svc summary:hover {
+    background-color: #020823;
+  }
 }
-/* the plus turns into a cross on the open row */
-.svc summary::after {
-  content: "+";
-  grid-area: 1 / 3;
-  justify-self: end;
-  font-size: 1.5rem;
-  font-weight: 300;
-  line-height: 1;
-  transition: transform 0.45s var(--ease);
+/* the photo beside the name: on the right, then on the left, in turn */
+.svc-float {
+  --tilt: 3deg;
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  right: 9vw;
+  width: clamp(140px, 14vw, 220px);
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-50%) scale(0.85) rotate(var(--tilt));
+  transition:
+    opacity 0.35s ease,
+    transform 0.5s var(--ease);
 }
-.svc details[open] summary::after {
-  transform: rotate(45deg);
+.svc details:nth-child(even) .svc-float {
+  --tilt: -3deg;
+  right: auto;
+  left: 9vw;
+}
+.svc-float img,
+.svc-pic img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+@media (hover: hover) {
+  .svc summary:hover .svc-float {
+    opacity: 1;
+    transform: translateY(-50%) rotate(var(--tilt));
+  }
+}
+/* opened, the photo has moved into the row */
+.svc details[open] .svc-float {
+  opacity: 0;
+}
+/* the opened row: the text, and the photo on the side it floated on */
+.svc-fold {
+  display: grid;
 }
 .svc-body {
+  box-sizing: border-box;
   display: grid;
-  gap: 18px;
-  max-width: 58ch;
-  padding: 4px 0 clamp(24px, 3.5vh, 38px) calc(3em + clamp(12px, 2vw, 28px));
+  grid-template-columns: minmax(0, 1fr) minmax(0, 340px);
+  grid-template-areas: "text pic" "tags pic" "cta pic";
+  grid-template-rows: auto auto 1fr;
+  column-gap: clamp(28px, 5vw, 72px);
+  row-gap: 20px;
+  min-height: 0;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: clamp(28px, 4vh, 48px) var(--pad) clamp(40px, 6vh, 72px);
+}
+.svc details:nth-child(even) .svc-body {
+  grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
+  grid-template-areas: "pic text" "pic tags" "pic cta";
+}
+.svc-body > div {
+  grid-area: text;
+}
+.svc-body > .tags {
+  grid-area: tags;
+}
+.svc-body > .svc-cta {
+  grid-area: cta;
+  align-self: end;
+}
+.svc-pic {
+  grid-area: pic;
+  position: relative;
+  z-index: 2;   /* over the band while it flies in */
+  display: block;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 12px;
+  color: #fff;
+  text-decoration: none;
+}
+/* the text comes up as the photo lands (no delay and no fill: if it never
+   runs, the text is simply there) */
+.svc-body > :not(.svc-pic) {
   animation: svc-in 0.7s var(--ease);
+}
+/* closing folds the row back first (main.js holds it open until it has) */
+.svc details.is-closing .svc-fold {
+  animation: svc-unfold 0.45s cubic-bezier(0.5, 0, 0.3, 1) forwards;
+}
+.svc details.is-closing .svc-body {
+  overflow: hidden;
 }
 @keyframes svc-fold {
   from {
@@ -1361,7 +1409,7 @@ html:not(.js) #shuffle {
 /* under each service, the way to ask about it */
 /* bottom right of the text, solid white so it stands out on the navy */
 .svc .svc-cta {
-  justify-self: end;
+  justify-self: end;   /* bottom right of the text */
   margin-top: 6px;
   padding: 0.9em 1.8em;
   background: #fff;
@@ -1374,84 +1422,6 @@ html:not(.js) #shuffle {
 .svc .svc-cta:hover {
   background: #c7d6ff;
   border-color: #c7d6ff;
-}
-/* The examples: one frame, the photos stacked in it. Each new one rises from
-   below over the one before: the photo sits in a frame that comes up while
-   the photo inside is held still by the opposite move, a wipe made of two
-   transforms (the compositor runs it; clip-path would repaint each frame).
-   The frame stays in sight while the list beside it scrolls. */
-.svc-shots {
-  contain: layout paint;   /* a photo growing inside lays out only the frame, not the page */
-  grid-area: 1 / 2;
-  position: sticky;
-  top: calc(var(--pad) * 2 + 40px);
-  /* as tall as the screen allows under the logo, and upright */
-  height: min(calc(100vh - var(--pad) * 2 - 80px), 780px);
-  height: min(calc(100dvh - var(--pad) * 2 - 80px), 780px);
-  aspect-ratio: 4 / 5;
-  max-width: 42vw;
-  overflow: hidden;
-  border-radius: 14px;
-}
-/* The six examples are a mosaic, two across and three down, so the frame is
-   never empty; the photo of the open row grows to fill the frame, and goes
-   back to its place when another one is opened (main.js sets .is-on, and
-   .is-back on the one going back, so the growing one stays on top). */
-.svc-shot {
-  --c: 0;   /* column */
-  --r: 0;   /* row */
-  position: absolute;
-  z-index: 1;
-  left: calc(var(--c) * (50% + 3px));
-  top: calc(var(--r) * ((100% - 12px) / 3 + 6px));
-  width: calc(50% - 3px);
-  height: calc((100% - 12px) / 3);
-  overflow: hidden;
-  border-radius: 8px;
-  color: #fff;
-  text-decoration: none;
-  opacity: 0.75;
-  cursor: pointer;
-  transition:
-    left 0.9s cubic-bezier(0.45, 0, 0.15, 1),
-    top 0.9s cubic-bezier(0.45, 0, 0.15, 1),
-    width 0.9s cubic-bezier(0.45, 0, 0.15, 1),
-    height 0.9s cubic-bezier(0.45, 0, 0.15, 1),
-    border-radius 0.9s cubic-bezier(0.45, 0, 0.15, 1),
-    opacity 0.6s ease;
-}
-.svc-shot:nth-child(2n) { --c: 1; }
-.svc-shot:nth-child(3), .svc-shot:nth-child(4) { --r: 1; }
-.svc-shot:nth-child(5), .svc-shot:nth-child(6) { --r: 2; }
-.svc-shot:hover {
-  opacity: 1;
-}
-.svc-shot img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.svc-shot.is-back {
-  z-index: 2;
-}
-.svc-shot.is-on {
-  z-index: 3;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 14px;
-  opacity: 1;
-}
-.svc-shot .svc-cap {
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-.svc-shot.is-on .svc-cap {
-  opacity: 1;
-  transition: opacity 0.5s ease 0.7s;   /* once the photo has grown */
 }
 /* whose work it is, written on the photo */
 .svc-cap {
@@ -1475,97 +1445,37 @@ html:not(.js) #shuffle {
   letter-spacing: 0.16em;
   opacity: 0.8;
 }
-/* the same photo inside the row, for a phone (see below) */
-.svc-pic {
-  display: none;
-}
-/* where the browser can animate to a height of auto, the row opens smoothly */
-@supports (interpolate-size: allow-keywords) {
-  .svc {
-    interpolate-size: allow-keywords;
-  }
-  .svc details::details-content {
-    height: 0;
-    overflow: clip;
-    transition: height 0.55s var(--ease), content-visibility 0.55s allow-discrete;
-  }
-  .svc details[open]::details-content {
-    height: auto;
-  }
-}
 
-/* up to a small laptop the services read as on a phone: no frame beside
-   the list (it squeezed the list), the photo inside the opened row */
-@media (max-width: 1100px) {
-  /* no frame beside the list here: each row opens on its own example and
-     its text, right under the finger, and the page does not move */
-  .svc {
-    display: block;
-  }
-  .svc-shots {
-    display: none;
-  }
-  .svc-list {
-    padding-bottom: clamp(80px, 12vh, 150px);
+/* a phone: the photo on top, the text under it; the row unfolds (its fold is
+   a grid whose one row grows from nothing to the height of what is in it),
+   the photo is uncovered from the top, then the text comes up */
+@media (max-width: 760px) {
+  .svc .svc-body,
+  .svc details:nth-child(even) .svc-body {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "pic" "text" "tags" "cta";
+    grid-template-rows: none;
+    padding-top: 8px;
+    overflow: hidden;
   }
   .svc-pic {
-    display: block;
-    position: relative;
-    aspect-ratio: 3 / 2;   /* wide and low, so the text under it is in sight too */
-    overflow: hidden;
-    border-radius: 12px;
-    color: #fff;
-    text-decoration: none;
-    /* as wide as the row, not indented with the text */
-    margin-left: calc(-2em - clamp(12px, 2vw, 28px));
-  }
-  .svc-pic img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    animation: svc-zoom 1.3s var(--ease) both;
-  }
-  /* The row unfolds: its fold is a grid whose one row grows from nothing to
-     the height of what is in it (0fr to 1fr, which every browser can
-     animate, to any height). As it opens the photo is uncovered from the top
-     and settles, then the text and the tags come up one after the other.
-     Closing folds it back (main.js holds the row open until it has). */
-  .svc details::details-content {
-    height: auto;
-    overflow: visible;
-    transition: none;
-  }
-  .svc-fold {
-    display: grid;
-    animation: svc-fold 0.7s var(--ease);
-  }
-  .svc details.is-closing .svc-fold {
-    animation: svc-unfold 0.45s cubic-bezier(0.5, 0, 0.3, 1) forwards;
-  }
-  .svc-body {
-    min-height: 0;
-    overflow: hidden;
-    animation: none;
-  }
-  .svc-pic {
+    aspect-ratio: 3 / 2;
     animation: svc-uncover 1s var(--ease) both;
   }
-  .svc-body > div {
+  .svc-pic img {
+    animation: svc-zoom 1.3s var(--ease) both;
+  }
+  .svc-fold {
+    animation: svc-fold 0.7s var(--ease);
+  }
+  .svc .svc-body > div {
     animation: svc-in 0.8s var(--ease) 0.25s both;
   }
-  .svc-body > .tags {
+  .svc .svc-body > .tags {
     animation: svc-in 0.8s var(--ease) 0.4s both;
   }
-  .svc summary {
-    grid-template-columns: 2em minmax(0, 1fr) 1.2rem;
-  }
-  .svc-sub {
-    font-size: 10px;
-  }
-  .svc-body {
-    padding-left: calc(2em + clamp(12px, 2vw, 28px));
+  .svc .svc-body > .svc-cta {
+    animation: none;
   }
 }
 /* =====================================================  STUDIO PAGE  ===== */
@@ -1738,16 +1648,89 @@ html[data-menu="light"] .corner--tr a {
 .scene--stack > .wrap .intro-p {
   margin-inline: auto;
 }
-/* the list and its photo as one block in the middle; the rows keep their
-   number, name and plus in line */
-.svc {
-  grid-template-columns: minmax(0, 860px) auto;
-  justify-content: center;
-  padding-left: var(--pad);
+
+/* ==========================================  HOME, FIRST SCREEN  ===== */
+/* the cover of each project, all the same size and evenly spaced, in three
+   rows sliding past: the top and bottom ones to the left, the middle one to
+   the right. Each row holds its photos three times over (main.js) and slides
+   by one set, so the loop never shows a seam. */
+.intro.hero {
+  position: relative;
+  z-index: 1;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  padding: 0;
+  display: block;
+  overflow: hidden;
 }
-@media (max-width: 1100px) {
-  .svc-list {
-    max-width: 860px;
-    margin-inline: auto;
+.slides {
+  --gap: clamp(8px, 0.9vw, 14px);
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: var(--gap);
+}
+.mrow {
+  min-height: 0;
+  overflow: hidden;
+}
+.mstrip {
+  display: flex;
+  width: max-content;
+  height: 100%;
+  animation: slide 80s linear infinite;
+  will-change: transform;
+}
+.mrow:nth-child(2) .mstrip {
+  animation-direction: reverse;
+}
+.mstrip img {
+  flex: none;
+  height: 100%;
+  width: auto;
+  aspect-ratio: 3 / 2;
+  margin-right: var(--gap);   /* inside the strip's width, so one set is exactly a third */
+  border-radius: 6px;
+  object-fit: cover;
+}
+@keyframes slide {
+  to {
+    transform: translateX(calc(-100% / 3));
   }
+}
+.sticky.is-away .mstrip {
+  animation-play-state: paused;
+}
+/* the photos come in once the logo has docked, with the slogan */
+html.js .slides {
+  opacity: 0;
+}
+html.is-top .slides {
+  opacity: 1;
+  transition: opacity 1.2s ease 0.3s;
+}
+/* a shade at the top for the logo and the menu, and at the bottom for the slogan */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(rgba(9, 25, 86, 0.5), transparent 20%, transparent 50%, rgba(9, 25, 86, 0.85));
+}
+.intro.hero h1 {
+  position: absolute;
+  z-index: 2;
+  left: var(--pad);
+  bottom: calc(var(--pad) + 1vh);
+  margin: 0;
+  font-size: clamp(2.2rem, 5.6vw, 5.4rem);
+}
+.hero + .track {
+  padding-top: clamp(90px, 16vh, 180px);
+}
+.hblock--wide .btn {
+  margin-top: clamp(24px, 3vw, 36px);
 }

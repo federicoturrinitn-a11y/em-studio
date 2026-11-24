@@ -178,7 +178,8 @@
   };
 
   var sceneEls = [].slice.call(document.querySelectorAll('#studio [data-scene]')),
-      sceneTops = [], barH = 0, tone = '', bar = document.querySelector('.bar');
+      sceneTops = [], barH = 0, tone = '', bar = document.querySelector('.bar'),
+      hero = document.querySelector('.hero'), heroEnd = 0;
   sceneEls.forEach(function (el) { el.style.backgroundColor = SCENES[el.getAttribute('data-scene')][0]; });
 
   function setTone(t) {
@@ -228,36 +229,43 @@
   function size() {
     sceneTops = sceneEls.map(function (el) { return el.offsetTop; });
     barH = bar.offsetHeight;
+    heroEnd = hero.offsetHeight - barH;
     scrolled();
   }
 
   function scrolled() {
     var y = studio.scrollTop;
     atmosphere(y);
-    // the bar comes in as soon as the page moves: the text sits under the logo's column, so it must never run under a bare logo
-    root.classList.toggle('is-docked', split && active === studio && y > 8);
+    // the bar comes in once the photos of the first screen have gone under the logo: text must never run under a bare logo
+    root.classList.toggle('is-docked', split && active === studio && y > heroEnd);
   }
   studio.addEventListener('scroll', scrolled, { passive: true });
 
   /* ------------------------------------------ the services' examples -- */
 
-  /* Each service has a project as its example, and the list starts all
-     closed, with no photo. On a wide screen opening a row brings its photo up
-     in the frame beside the list, over those before it (the CSS does the
-     wipe), and the row to the middle of the screen; closing it takes the
-     photos away and the page back where it was before the first row was
-     opened; opening another one instead moves on to that one.
-     On a phone none of this: the photo is inside the row, rows open and close
-     on their own (several can be open), so nothing moves under the finger. */
-  var svc = document.querySelector('.svc'),
-      rows = [].slice.call(document.querySelectorAll('.svc details')),
-      shots = [].slice.call(document.querySelectorAll('.svc-shot')),
-      shotsBox = document.querySelector('.svc-shots'),
-      narrow = matchMedia('(max-width: 1100px)'),   // as in the CSS: the services' phone layout
-      back = null,
-      grow = 0,
-      SHOT = 900;   // a photo's move, as in the CSS (.svc-shot)
+  /* Each service has a project as its example. Pointing at a row brings its
+     photo up beside the name (CSS); opening the row moves that photo to its
+     place beside the text, and the row to the middle of the screen; closing
+     it takes the page back where it was before the first row was opened.
+     On a phone none of this: rows open and close on their own (several can
+     be open), so nothing moves under the finger. */
+  var rows = [].slice.call(document.querySelectorAll('.svc details')),
+      narrow = matchMedia('(max-width: 760px)'),   // as in the CSS: the services' phone layout
+      pointer = matchMedia('(hover: hover)'),
+      back = null;
   function glideTo(top) { studio.scrollTo({ top: top, behavior: calm ? 'auto' : 'smooth' }); }
+  // the photo of an opened row starts where it floated beside the name and flies to its place
+  function fly(d, from, tilt) {
+    var pic = d.querySelector('.svc-pic'), to = pic.getBoundingClientRect();
+    if (!to.width) return;
+    pic.animate(from ? [
+      { transform: 'translate(' + (from.x - to.left - to.width / 2) + 'px,' + (from.y - to.top - to.height / 2) + 'px) scale(' + from.w / to.width + ') rotate(' + tilt + ')' },
+      { transform: 'none' }
+    ] : [   // opened from the keyboard, nothing floating: it just comes up
+      { opacity: 0, transform: 'translateY(24px)' },
+      { opacity: 1, transform: 'none' }
+    ], { duration: 900, easing: 'cubic-bezier(0.45, 0, 0.15, 1)' });
+  }
   function centre(i) {
     /* The rows are still opening and closing, so where this one will end up
        is added up from the closed heights of those above it (a summary and
@@ -267,49 +275,35 @@
     var h = rows[i].firstElementChild.offsetHeight + 1 + rows[i].lastElementChild.offsetHeight,
         free = studio.clientHeight - barH,
         to = top - barH - Math.max(0, (free - h) / 2);   // a row taller than the room starts at its top
-    // the photo cannot rise above the top of the section: for the first rows the page
-    // stops there, so the whole photo is in the picture
-    glideTo(Math.max(to, svc.getBoundingClientRect().top + studio.scrollTop - parseFloat(getComputedStyle(shotsBox).top)));
+    glideTo(to);
   }
   // rows that share a name close one another: only on a wide screen
   function share() { rows.forEach(function (d) { if (narrow.matches) d.removeAttribute('name'); else d.setAttribute('name', 'svc'); }); }
   share();
   narrow.addEventListener('change', share);
-  // a small photo in the mosaic opens its row; the large one goes to Lavori
-  shots.forEach(function (s, k) {
-    s.addEventListener('click', function (e) {
-      if (s.classList.contains('is-on')) return;
-      e.preventDefault();
-      e.stopImmediatePropagation();   // not the way to Lavori, which every lavori.html link has
-      rows[k].open = true;
-    }, true);   // capture: ahead of that Lavori handler
-  });
   rows.forEach(function (d, i) {
-    // on a phone a row folds back before it closes (on its own the browser would just cut it off)
-    d.firstElementChild.addEventListener('click', function (e) {
-      if (!narrow.matches || !d.open || calm) return;
-      e.preventDefault();
-      if (d.classList.contains('is-closing')) return;
-      d.classList.add('is-closing');
-      setTimeout(function () { d.open = false; d.classList.remove('is-closing'); }, 450);   // the fold's time in the CSS
+    var head = d.firstElementChild;
+    head.addEventListener('click', function (e) {
+      if (calm) return;
+      // a row folds back before it closes (on its own the browser would just cut it off)
+      if (d.open) {
+        e.preventDefault();
+        if (d.classList.contains('is-closing')) return;
+        d.classList.add('is-closing');
+        setTimeout(function () { d.open = false; d.classList.remove('is-closing'); }, 450);   // the fold's time in the CSS
+        return;
+      }
+      if (narrow.matches) return;   // a phone: the CSS unfolds the row
+      // where the photo floats now, read before the row opens (it fades once open)
+      var fl = head.querySelector('.svc-float'), r = fl.getBoundingClientRect(),
+          from = pointer.matches && head.matches(':hover') ? { x: r.left + r.width / 2, y: r.top + r.height / 2, w: fl.offsetWidth } : null,
+          tilt = getComputedStyle(fl).getPropertyValue('--tilt').trim() || '0deg';
+      // the browser opens the row after this click; the next frame, before it is drawn, starts the flight
+      requestAnimationFrame(function () { fly(d, from, tilt); });
     });
     d.addEventListener('toggle', function () {
       if (narrow.matches) return;
-      var at = rows.findIndex(function (r) { return r.open; });   // -1: all closed, no photo
-      // in two beats: the open photo starts back to its place, halfway the new one grows
-      clearTimeout(grow);
-      var going = false;
-      shots.forEach(function (s, k) {
-        if (s.classList.contains('is-on') && k !== at) {
-          going = true;
-          s.classList.remove('is-on');
-          s.classList.add('is-back');   // over the others until it is in its place
-          setTimeout(function () { s.classList.remove('is-back'); }, SHOT);
-        }
-      });
-      // opening a row closes the open one: two toggle events, the second must wait too
-      going = going || shots.some(function (s) { return s.classList.contains('is-back'); });
-      if (at >= 0) grow = setTimeout(function () { shots[at].classList.add('is-on'); }, going ? SHOT * 0.5 : 0);
+      var at = rows.findIndex(function (r) { return r.open; });   // -1: all closed
       if (d.open) {
         if (back === null) back = studio.scrollTop;
         centre(i);
@@ -438,6 +432,8 @@
 
   // the background first: its light fades in before anything else moves
   requestAnimationFrame(function () { root.classList.add('is-lit'); });
+  // each sliding row of photos holds its set three times over, so it never runs out (CSS .mstrip)
+  [].forEach.call(document.querySelectorAll('.mstrip'), function (s) { s.innerHTML += s.innerHTML + s.innerHTML; });
   // and it stops drifting while it is scrolled out of sight
   var glow = document.querySelector('.sticky');
   if (glow && window.IntersectionObserver) new IntersectionObserver(function (es) {
