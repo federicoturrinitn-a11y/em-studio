@@ -153,7 +153,7 @@
     if (!e.persisted || !active) return;
     lift();
     settle(active);
-    if (active === studio) atmosphere(studio.scrollTop); else wear(active.id === 'chi-siamo' ? 'paper' : 'navy');
+    if (active === studio) scrolled(); else wear(active.id === 'chi-siamo' ? 'paper' : 'navy');
   });
 
   /* Studio's first part reads straight down: the slogan fills the first
@@ -169,7 +169,7 @@
      change colour as the edge passes under the bar, so they always match the
      page beneath them. */
   var SCENES = {          // page colour, tone of the type and logo
-    blue:  ['#091956', 'dark'],   // the first part: dark blue, like the services after it
+    blue:  ['#ffffff', 'light'],   // the first part: white, under the photos
     lilac: ['#ffffff', 'light'],   // straight to white after the blue of the first part
     navy:  ['#091956', 'dark'],
     sand:  ['#eee5dc', 'light'],
@@ -178,8 +178,7 @@
   };
 
   var sceneEls = [].slice.call(document.querySelectorAll('#studio [data-scene]')),
-      sceneTops = [], barH = 0, tone = '', bar = document.querySelector('.bar'),
-      hero = document.querySelector('.hero'), heroEnd = 0;
+      sceneTops = [], barH = 0, tone = '', bar = document.querySelector('.bar');
   sceneEls.forEach(function (el) { el.style.backgroundColor = SCENES[el.getAttribute('data-scene')][0]; });
 
   function setTone(t) {
@@ -199,29 +198,18 @@
   // a page outside Studio (Contatti) simply wears its colour
   function wear(name) { setBase(SCENES[name][0]); setTone(SCENES[name][1]); barColour(''); }
 
-  // the bar follows the blue-to-navy fade at the end of the first part (CSS
-  // .hscroll::after, 60vh) instead of switching at the edge; only the bar is
-  // restyled, --scene would restyle the whole page on every frame
   var barC = '';
   function barColour(c) { if (c !== barC) { barC = c; bar.style.backgroundColor = c; } }
-  function hex(c) { return [1, 3, 5].map(function (i) { return parseInt(c.substr(i, 2), 16); }); }
-  function mix(a, b, t) {
-    a = hex(a); b = hex(b);
-    return 'rgba(' + a.map(function (v, i) { return Math.round(v + (b[i] - v) * t); }).join(',') + ',0.9)';
-  }
 
-  function atmosphere(y) {
+  // low: the logo over the photos at the foot of Home's first screen, white like the menu over them
+  function atmosphere(y, low) {
     if (active !== studio) return;
     var under = y + barH / 2, j = 1;
     for (; j < sceneEls.length && sceneTops[j] <= under; j++);
-    var cur = sceneEls[j - 1], sc = SCENES[cur.getAttribute('data-scene')], t = 0;
-    if (cur.id === 'hscroll' && j < sceneEls.length)
-      t = Math.min(1, Math.max(0, 1 - (sceneTops[j] - under) / (innerHeight * 0.6)));
-    var nx = t > 0 && SCENES[sceneEls[j].getAttribute('data-scene')][0];
-    barColour(t > 0 ? mix(sc[0], nx, t) : '');
-    // in the fade the base is already navy: a fast scroll shows it where the page is not drawn yet
-    setBase(nx || sc[0]);
-    setTone(sc[1]);
+    var sc = SCENES[sceneEls[j - 1].getAttribute('data-scene')];
+    barColour('');
+    setBase(sc[0]);
+    setTone(low ? 'dark' : sc[1]);
   }
 
   /* Everything the scroll needs is measured here, on load and resize, so a
@@ -229,15 +217,15 @@
   function size() {
     sceneTops = sceneEls.map(function (el) { return el.offsetTop; });
     barH = bar.offsetHeight;
-    heroEnd = hero.offsetHeight - barH;
     scrolled();
   }
 
   function scrolled() {
-    var y = studio.scrollTop;
-    atmosphere(y);
-    // the bar comes in once the photos of the first screen have gone under the logo: text must never run under a bare logo
-    root.classList.toggle('is-docked', split && active === studio && y > heroEnd);
+    var y = studio.scrollTop, home = split && active === studio;
+    // at the very top of Home the whole logo sits low over the photos; the first scroll docks it top left, over the bar
+    root.classList.toggle('is-low', home && y <= 8);
+    atmosphere(y, home && y <= 8);
+    root.classList.toggle('is-docked', home && y > 8);
   }
   studio.addEventListener('scroll', scrolled, { passive: true });
 
@@ -413,6 +401,7 @@
     place();
     root.classList.add('is-grown');
     settle(active || target());
+    scrolled();   // on Home, the logo goes low
     setTimeout(settled, calm ? 0 : 1000);
   }
 
@@ -430,7 +419,7 @@
   var fromLavori = false;
   try { fromLavori = sessionStorage.getItem('em-from') === 'lavori'; sessionStorage.removeItem('em-from'); } catch (e) {}
 
-  // the background first: its light fades in before anything else moves
+  // the background first: the photos fade in before anything else moves
   requestAnimationFrame(function () { root.classList.add('is-lit'); });
   // each sliding row of photos holds its set three times over, so it never runs out (CSS .mstrip)
   [].forEach.call(document.querySelectorAll('.mstrip'), function (s) { s.innerHTML += s.innerHTML + s.innerHTML; });

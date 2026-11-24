@@ -39,8 +39,8 @@ body {
 }
 body {
   margin: 0;
-  /* the opening's own dark blue, so the very first paint is never white */
-  background: #091956;
+  /* Home's own white */
+  background: #ffffff;
   color: var(--ink);
   font-family: var(--font);
   -webkit-font-smoothing: antialiased;
@@ -164,6 +164,11 @@ html.is-grown.is-top .mark {
   transition-duration: 0.8s;
 }
 
+/* on Home, before the page scrolls, the whole logo sits low, over the
+   bottom row of photos (main.js sets .is-low); the first scroll docks it */
+html.is-grown.is-top.is-low .mark {
+  transform: translateY(37.5vh);
+}
 /* on Studio the page scrolls beneath the logo, so the logo sits above it */
 html.is-grown .mark {
   z-index: 8;
@@ -397,68 +402,6 @@ html.js .view.is-active {
   padding: 0 0 clamp(80px, 12vh, 140px);
   overflow: hidden;   /* keeps the drifting light inside the first part */
 }
-/* soft light patches drifting over the blue: two layers a little larger than
-   the screen (their edges never come into view: the drift stays inside that margin), each carrying two patches on its own slow loop. They only slide
-   (no scale or turn, which would redraw them), so they cost the compositor
-   almost nothing; main.js stops them once they are scrolled away. */
-.sticky::before,
-.sticky::after {
-  content: "";
-  position: absolute;
-  inset: -20%;
-  z-index: 0;
-  pointer-events: none;
-  will-change: transform;
-  /* the light ends well above the fade to navy, its drift (up to 10%) included:
-     reaching the section's edge, it was cut there, and a fast scroll showed
-     the cut as a line */
-  bottom: calc(60vh + 15%);
-}
-.sticky::before {
-  background:
-    radial-gradient(30% 37% at 21% 33%, rgba(160, 190, 255, 0.6), transparent 70%),
-    radial-gradient(25% 32% at 73% 73%, rgba(200, 220, 255, 0.45), transparent 70%);
-  animation: glow-a 11s ease-in-out infinite alternate;
-}
-.sticky::after {
-  background:
-    radial-gradient(27% 34% at 67% 21%, rgba(130, 170, 255, 0.55), transparent 70%),
-    radial-gradient(23% 30% at 27% 79%, rgba(185, 205, 255, 0.45), transparent 70%);
-  animation: glow-b 14s ease-in-out infinite alternate;
-}
-@keyframes glow-a {
-  0% { transform: translate(-10%, -5%); }
-  50% { transform: translate(9%, 7%); }
-  100% { transform: translate(-3%, 10%); }
-}
-@keyframes glow-b {
-  0% { transform: translate(9%, 7%); }
-  50% { transform: translate(-9%, -5%); }
-  100% { transform: translate(5%, -10%); }
-}
-/* the light fades in first thing, before the logo and the words move
-   (main.js adds .is-lit on the first frame) */
-.sticky::before,
-.sticky::after {
-  opacity: 0;
-  animation-play-state: paused;
-  transition: opacity 1.6s ease;
-}
-html.is-lit .sticky::before,
-html.is-lit .sticky::after {
-  opacity: 1;
-  animation-play-state: running;
-}
-html.is-lit .sticky.is-away::before,
-html.is-lit .sticky.is-away::after {
-  animation-play-state: paused;
-}
-@media (prefers-reduced-motion: reduce) {
-  .sticky::before,
-  .sticky::after {
-    animation: none;
-  }
-}
 .track {
   position: relative;
   z-index: 1;
@@ -502,14 +445,6 @@ html.is-lit .sticky.is-away::after {
 .hblock--wide .statement,
 .hblock--wide .hblock-lead {
   margin-inline: auto;
-}
-/* the blue fades into the navy of the services instead of a hard edge. It is
-   painted in the section's own background, which scrolls in one piece with the
-   navy below: an overlay on a layer of its own came in late on a fast scroll
-   and showed the old cut. The drifting light fades out before it (mask on
-   .sticky::before/after). */
-.hscroll {
-  background-image: linear-gradient(to bottom, transparent calc(100% - 60vh), #091956);
 }
 .hblock p {
   margin: 0;
@@ -684,7 +619,6 @@ html.js .rv.rv-on {
 
 /* dark pages are white on colour: their tokens are remapped here, so every
    rule above and below reads the light-on-dark values */
-.hscroll,
 .dark {
   --navy: #fff;
   --ink: #fff;
@@ -696,7 +630,6 @@ html.js .rv.rv-on {
   --pale: #c7cee7;
   color: #fff;
 }
-.hscroll .btn:hover,
 .dark .btn:hover {
   background: #fff;
   color: #334eac;
@@ -1618,8 +1551,8 @@ html[data-menu="light"] .corner--tr a {
 .intro.hero {
   position: relative;
   z-index: 1;
-  height: 140vh;   /* three rows taller than the screen: larger photos, the third comes in with the scroll */
-  height: 140dvh;
+  height: 100vh;
+  height: 100dvh;
   min-height: 0;
   padding: 0;
   display: block;
@@ -1627,10 +1560,14 @@ html[data-menu="light"] .corner--tr a {
 }
 .slides {
   --gap: clamp(8px, 0.9vw, 14px);
+  --row: calc((100vh - var(--gap) * 2) / 2);   /* half a row, a row, half a row: the screen */
+  --row: calc((100dvh - var(--gap) * 2) / 2);
   position: absolute;
-  inset: 0;
+  left: 0;
+  right: 0;
+  top: calc(var(--row) / -2);
   display: grid;
-  grid-template-rows: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(3, var(--row));
   gap: var(--gap);
 }
 .mrow {
@@ -1664,59 +1601,22 @@ html[data-menu="light"] .corner--tr a {
 .sticky.is-away .mstrip {
   animation-play-state: paused;
 }
-/* the photos come in once the logo has docked, with the slogan */
+/* the photos fade in first thing, under the opening logo */
 html.js .slides {
   opacity: 0;
 }
-html.is-top .slides {
+html.is-lit .slides {
   opacity: 1;
-  transition: opacity 1.2s ease 0.3s;
+  transition: opacity 1s ease;
 }
-/* a shade at the top for the logo and the menu, and at the bottom for the slogan */
-.hero::after {
-  content: "";
+/* for screen readers and search engines only */
+.vh {
   position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background: linear-gradient(rgba(9, 25, 86, 0.5), transparent 15vh, transparent 45vh, rgba(9, 25, 86, 0.85) 95vh, rgba(9, 25, 86, 0.3) 115vh, transparent);
-}
-/* the name: em on the left, studio on the right, a line between, white over
-   the photos at the foot of the first screen; it comes up once the logo has docked */
-.hero-name {
-  --name-h: clamp(54px, 10vw, 160px);
-  position: absolute;
-  z-index: 2;
-  left: var(--pad);
-  right: var(--pad);
-  top: calc(100vh - var(--pad) - 2vh - var(--name-h));
-  top: calc(100dvh - var(--pad) - 2vh - var(--name-h));
-  display: flex;
-  align-items: center;
-  gap: clamp(16px, 3vw, 48px);
-  margin: 0;
-}
-.hero-name img {
-  display: block;
-  height: var(--name-h);
-  width: auto;
-  filter: brightness(0) invert(1);   /* the navy logo, in white */
-}
-.hero-rule {
-  flex: 1;
-  height: 2px;
-  background: rgba(255, 255, 255, 0.85);
-}
-html.js .hero-name {
-  opacity: 0;
-  transform: translateY(30px);
-}
-html.is-top .hero-name {
-  opacity: 1;
-  transform: none;
-  transition:
-    opacity 1.2s ease 0.9s,
-    transform 1.6s var(--ease) 0.9s;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 .hero + .track {
   padding-top: clamp(90px, 16vh, 180px);
