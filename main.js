@@ -169,7 +169,7 @@
      change colour as the edge passes under the bar, so they always match the
      page beneath them. */
   var SCENES = {          // page colour, tone of the type and logo
-    blue:  ['#ffffff', 'light'],   // the first part: white, under the photos
+    blue:  ['#091956', 'dark'],   // the first part: dark blue under the white of the photos (CSS .hero)
     lilac: ['#ffffff', 'light'],   // straight to white after the blue of the first part
     navy:  ['#091956', 'dark'],
     sand:  ['#eee5dc', 'light'],
@@ -201,7 +201,8 @@
   var barC = '';
   function barColour(c) { if (c !== barC) { barC = c; bar.style.backgroundColor = c; } }
 
-  // low: the logo over the photos at the foot of Home's first screen, white like the menu over them
+  // low: the logo over the photos at the foot of Home's first screen, white like the menu over them;
+  // before that, growing in the middle of the white first screen, it is dark
   function atmosphere(y, low) {
     if (active !== studio) return;
     var under = y + barH / 2, j = 1;
@@ -209,7 +210,7 @@
     var sc = SCENES[sceneEls[j - 1].getAttribute('data-scene')];
     barColour('');
     setBase(sc[0]);
-    setTone(low ? 'dark' : sc[1]);
+    setTone(!split ? 'light' : low ? 'dark' : sc[1]);
   }
 
   /* Everything the scroll needs is measured here, on load and resize, so a

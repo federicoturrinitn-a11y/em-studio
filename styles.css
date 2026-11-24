@@ -619,6 +619,7 @@ html.js .rv.rv-on {
 
 /* dark pages are white on colour: their tokens are remapped here, so every
    rule above and below reads the light-on-dark values */
+.hscroll,
 .dark {
   --navy: #fff;
   --ink: #fff;
@@ -630,6 +631,7 @@ html.js .rv.rv-on {
   --pale: #c7cee7;
   color: #fff;
 }
+.hscroll .btn:hover,
 .dark .btn:hover {
   background: #fff;
   color: #334eac;
@@ -1551,6 +1553,7 @@ html[data-menu="light"] .corner--tr a {
 .intro.hero {
   position: relative;
   z-index: 1;
+  background: #fff;   /* white between the photos; the page under it is dark blue */
   height: 100vh;
   height: 100dvh;
   min-height: 0;
@@ -1608,6 +1611,15 @@ html.js .slides {
 html.is-lit .slides {
   opacity: 1;
   transition: opacity 1s ease;
+}
+/* at the foot, the white turns into the dark blue of the page below, under the white logo */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(transparent 45%, #091956);
 }
 /* for screen readers and search engines only */
 .vh {
