@@ -1674,7 +1674,7 @@ html.js .mrow:nth-child(2) {
 html.photos-in .mrow,
 html.photos-in .mrow:nth-child(2) {
   transform: none;
-  transition: transform 3s cubic-bezier(0.2, 0.6, 0.6, 0.9);   /* still moving as it lands (main.js INTO) */
+  transition: transform 2.2s cubic-bezier(0.2, 0.6, 0.6, 0.9);   /* still moving as it lands (main.js INTO) */
 }
 /* in two beats: the top and bottom rows together, then the middle one */
 html.photos-in .mrow:nth-child(2) {
