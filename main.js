@@ -292,10 +292,13 @@
   function wave(at) {
     if (at >= 0) last = at;
     names.forEach(function (n, k) {
-      var far = Math.abs(k - last);
-      n.style.setProperty('--s', at < 0 ? 1 : SWELL[far] || 1);
+      var far = Math.abs(k - last), s = at < 0 ? 1 : SWELL[far] || 1,
+          up = s > (n.swell || 1);   // swelling is almost instant; settling back waits a moment
+      n.swell = s;
+      n.style.setProperty('--s', s);
       n.style.setProperty('--o', at < 0 ? 1 : Math.max(0.4, 1 - far * 0.22));
-      n.style.setProperty('--d', (far * 0.07).toFixed(2) + 's');
+      n.style.setProperty('--t', up ? '0.2s' : '0.5s');
+      n.style.setProperty('--d', ((up ? 0 : 0.3) + far * (up ? 0.03 : 0.05)).toFixed(2) + 's');
     });
   }
   rows.forEach(function (d, i) {
