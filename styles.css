@@ -169,11 +169,8 @@ html.is-grown.is-top .mark {
 html.is-grown.is-top.is-low .mark {
   transform: translateY(37.5vh);
 }
-/* Home's opening: the logo waits under the photos sliding in over it, then
-   comes back up from below the screen (main.js) */
-html.is-grown.is-under .mark {
-  z-index: 5;   /* under the pages (.middle) */
-}
+/* Home's opening: once the photos have covered the logo it comes back up
+   from below the screen (main.js) */
 html.is-rising .mark,
 html.is-rising .mark img {
   transition: none !important;
@@ -1669,10 +1666,11 @@ html.js .mrow {
 html.js .mrow:nth-child(2) {
   transform: translateX(-105%);
 }
+/* fast at first, slowing gradually into the rows' own drift (main.js INTO) */
 html.photos-in .mrow,
 html.photos-in .mrow:nth-child(2) {
   transform: none;
-  transition: transform 1.4s cubic-bezier(0.65, 0, 0.35, 1);
+  transition: transform 2.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 html.photos-in .mrow:nth-child(2) {
   transition-delay: 0.15s;

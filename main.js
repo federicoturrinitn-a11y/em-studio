@@ -445,22 +445,28 @@
   }
 
   /* Home's opening, once the logo has grown in the middle of the white: the
-     three rows of photos slide in from the sides over it (the top and bottom
-     ones from the right, the middle one from the left) and hide it; then it
-     comes back up from below the screen, white, to sit over the bottom row. */
-  var SLIDE = 1700;   // the rows' slide in, the last one's delay included (CSS .mrow)
+     three rows of photos slide in from the sides (the top and bottom ones from
+     the right, the middle one from the left), fast at first and slowing into
+     their own drift; the logo is hidden exactly as the middle row's edge
+     passes over it (a clip that runs with the row); then it comes back up
+     from below the screen, white, to sit over the bottom row. */
+  var SLIDE = 2100,   // until the rows have all but settled (CSS .mrow)
+      INTO = { duration: 2200, delay: 150, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' };   // the middle row's slide, as in the CSS
   function enter() {
-    root.classList.add('is-under');   // the logo waits under the page
     photos(function () {
       root.classList.add('photos-in');
+      // the middle row comes from the left: its right edge sweeps the screen from -5% to 100%
+      var cover = mark.animate([{ clipPath: 'inset(0 0 0 -5%)' }, { clipPath: 'inset(0 0 0 100%)' }],
+                               { duration: INTO.duration, delay: INTO.delay, easing: INTO.easing, fill: 'forwards' });
       setTimeout(function () {
+        cover.cancel();
         // out of sight below the screen, already white, with no transition...
         root.classList.add('is-rising');
         entering = false;
         scrolled();
         mark.getBoundingClientRect();
         // ...then up to its place over the bottom row
-        root.classList.remove('is-rising', 'is-under');
+        root.classList.remove('is-rising');
         settle(studio);
       }, SLIDE);
     });
