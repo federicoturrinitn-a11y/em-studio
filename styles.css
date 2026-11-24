@@ -1196,9 +1196,15 @@ html:not(.js) #shuffle {
 .svc details[open] .svc-float {
   opacity: 0;
 }
-/* the opened row: the text, and the photo on the side it floated on */
+/* the opened row: the text, and the photo on the side it floated on. It
+   unfolds: its fold is a grid whose one row grows from nothing to the height
+   of what is in it (0fr to 1fr, which every browser can animate) */
+.svc details {
+  position: relative;   /* for the photo flying in (main.js) */
+}
 .svc-fold {
   display: grid;
+  animation: svc-fold 0.7s var(--ease);
 }
 .svc-body {
   box-sizing: border-box;
@@ -1209,6 +1215,7 @@ html:not(.js) #shuffle {
   column-gap: clamp(28px, 5vw, 72px);
   row-gap: 20px;
   min-height: 0;
+  overflow: hidden;
   width: 100%;
   max-width: 1000px;
   margin: 0 auto;
@@ -1248,8 +1255,13 @@ html:not(.js) #shuffle {
 .svc details.is-closing .svc-fold {
   animation: svc-unfold 0.45s cubic-bezier(0.5, 0, 0.3, 1) forwards;
 }
-.svc details.is-closing .svc-body {
-  overflow: hidden;
+/* the copy of the photo flying in over the row, and the photo itself hidden until it lands */
+.svc-ghost {
+  z-index: 3;
+  pointer-events: none;
+}
+.svc details.is-flying .svc-body .svc-pic {
+  visibility: hidden;
 }
 @keyframes svc-fold {
   from {

@@ -243,46 +243,54 @@
       pointer = matchMedia('(hover: hover)'),
       back = null;
   function glideTo(top) { studio.scrollTo({ top: top, behavior: calm ? 'auto' : 'smooth' }); }
-  // the photo of an opened row starts where it floated beside the name and flies to its place
+  /* The photo of an opened row starts where it floated beside the name and
+     flies to its place while the row unfolds. The row clips what is in it as
+     it grows, so the flight is a copy laid over the row, outside that clip; the
+     photo itself shows once the copy has landed. The copy is placed inside the
+     row, so it moves with it when the page glides or a row above folds away. */
   function fly(d, from, tilt) {
-    var pic = d.querySelector('.svc-pic'), to = pic.getBoundingClientRect();
-    if (!to.width) return;
-    pic.animate(from ? [
+    var pic = d.querySelector('.svc-body .svc-pic'), box = d.getBoundingClientRect(), to = pic.getBoundingClientRect();
+    if (!from || !to.width) return;   // opened from the keyboard: nothing floating, the row just unfolds
+    var ghost = pic.cloneNode(true);
+    ghost.classList.add('svc-ghost');
+    ghost.removeAttribute('href');
+    ghost.style.cssText = 'position:absolute;margin:0;left:' + (to.left - box.left) + 'px;top:' + (to.top - box.top) +
+      'px;width:' + to.width + 'px;height:' + to.height + 'px';
+    d.appendChild(ghost);
+    d.classList.add('is-flying');
+    var go = ghost.animate([
       { transform: 'translate(' + (from.x - to.left - to.width / 2) + 'px,' + (from.y - to.top - to.height / 2) + 'px) scale(' + from.w / to.width + ') rotate(' + tilt + ')' },
       { transform: 'none' }
-    ] : [   // opened from the keyboard, nothing floating: it just comes up
-      { opacity: 0, transform: 'translateY(24px)' },
-      { opacity: 1, transform: 'none' }
     ], { duration: 900, easing: 'cubic-bezier(0.45, 0, 0.15, 1)' });
+    go.onfinish = go.oncancel = function () { ghost.remove(); d.classList.remove('is-flying'); };
+    setTimeout(go.onfinish, 1300);   // a background tab can hold the animation: the photo must never stay hidden
+  }
+  // a row folds back before it closes (on its own the browser would just cut it off)
+  function fold(d) {
+    if (!d.open || d.classList.contains('is-closing')) return;
+    if (calm) { d.open = false; return; }
+    d.classList.add('is-closing');
+    setTimeout(function () { d.open = false; d.classList.remove('is-closing'); }, 450);   // the fold's time in the CSS
   }
   function centre(i) {
     /* The rows are still opening and closing, so where this one will end up
        is added up from the closed heights of those above it (a summary and
-       its rule), and its own height from its summary and text. */
+       its rule), and its own height from its summary and its whole text
+       (the fold is still growing). */
     var top = rows[0].getBoundingClientRect().top + studio.scrollTop, k = 0;
     for (; k < i; k++) top += rows[k].firstElementChild.offsetHeight + 1;
-    var h = rows[i].firstElementChild.offsetHeight + 1 + rows[i].lastElementChild.offsetHeight,
+    var h = rows[i].firstElementChild.offsetHeight + 1 + rows[i].querySelector('.svc-body').scrollHeight,
         free = studio.clientHeight - barH,
         to = top - barH - Math.max(0, (free - h) / 2);   // a row taller than the room starts at its top
     glideTo(to);
   }
-  // rows that share a name close one another: only on a wide screen
-  function share() { rows.forEach(function (d) { if (narrow.matches) d.removeAttribute('name'); else d.setAttribute('name', 'svc'); }); }
-  share();
-  narrow.addEventListener('change', share);
   rows.forEach(function (d, i) {
     var head = d.firstElementChild;
     head.addEventListener('click', function (e) {
-      if (calm) return;
-      // a row folds back before it closes (on its own the browser would just cut it off)
-      if (d.open) {
-        e.preventDefault();
-        if (d.classList.contains('is-closing')) return;
-        d.classList.add('is-closing');
-        setTimeout(function () { d.open = false; d.classList.remove('is-closing'); }, 450);   // the fold's time in the CSS
-        return;
-      }
-      if (narrow.matches) return;   // a phone: the CSS unfolds the row
+      if (d.open) { e.preventDefault(); fold(d); return; }
+      if (narrow.matches || calm) return;   // a phone: the CSS unfolds the row, and several can be open
+      // one open at a time on a wide screen: the open one folds away while this one unfolds
+      rows.forEach(function (r) { if (r !== d) fold(r); });
       // where the photo floats now, read before the row opens (it fades once open)
       var fl = head.querySelector('.svc-float'), r = fl.getBoundingClientRect(),
           from = pointer.matches && head.matches(':hover') ? { x: r.left + r.width / 2, y: r.top + r.height / 2, w: fl.offsetWidth } : null,
