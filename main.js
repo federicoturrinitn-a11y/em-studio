@@ -450,14 +450,56 @@
      their own drift; the logo is hidden exactly as the middle row's edge
      passes over it (a clip that runs with the row); then it comes back up
      from below the screen, white, to sit over the bottom row. */
-  var SLIDE = 2100,   // until the rows have all but settled (CSS .mrow)
-      INTO = { duration: 2200, delay: 150, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' };   // the middle row's slide, as in the CSS
+  var SLIDE = 2250,   // until the rows have all but settled (CSS .mrow)
+      INTO = { duration: 2200, delay: 300, ease: [0.16, 1, 0.3, 1] },   // the middle row's slide, as in the CSS
+      // where each handwritten letter ends, as a share of its half's width (em: e m; studio: s t u d i o)
+      LETTERS = [[0.37, 1], [0.18, 0.32, 0.46, 0.69, 0.8, 1]],
+      WIPE = 60;   // each letter goes this fast once the photo's edge is over its middle (one after the other)
+  // the time a cubic-bezier ease reaches a given progress (its y), found by halving
+  function when(ease, y) {
+    function b(p1, p2, s) { return 3 * p1 * s * (1 - s) * (1 - s) + 3 * p2 * s * s * (1 - s) + s * s * s; }
+    var lo = 0, hi = 1;
+    for (var k = 0; k < 30; k++) { var s = (lo + hi) / 2; if (b(ease[1], ease[3], s) < y) lo = s; else hi = s; }
+    return b(ease[0], ease[2], lo);
+  }
+  /* The logo goes letter by letter as the middle row's edge passes over it:
+     a clip that holds at the start of each letter until the edge reaches its
+     middle, then takes the whole letter at once. The edge sweeps the row
+     from -5% to 100% of its width on the row's own ease. */
+  function lettersAway() {
+    var w = innerWidth, total = INTO.delay + INTO.duration, frames = [{ offset: 0, clipPath: 'inset(0 0 0 0)' }], at = 0;
+    // from the layout, not the screen: the logo may still be finishing its zoom to full size
+    [].forEach.call(mark.querySelectorAll('img'), function (im, h) {
+      var left = im.parentNode.offsetLeft + im.offsetLeft, from = left;   // its half's place in the full-width logo
+      LETTERS[h].forEach(function (end) {
+        var to = left + im.offsetWidth * end, mid = (from + to) / 2,
+            t = INTO.delay + INTO.duration * when(INTO.ease, Math.min(1, (mid / w + 0.05) / 1.05)),
+            o1 = Math.max(at, t / total), o2 = Math.min(1, o1 + WIPE / total);
+        frames.push({ offset: o1, clipPath: 'inset(0 0 0 ' + from.toFixed(1) + 'px)' },
+                    { offset: o2, clipPath: 'inset(0 0 0 ' + to.toFixed(1) + 'px)' });
+        at = o2; from = to;
+      });
+    });
+    frames.push({ offset: 1, clipPath: 'inset(0 0 0 100%)' });
+    return mark.animate(frames, { duration: total, fill: 'forwards' });
+  }
+  /* The rows come in fast and keep that pace a little once in place, then
+     slow gradually to their own drift: their slide's speed, raised and let down. */
+  function rush() {
+    var strips = [].map.call(document.querySelectorAll('.mstrip'), function (s) { return s.getAnimations()[0]; })
+                   .filter(Boolean),
+        FAST = 12, HOLD = 2500, EASE = 4500, t0 = performance.now();
+    (function slow() {
+      var t = performance.now() - t0, q = Math.min(1, Math.max(0, (t - HOLD) / EASE));
+      strips.forEach(function (a) { a.playbackRate = 1 + (FAST - 1) * Math.pow(1 - q, 2); });
+      if (q < 1) requestAnimationFrame(slow);
+    })();
+  }
   function enter() {
     photos(function () {
       root.classList.add('photos-in');
-      // the middle row comes from the left: its right edge sweeps the screen from -5% to 100%
-      var cover = mark.animate([{ clipPath: 'inset(0 0 0 -5%)' }, { clipPath: 'inset(0 0 0 100%)' }],
-                               { duration: INTO.duration, delay: INTO.delay, easing: INTO.easing, fill: 'forwards' });
+      rush();
+      var cover = lettersAway();
       setTimeout(function () {
         cover.cancel();
         // out of sight below the screen, already white, with no transition...

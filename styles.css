@@ -1643,7 +1643,7 @@ html[data-menu="light"] .corner--tr a {
   width: auto;
   aspect-ratio: 3 / 2;
   margin-right: var(--gap);   /* inside the strip's width, so one set is exactly a third */
-  border-radius: 6px;
+  border-radius: 18px;
   object-fit: cover;
 }
 @keyframes slide {
@@ -1657,7 +1657,7 @@ html[data-menu="light"] .corner--tr a {
 /* the photos fade in first thing, under the opening logo */
 /* The opening (main.js): the rows slide in from the sides once the photos
    have loaded, the top and bottom ones from the right, the middle one from
-   the left, each a beat after the one before. With them the white turns to
+   the left: the top and bottom ones together, the middle one a beat later. With them the white turns to
    dark blue at the foot, as the shade over it does: no white ever reaches the
    bottom edge, where a fast scroll could show it as a line. */
 html.js .mrow {
@@ -1672,10 +1672,8 @@ html.photos-in .mrow:nth-child(2) {
   transform: none;
   transition: transform 2.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
+/* in two beats: the top and bottom rows together, then the middle one */
 html.photos-in .mrow:nth-child(2) {
-  transition-delay: 0.15s;
-}
-html.photos-in .mrow:nth-child(3) {
   transition-delay: 0.3s;
 }
 .hero::before {
