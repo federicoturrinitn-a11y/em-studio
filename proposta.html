@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EM Studio — proposta per la Home</title>
+    <link rel="icon" type="image/png" href="img/icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet" />
+    <!-- A proposal for the opening of Home, on a page of its own to set beside
+         the current one. On white the logo grows; under it a small window opens
+         and the projects flip through it like a flipbook, slowing down; then the
+         window opens into three tall panels, each with its own projects fading
+         one into the next. The logo is dark on the white and white on the
+         photos at the same instant (a dark copy under the panels, a white copy
+         inside each), so it never changes colour all at once. -->
+    <style>
+      :root {
+        --navy: #091956;
+        --blue: #334eac;
+        --pale: #c7cee7;
+        --body: #2a3150;
+        --pad: clamp(16px, 3.2vw, 46px);
+        --gap: clamp(8px, 0.8vw, 12px);
+        --logo-w: min(56vw, 620px);
+        --ease: cubic-bezier(0.2, 0.7, 0.1, 1);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        background: #fff;
+        color: var(--navy);
+        font-family: Montserrat, system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      body.is-held {
+        overflow: hidden;   /* no scrolling until the opening has played */
+      }
+      a {
+        color: inherit;
+      }
+
+      /* ------------------------------------------------------ the top bar */
+      .top {
+        position: fixed;
+        z-index: 20;
+        top: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--pad);
+        pointer-events: none;
+        transition: background-color 0.4s ease, padding 0.4s ease;
+      }
+      .top > * {
+        pointer-events: auto;
+      }
+      .brand img {
+        display: block;
+        height: 24px;
+        width: auto;
+      }
+      .brand {
+        opacity: 0;
+        transition: opacity 0.4s ease;
+      }
+      .top nav {
+        display: flex;
+        gap: 18px;
+        opacity: 0;
+        transition: opacity 0.8s ease, color 0.4s ease;
+      }
+      .top nav a {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-decoration: none;
+        color: #fff;
+        transition: color 0.4s ease;
+      }
+      .top nav a:hover {
+        text-decoration: underline;
+        text-underline-offset: 5px;
+      }
+      .is-open .top nav {
+        opacity: 1;
+      }
+      /* past the photos: a white bar, the small logo and the menu in navy */
+      .is-past .top {
+        background: rgba(255, 255, 255, 0.92);
+        padding-block: 14px;
+      }
+      .is-past .brand {
+        opacity: 1;
+      }
+      .is-past .top nav a {
+        color: var(--navy);
+      }
+
+      /* ----------------------------------------------------- the opening */
+      .stage {
+        position: relative;
+        height: 100vh;
+        height: 100svh;
+        overflow: hidden;
+        background: #fff;
+      }
+      /* the logo, in the same place in every layer; main.js moves them all at
+         once through --ly and --ls on the stage */
+      .logo {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: var(--logo-w);
+        height: auto;
+        transform: translate(-50%, -50%) translateY(var(--ly, 0px)) scale(var(--ls, 0.2));
+        transition: transform 1.2s cubic-bezier(0.65, 0, 0.25, 1);
+        pointer-events: none;
+        user-select: none;
+      }
+      .logo--light {
+        filter: brightness(0) invert(1);
+        z-index: 3;
+      }
+      .logo--ink {
+        z-index: 1;
+        opacity: 0;
+        transition:
+          transform 1.2s cubic-bezier(0.65, 0, 0.25, 1),
+          opacity 0.8s ease;
+      }
+      .is-lit .logo--ink {
+        opacity: 1;
+      }
+      /* once the panels cover the page the dark copy steps out, so the thin white
+         gaps between them never show bits of it */
+      .is-open .logo--ink {
+        opacity: 0;
+      }
+      .is-lit {
+        --ls: 1;
+      }
+      /* the panels: each is the whole stage, cut down to its column by a clip
+         (main.js), its photos laid out in that column */
+      .panel {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        clip-path: inset(50% 50% 50% 50%);
+      }
+      .panel--1 {
+        z-index: 4;   /* the middle one, where the flipbook plays, on top */
+      }
+      .pics {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        overflow: hidden;
+      }
+      .pics img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0;
+      }
+      .pics img.on {
+        opacity: 1;
+      }
+      /* in the slideshow each photo fades in and settles from a slight zoom */
+      .is-open .pics img {
+        transition: opacity 1.2s ease, transform 6s linear;
+        transform: scale(1.08);
+      }
+      .is-open .pics img.on {
+        transform: scale(1);
+      }
+      /* a shade at the foot, for the logo, and at the top, for the menu */
+      .pics::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(rgba(9, 25, 86, 0.35), transparent 22%, transparent 55%, rgba(9, 25, 86, 0.6));
+        opacity: 0;
+        transition: opacity 1s ease;
+      }
+      .is-open .pics::after {
+        opacity: 1;
+      }
+      /* whose project it is, at the top of each panel */
+      .cap {
+        position: absolute;
+        z-index: 2;
+        margin: 0;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        line-height: 1.5;
+        opacity: 0;
+        transform: translateY(8px);
+        transition: opacity 0.5s ease, transform 0.6s var(--ease);
+      }
+      .cap b {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+      }
+      .is-open .cap.on {
+        opacity: 1;
+        transform: none;
+      }
+      .hint {
+        position: absolute;
+        z-index: 5;
+        right: var(--pad);
+        bottom: var(--pad);
+        margin: 0;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        color: #fff;
+        opacity: 0;
+        transition: opacity 0.8s ease 0.6s;
+      }
+      .is-open .hint {
+        opacity: 0.85;
+      }
+
+      /* ------------------------------------------------- after the photos */
+      .intro {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: clamp(90px, 16vh, 170px) var(--pad);
+        text-align: center;
+      }
+      .eyebrow {
+        margin: 0 0 20px;
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.16em;
+        color: var(--blue);
+      }
+      .intro h2 {
+        margin: 0;
+        font-size: clamp(2rem, 4.6vw, 3.8rem);
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        line-height: 1.08;
+      }
+      .intro p.lead {
+        max-width: 48ch;
+        margin: clamp(20px, 3vw, 32px) auto 0;
+        font-size: clamp(1rem, 1.25vw, 1.15rem);
+        line-height: 1.65;
+        color: var(--body);
+      }
+      .links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+        margin-top: clamp(28px, 4vw, 40px);
+      }
+      .btn {
+        display: inline-block;
+        padding: 0.85em 1.7em;
+        border: 1.5px solid var(--navy);
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background-color 0.25s ease, color 0.25s ease;
+      }
+      .btn:hover,
+      .btn--solid {
+        background: var(--navy);
+        color: #fff;
+      }
+      .btn--solid:hover {
+        background: var(--blue);
+        border-color: var(--blue);
+      }
+      .note {
+        margin: 0 var(--pad) var(--pad);
+        padding: 20px 24px;
+        border-radius: 12px;
+        background: #f1f3fa;
+        font-size: 0.85rem;
+        line-height: 1.6;
+        color: var(--body);
+        text-align: center;
+      }
+
+      @media (max-width: 640px) {
+        .top nav {
+          gap: 10px;
+        }
+        .top nav a {
+          letter-spacing: 0.03em;
+        }
+        :root {
+          --logo-w: 78vw;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body class="is-held">
+    <header class="top">
+      <a class="brand" href="index.html" aria-label="EM Studio, Home"><img src="img/logo.png" alt="" /></a>
+      <nav aria-label="Sezioni">
+        <a href="index.html#home">Home</a>
+        <a href="index.html#chi-siamo">Studio</a>
+        <a href="lavori.html">Lavori</a>
+        <a href="index.html#contatti">Contatti</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="stage" id="stage" aria-label="EM Studio">
+        <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">EM Studio — Comunicazione e marketing</h1>
+        <img class="logo logo--ink" src="img/logo.png" alt="" />
+
+        <!-- each panel: its photos (data-name and data-kind for the caption) -->
+        <div class="panel panel--0">
+          <div class="pics">
+            <img src="img/dolce-riva-1.jpg" alt="" data-name="Dolce Riva Night" data-kind="Organizzazione eventi" />
+            <img src="img/calzature-dro-1.jpg" alt="" data-name="Calzature Dro" data-kind="Catena di negozi di scarpe" />
+            <img src="img/desiree-corona-1.jpg" alt="" data-name="Desiree Corona" data-kind="Centro estetico" />
+            <img src="img/mc-house-1.jpg" alt="" data-name="MC House Group" data-kind="Agenzia immobiliare" />
+          </div>
+          <p class="cap"></p>
+          <img class="logo logo--light" src="img/logo.png" alt="" />
+        </div>
+        <div class="panel panel--1">
+          <div class="pics">
+            <!-- the flipbook first (data-flip), then its own slideshow from the last of them -->
+            <img src="img/moor-1.jpg" alt="" data-flip />
+            <img src="img/pallavolo-c9-2.jpg" alt="" data-flip />
+            <img src="img/sweet-retreat-1.jpg" alt="" data-flip />
+            <img src="img/la-lavagna-2.jpg" alt="" data-flip />
+            <img src="img/desiree-corona-2.jpg" alt="" data-flip />
+            <img src="img/calzature-dro-3.jpg" alt="" data-flip />
+            <img src="img/like-home-1.jpg" alt="" data-flip />
+            <img src="img/dolce-riva-3.jpg" alt="" data-flip />
+            <img src="img/horizon-1.jpg" alt="" data-name="Horizon Music Festival" data-kind="Organizzazione eventi" />
+            <img src="img/garda-host-2.jpg" alt="" data-name="Garda Host" data-kind="Agenzia affitti turistici" />
+            <img src="img/la-lavagna-2.jpg" alt="" data-name="La Lavagna" data-kind="Pizzeria e laboratorio artigianale" />
+            <img src="img/like-home-1.jpg" alt="" data-name="Like Home Design" data-kind="Agenzia di interior design" />
+          </div>
+          <p class="cap"></p>
+          <img class="logo logo--light" src="img/logo.png" alt="" />
+        </div>
+        <div class="panel panel--2">
+          <div class="pics">
+            <img src="img/calzature-dro-2.jpg" alt="" data-name="Calzature Dro" data-kind="Catena di negozi di scarpe" />
+            <img src="img/sweet-retreat-1.jpg" alt="" data-name="Sweet Retreat" data-kind="Appartamenti turistici" />
+            <img src="img/horizon-3.jpg" alt="" data-name="Horizon Music Festival" data-kind="Merchandising" />
+            <img src="img/dolce-riva-3.jpg" alt="" data-name="Dolce Riva Night" data-kind="Organizzazione eventi" />
+          </div>
+          <p class="cap"></p>
+          <img class="logo logo--light" src="img/logo.png" alt="" />
+        </div>
+        <p class="hint" aria-hidden="true">SCORRI ↓</p>
+      </section>
+
+      <section class="intro">
+        <p class="eyebrow">(01) — EM STUDIO</p>
+        <h2>Il bello è vedere quello che gli altri non vedono.</h2>
+        <p class="lead">
+          EM Studio è uno spazio creativo in continua evoluzione, dove idee,
+          competenze e punti di vista diversi si incontrano. Un team che prende
+          forma attorno a ogni progetto.
+        </p>
+        <div class="links">
+          <a class="btn btn--solid" href="lavori.html">Vedi i lavori</a>
+          <a class="btn" href="index.html#contatti">Parliamo del tuo progetto</a>
+        </div>
+      </section>
+
+      <aside class="note">
+        Questa è una proposta solo per la parte iniziale della Home. Il resto
+        (servizi, studio, contatti) resta com'è:
+        <a href="index.html">apri la Home attuale</a> per confrontarla.
+      </aside>
+    </main>
+
+    <script>
+      (function () {
+        'use strict';
+        var root = document.documentElement,
+            body = document.body,
+            stage = document.getElementById('stage'),
+            panels = [].slice.call(stage.querySelectorAll('.panel')),
+            calm = matchMedia('(prefers-reduced-motion: reduce)').matches,
+            open = false;
+
+        /* Where everything goes, measured on the stage: the small window in the
+           middle (upright, 3:4) and the panels' columns, three across, or one
+           on a phone. Each panel is the whole stage cut down by a clip. */
+        var rects = {};
+        function measure() {
+          var W = stage.clientWidth, H = stage.clientHeight,
+              g = parseFloat(getComputedStyle(root).getPropertyValue('--gap')) || 10,
+              n = W < 700 ? 1 : 3,
+              cw = (W - g * (n + 1)) / n,
+              ww = Math.max(150, Math.min(260, W * 0.18)), wh = ww * 4 / 3;
+          rects.window = { l: (W - ww) / 2, t: (H - wh) / 2, w: ww, h: wh };
+          rects.cols = panels.map(function (p, i) {
+            var k = n === 1 ? 0 : i;   // on a phone all three share the one column; only the middle one shows
+            return { l: g + k * (cw + g), t: g, w: cw, h: H - g * 2 };
+          });
+          panels.forEach(function (p, i) {
+            var c = rects.cols[i], pics = p.querySelector('.pics'), cap = p.querySelector('.cap');
+            pics.style.left = c.l + 'px';
+            pics.style.width = c.w + 'px';
+            pics.style.top = c.t + 'px';
+            pics.style.bottom = (H - c.t - c.h) + 'px';
+            pics.style.borderRadius = '10px';
+            cap.style.left = (c.l + 18) + 'px';
+            cap.style.top = (c.t + 70) + 'px';
+            p.style.display = n === 1 && i !== 1 ? 'none' : '';
+          });
+          // the logo's resting place: at the foot of the stage, clear of the edge
+          var logo = stage.querySelector('.logo--ink');
+          rects.low = H / 2 - logo.offsetHeight / 2 - Math.max(28, H * 0.06);
+          if (open) settle();
+        }
+        function clip(r, round) {
+          var W = stage.clientWidth, H = stage.clientHeight;
+          return 'inset(' + r.t.toFixed(1) + 'px ' + (W - r.l - r.w).toFixed(1) + 'px ' +
+                 (H - r.t - r.h).toFixed(1) + 'px ' + r.l.toFixed(1) + 'px round ' + round + 'px)';
+        }
+        // the panels in their columns and the logo low, with no animation (after a resize)
+        function settle() {
+          panels.forEach(function (p, i) { p.style.clipPath = clip(rects.cols[i], 10); });
+          stage.style.setProperty('--ly', rects.low + 'px');
+        }
+
+        /* Each panel fades from one of its projects to the next, the three a
+           beat apart, the caption with them. */
+        function slideshow(p, delay) {
+          var imgs = [].slice.call(p.querySelectorAll('.pics img:not([data-flip])')),
+              cap = p.querySelector('.cap'), k = 0;
+          function show() {
+            imgs.forEach(function (im, i) { im.classList.toggle('on', i === k); });
+            cap.classList.remove('on');
+            setTimeout(function () {
+              cap.innerHTML = '<b>' + imgs[k].getAttribute('data-name') + '</b>' + imgs[k].getAttribute('data-kind');
+              cap.classList.add('on');
+            }, 350);
+          }
+          show();
+          setTimeout(function () {
+            setInterval(function () { k = (k + 1) % imgs.length; show(); }, 4800);
+          }, delay);
+        }
+
+        function finish() {
+          open = true;
+          root.classList.add('is-open');
+          body.classList.remove('is-held');
+          settle();
+          panels.forEach(function (p, i) { slideshow(p, i * 1600); });
+        }
+
+        var later = function (f, ms) { return new Promise(function (r) { setTimeout(function () { f && f(); r(); }, ms); }); };
+
+        function play() {
+          measure();
+          if (calm) {
+            panels.forEach(function (p) { p.querySelector('.pics img:not([data-flip])').classList.add('on'); });
+            root.classList.add('is-lit');
+            return finish();
+          }
+          var mid = panels[1], flips = [].slice.call(mid.querySelectorAll('.pics img[data-flip]')),
+              first = mid.querySelector('.pics img:not([data-flip])');
+          // 1 — on white, the logo grows in the middle
+          setTimeout(function () { root.classList.add('is-lit'); }, 30);   // after a first frame at the small size
+          later(null, 1300)
+          // 2 — a small window opens under it, and the projects flip through it, slowing down
+          .then(function () {
+            flips[0].classList.add('on');
+            mid.animate([{ clipPath: 'inset(50% 50% 50% 50% round 10px)' }, { clipPath: clip(rects.window, 10) }],
+                        { duration: 700, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)', fill: 'forwards' });
+            var steps = [120, 110, 110, 120, 140, 170, 210, 260], chain = later(null, 750);
+            flips.concat(first).forEach(function (im, i) {
+              if (!i) return;
+              chain = chain.then(function () {
+                (flips[i - 1] || im).classList.remove('on');
+                im.classList.add('on');
+                return later(null, steps[i - 1] || 300);
+              });
+            });
+            return chain;
+          })
+          .then(function () { return later(null, 450); })
+          // 3 — the window opens into the three panels, the side ones sliding out from behind the middle one
+          .then(function () {
+            panels.forEach(function (p, i) {
+              p.querySelector('.pics img:not([data-flip])').classList.add('on');
+              var a = p.animate([{ clipPath: clip(rects.window, 10) }, { clipPath: clip(rects.cols[i], 10) }],
+                                { duration: 1200, easing: 'cubic-bezier(0.7, 0, 0.2, 1)', fill: 'forwards' });
+              // landed: the clip goes into the style, and every animation on the panel (the window's too) lets go
+              a.onfinish = function () {
+                p.style.clipPath = clip(rects.cols[i], 10);
+                p.getAnimations().forEach(function (x) { x.cancel(); });
+              };
+            });
+            return later(null, 1150);
+          })
+          // 4 — the logo, white on the photos now, goes down to the foot; the menu and the captions come in
+          .then(finish);
+        }
+
+        // the bar turns white once the photos are scrolled away
+        new IntersectionObserver(function (es) {
+          root.classList.toggle('is-past', !es[0].isIntersecting);
+        }, { rootMargin: '-80px 0px 0px 0px' }).observe(stage);
+
+        addEventListener('resize', measure);
+        // start once the photos are in, so the flipbook never shows an empty frame
+        var imgs = [].slice.call(stage.querySelectorAll('img')), left = imgs.length, started = false;
+        function go() { if (!started) { started = true; play(); } }
+        imgs.forEach(function (im) {
+          if (im.complete) left--;
+          else im.addEventListener('load', function () { if (--left === 0) go(); }), im.addEventListener('error', function () { if (--left === 0) go(); });
+        });
+        if (left <= 0) go();
+        setTimeout(go, 4000);   // a slow connection: start anyway
+      })();
+    </script>
+  </body>
+</html>
