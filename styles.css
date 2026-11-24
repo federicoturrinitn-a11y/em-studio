@@ -39,8 +39,8 @@ body {
 }
 body {
   margin: 0;
-  /* Home's own white */
-  background: #ffffff;
+  /* Home's own dark blue, under its photos: the white logo is on it from the first paint */
+  background: #091956;
   color: var(--ink);
   font-family: var(--font);
   -webkit-font-smoothing: antialiased;
@@ -1594,7 +1594,7 @@ html[data-menu="light"] .corner--tr a {
 .intro.hero {
   position: relative;
   z-index: 1;
-  background: #fff;   /* white between the photos; the page under it is dark blue */
+  background: #091956;   /* dark blue until the photos are in, so the white logo always shows */
   height: 100vh;
   height: 100dvh;
   min-height: 0;
@@ -1646,10 +1646,22 @@ html[data-menu="light"] .corner--tr a {
   animation-play-state: paused;
 }
 /* the photos fade in first thing, under the opening logo */
-html.js .slides {
+/* The photos and the white between them come in together, once the photos
+   have loaded (main.js sets .has-photos). The white turns to dark blue at the
+   foot, as the shade over it does: no white ever reaches the bottom edge,
+   where a fast scroll could show it as a line. */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(#fff 45%, #091956);
+}
+html.js .slides,
+html.js .hero::before {
   opacity: 0;
 }
-html.is-lit .slides {
+html.has-photos .slides,
+html.has-photos .hero::before {
   opacity: 1;
   transition: opacity 1s ease;
 }
@@ -1660,7 +1672,7 @@ html.is-lit .slides {
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background: linear-gradient(transparent 45%, #091956);
+  background: linear-gradient(transparent 45%, #091956 calc(100% - 4px));   /* solid for the last few pixels */
 }
 /* for screen readers and search engines only */
 .vh {

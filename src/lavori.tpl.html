@@ -427,7 +427,7 @@ html.is-project body::before{content:'';position:fixed;z-index:15;top:0;left:0;r
     ready = false;
     leaveFrom = tx;
     leaveStart = performance.now();
-    var light = !/#contatti$/.test(href);   // Home and Studio are white
+    var light = /#chi-siamo$/.test(href);   // Studio is white; Home opens on dark blue, Contatti is dark blue
     root.classList.add('is-leaving');
     // the colour of the page it goes to falls like a curtain; the logo turns as it passes
     var c = document.body.appendChild(document.createElement('div'));

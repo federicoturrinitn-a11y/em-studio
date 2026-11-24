@@ -201,16 +201,16 @@
   var barC = '';
   function barColour(c) { if (c !== barC) { barC = c; bar.style.backgroundColor = c; } }
 
-  // low: the logo over the photos at the foot of Home's first screen, white like the menu over them;
-  // before that, growing in the middle of the white first screen, it is dark
-  function atmosphere(y, low) {
+  // the logo and the menu wear the tone of the page under the bar; on Home that is
+  // white from the very first frame (its first screen is dark blue until the photos are in)
+  function atmosphere(y) {
     if (active !== studio) return;
     var under = y + barH / 2, j = 1;
     for (; j < sceneEls.length && sceneTops[j] <= under; j++);
     var sc = SCENES[sceneEls[j - 1].getAttribute('data-scene')];
     barColour('');
     setBase(sc[0]);
-    setTone(!split ? 'light' : low ? 'dark' : sc[1]);
+    setTone(sc[1]);
   }
 
   /* Everything the scroll needs is measured here, on load and resize, so a
@@ -225,7 +225,7 @@
     var y = studio.scrollTop, home = split && active === studio;
     // at the very top of Home the whole logo sits low over the photos; the first scroll docks it top left, over the bar
     root.classList.toggle('is-low', home && y <= 8);
-    atmosphere(y, home && y <= 8);
+    atmosphere(y);
     root.classList.toggle('is-docked', home && y > 8);
   }
   studio.addEventListener('scroll', scrolled, { passive: true });
@@ -453,6 +453,13 @@
 
   // the background first: the photos fade in before anything else moves
   requestAnimationFrame(function () { root.classList.add('is-lit'); });
+  // the photos and the white between them show once every photo has loaded
+  var shots = [].slice.call(document.querySelectorAll('.mstrip img')), waiting = shots.length;
+  function arrived() { if (--waiting === 0) root.classList.add('has-photos'); }
+  shots.forEach(function (im) {
+    if (im.complete) arrived();
+    else { im.addEventListener('load', arrived); im.addEventListener('error', arrived); }
+  });
   // each sliding row of photos holds its set three times over, so it never runs out (CSS .mstrip)
   [].forEach.call(document.querySelectorAll('.mstrip'), function (s) { s.innerHTML += s.innerHTML + s.innerHTML; });
   // and it stops drifting while it is scrolled out of sight
