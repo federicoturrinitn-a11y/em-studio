@@ -16,7 +16,7 @@
     <meta property="og:image" content="https://federicoturrinitn-a11y.github.io/em-studio/img/og.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
     <!-- shortcut: the ?v= is bumped by hand so a browser never pairs a new page with old styles; a build step should stamp it if the site gets one -->
-    <link rel="stylesheet" href="styles.css?v=32" />
+    <link rel="stylesheet" href="styles.css?v=33" />
     <script src="main.js?v=22" defer></script>
   </head>
   <body>
@@ -83,7 +83,7 @@
             <!-- the first screen: the cover of each project, all the same size,
                  in three rows sliding past (top and bottom to the left, middle
                  to the right; main.js repeats each row so it never runs out),
-                 the slogan over the bottom row -->
+                 the name over them at the foot of the screen -->
             <div class="intro hero">
               <div class="slides" aria-hidden="true">
                 <div class="mrow"><div class="mstrip">
@@ -111,12 +111,10 @@
                   <img src="img/home/garda-trentino-1.jpg" width="720" height="480" alt="" decoding="async" />
                 </div></div>
               </div>
-              <h1>
-                <span class="ln"><span>Creative thinking.</span></span
-                ><span class="ln"><span>The right people.</span></span
-                ><span class="ln"
-                  ><span>A project built around you.</span></span
-                >
+              <!-- the name over the photos, as in the reference: em on the left,
+                   studio on the right, a line between them -->
+              <h1 class="hero-name" aria-label="EM Studio">
+                <img src="img/logo-em.png" alt="" /><span class="hero-rule"></span><img src="img/logo-studio.png" alt="" />
               </h1>
             </div>
             <div class="track" id="track">

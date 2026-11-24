@@ -652,38 +652,6 @@ html.is-docked .hint {
   color: var(--muted);
 }
 
-.intro h1 {
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  font-size: clamp(2.2rem, 5.4vw, 4.8rem);
-  line-height: 1.06;
-  margin: 0 0 clamp(18px, 2.4vw, 30px);
-  white-space: nowrap;
-}
-/* each line rises out of its own mask as the page scrolls (main.js) */
-.ln {
-  display: block;
-  overflow: hidden;
-  padding-bottom: 0.08em;
-}
-.ln > span {
-  display: inline-block;
-}
-html.js .ln > span {
-  transform: translateY(110%);
-}
-/* the opening needs no scroll: once the logo has settled at the top the
-   slogan rises line by line, then the paragraph */
-html.is-top .ln > span {
-  transform: none;
-  transition: transform 1.6s var(--ease) 0.9s;
-}
-html.is-top .ln:nth-child(2) > span {
-  transition-delay: 1.15s;
-}
-html.is-top .ln:nth-child(3) > span {
-  transition-delay: 1.4s;
-}
 /* every other text on Studio rises the same way as it scrolls in (main.js):
    hidden until its turn, then cut into lines that each rise out of a mask */
 html.js .rv {
@@ -705,9 +673,6 @@ html.js .rv.rv-on {
 }
 .rv-in .rl > span {
   transform: none;
-}
-.ln:nth-child(3) > span {
-  color: var(--pale);
 }
 .intro p {
   margin: 0 0 18px;
@@ -1183,10 +1148,6 @@ html:not(.js) #shuffle {
     top: 4px;
     width: 12px;
     height: 12px;
-  }
-  .intro h1 {
-    white-space: normal;
-    width: 80vw;
   }
   .quote {
     grid-template-columns: 1fr;
@@ -1720,15 +1681,42 @@ html.is-top .slides {
   pointer-events: none;
   background: linear-gradient(rgba(9, 25, 86, 0.5), transparent 15vh, transparent 45vh, rgba(9, 25, 86, 0.85) 95vh, rgba(9, 25, 86, 0.3) 115vh, transparent);
 }
-.intro.hero h1 {
+/* the name: em on the left, studio on the right, a line between, white over
+   the photos at the foot of the first screen; it comes up once the logo has docked */
+.hero-name {
+  --name-h: clamp(54px, 10vw, 160px);
   position: absolute;
   z-index: 2;
   left: var(--pad);
-  top: calc(100vh - var(--pad) - 1vh);   /* the foot of the first screen */
-  top: calc(100dvh - var(--pad) - 1vh);
-  transform: translateY(-100%);
+  right: var(--pad);
+  top: calc(100vh - var(--pad) - 2vh - var(--name-h));
+  top: calc(100dvh - var(--pad) - 2vh - var(--name-h));
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 3vw, 48px);
   margin: 0;
-  font-size: clamp(2.2rem, 5.6vw, 5.4rem);
+}
+.hero-name img {
+  display: block;
+  height: var(--name-h);
+  width: auto;
+  filter: brightness(0) invert(1);   /* the navy logo, in white */
+}
+.hero-rule {
+  flex: 1;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.85);
+}
+html.js .hero-name {
+  opacity: 0;
+  transform: translateY(30px);
+}
+html.is-top .hero-name {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 1.2s ease 0.9s,
+    transform 1.6s var(--ease) 0.9s;
 }
 .hero + .track {
   padding-top: clamp(90px, 16vh, 180px);
