@@ -1204,7 +1204,7 @@ html:not(.js) #shuffle {
 }
 .svc-fold {
   display: grid;
-  animation: svc-fold 0.7s var(--ease);
+  animation: svc-fold 1.4s cubic-bezier(0.45, 0, 0.15, 1);   /* slow enough to be seen */
 }
 .svc-body {
   box-sizing: border-box;
@@ -1249,11 +1249,11 @@ html:not(.js) #shuffle {
 /* the text comes up as the photo lands (no delay and no fill: if it never
    runs, the text is simply there) */
 .svc-body > :not(.svc-pic) {
-  animation: svc-in 0.7s var(--ease);
+  animation: svc-in 1.4s var(--ease);
 }
 /* closing folds the row back first (main.js holds it open until it has) */
 .svc details.is-closing .svc-fold {
-  animation: svc-unfold 0.45s cubic-bezier(0.5, 0, 0.3, 1) forwards;
+  animation: svc-unfold 0.9s cubic-bezier(0.5, 0, 0.3, 1) forwards;
 }
 /* the copy of the photo flying in over the row, and the photo itself hidden until it lands */
 .svc-ghost {
@@ -1374,7 +1374,7 @@ html:not(.js) #shuffle {
     animation: svc-zoom 1.3s var(--ease) both;
   }
   .svc-fold {
-    animation: svc-fold 0.7s var(--ease);
+    animation: svc-fold 1.2s cubic-bezier(0.45, 0, 0.15, 1);
   }
   .svc .svc-body > div {
     animation: svc-in 0.8s var(--ease) 0.25s both;

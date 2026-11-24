@@ -261,16 +261,16 @@
     var go = ghost.animate([
       { transform: 'translate(' + (from.x - to.left - to.width / 2) + 'px,' + (from.y - to.top - to.height / 2) + 'px) scale(' + from.w / to.width + ') rotate(' + tilt + ')' },
       { transform: 'none' }
-    ], { duration: 900, easing: 'cubic-bezier(0.45, 0, 0.15, 1)' });
+    ], { duration: 1600, easing: 'cubic-bezier(0.45, 0, 0.15, 1)' });
     go.onfinish = go.oncancel = function () { ghost.remove(); d.classList.remove('is-flying'); };
-    setTimeout(go.onfinish, 1300);   // a background tab can hold the animation: the photo must never stay hidden
+    setTimeout(go.onfinish, 2000);   // a background tab can hold the animation: the photo must never stay hidden
   }
   // a row folds back before it closes (on its own the browser would just cut it off)
   function fold(d) {
     if (!d.open || d.classList.contains('is-closing')) return;
     if (calm) { d.open = false; return; }
     d.classList.add('is-closing');
-    setTimeout(function () { d.open = false; d.classList.remove('is-closing'); }, 450);   // the fold's time in the CSS
+    setTimeout(function () { d.open = false; d.classList.remove('is-closing'); }, 900);   // the fold's time in the CSS
   }
   function centre(i) {
     /* The rows are still opening and closing, so where this one will end up
