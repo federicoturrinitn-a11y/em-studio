@@ -1174,7 +1174,7 @@ html:not(.js) #shuffle {
   position: absolute;
   z-index: 2;
   top: calc(50% + var(--y));
-  left: calc(100% + 15px);   /* always 15px from the end of the words */
+  left: calc(100% + 50px);   /* always 50px from the end of the words */
   width: clamp(110px, 10vw, 160px);
   aspect-ratio: 4 / 5;
   overflow: hidden;
@@ -1191,7 +1191,7 @@ html:not(.js) #shuffle {
 .svc details:nth-child(even) .svc-float {
   --tilt: -3deg;
   left: auto;
-  right: calc(100% + 15px);   /* before the words, 15px from them */
+  right: calc(100% + 50px);   /* before the words, 50px from them */
 }
 /* each photo a little higher or lower, tilted its own way, so they never line up */
 .svc details:nth-child(1) .svc-float { --y: -14px; --tilt: 3deg; }
