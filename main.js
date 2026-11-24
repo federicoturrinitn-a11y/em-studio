@@ -446,12 +446,14 @@
 
   /* Home's opening, once the logo has grown in the middle of the white: the
      three rows of photos slide in from the sides (the top and bottom ones from
-     the right, the middle one from the left), fast at first and slowing into
-     their own drift; the logo is hidden exactly as the middle row's edge
-     passes over it (a clip that runs with the row); then it comes back up
-     from below the screen, white, to sit over the bottom row. */
-  var SLIDE = 2250,   // until the rows have all but settled (CSS .mrow)
-      INTO = { duration: 2200, delay: 300, ease: [0.16, 1, 0.3, 1] },   // the middle row's slide, as in the CSS
+     the right, the middle one from the left), each row whole, its photos still
+     within it; landed, it carries on at the speed it arrived with and slows
+     gradually to its own drift. The logo goes letter by letter as the middle
+     row's first photo passes over it; then it comes back up from below the
+     screen, white, to sit over the bottom row, and the menu comes in. */
+  var SLIDE = 3300,   // until the middle row has landed (CSS .mrow)
+      // the rows' slide, as in the CSS: fast at first, and still moving as it lands
+      INTO = { duration: 3000, delay: 300, ease: [0.2, 0.6, 0.6, 0.9] },
       // where each handwritten letter ends, as a share of its half's width (em: e m; studio: s t u d i o)
       LETTERS = [[0.37, 1], [0.18, 0.32, 0.46, 0.69, 0.8, 1]],
       WIPE = 30;   // a letter goes at once when the first photo's edge is over its middle
@@ -484,18 +486,29 @@
     frames.push({ offset: 1, clipPath: 'inset(0 0 0 100%)' });
     return mark.animate(frames, { duration: total, fill: 'forwards' });
   }
-  /* The rows come in fast and keep that pace a little once in place, then
-     slow gradually to their own drift: their slide's speed, raised and let down. */
+  /* While a row slides in its photos hold still within it; once it lands they
+     take over at the speed the row arrived with (the ease's slope at its end),
+     keep it a moment, then slow gradually to their own drift. */
   function rush() {
-    var strips = [].map.call(document.querySelectorAll('.mstrip'), function (s) { return s.getAnimations()[0]; })
-                   .filter(Boolean),
-        FAST = 12, HOLD = 2500, EASE = 4500, t0 = performance.now();
-    (function slow() {
-      var t = performance.now() - t0, q = Math.min(1, Math.max(0, (t - HOLD) / EASE));
-      strips.forEach(function (a) { a.playbackRate = 1 + (FAST - 1) * Math.pow(1 - q, 2); });
-      if (q < 1) requestAnimationFrame(slow);
-    })();
+    var e = INTO.ease, landing = (1 - e[3]) / (1 - e[2]), HOLD = 800, EASE = 4000;
+    [].forEach.call(document.querySelectorAll('.mrow'), function (row, k) {
+      var strip = row.firstElementChild, a = strip.getAnimations()[0];
+      if (!a) return;
+      a.playbackRate = 0;
+      var arrive = landing * row.offsetWidth * 1.05 / INTO.duration,           // px per ms as it lands
+          drift = strip.offsetWidth / 3 / a.effect.getTiming().duration,      // px per ms of its own slide
+          fast = arrive / drift;
+      setTimeout(function () {
+        var t0 = performance.now();
+        (function slow() {
+          var q = Math.min(1, Math.max(0, (performance.now() - t0 - HOLD) / EASE));
+          a.playbackRate = 1 + (fast - 1) * Math.pow(1 - q, 2);
+          if (q < 1) requestAnimationFrame(slow);
+        })();
+      }, (k === 1 ? INTO.delay : 0) + INTO.duration);
+    });
   }
+  if (entering && target() === studio) root.classList.add('is-opening');   // no menu yet
   function enter() {
     photos(function () {
       root.classList.add('photos-in');
@@ -509,7 +522,7 @@
         scrolled();
         mark.getBoundingClientRect();
         // ...then up to its place over the bottom row
-        root.classList.remove('is-rising');
+        root.classList.remove('is-rising', 'is-opening');   // and the menu comes in
         settle(studio);
       }, SLIDE);
     });

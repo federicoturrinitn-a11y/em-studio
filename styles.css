@@ -259,6 +259,10 @@ html.js .corner {
 html.is-grown .corner {
   opacity: 1;
 }
+/* Home's opening: the menu waits until the logo has come back up (main.js) */
+html.is-grown.is-opening .corner {
+  opacity: 0;
+}
 .corner--tr {
   top: var(--pad);
   right: var(--pad);
@@ -1666,11 +1670,11 @@ html.js .mrow {
 html.js .mrow:nth-child(2) {
   transform: translateX(-105%);
 }
-/* fast at first, slowing gradually into the rows' own drift (main.js INTO) */
+/* fast at first, then slowing; landed, the photos carry on at that speed (main.js) */
 html.photos-in .mrow,
 html.photos-in .mrow:nth-child(2) {
   transform: none;
-  transition: transform 2.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 3s cubic-bezier(0.2, 0.6, 0.6, 0.9);   /* still moving as it lands (main.js INTO) */
 }
 /* in two beats: the top and bottom rows together, then the middle one */
 html.photos-in .mrow:nth-child(2) {
