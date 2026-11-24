@@ -1128,8 +1128,7 @@ html:not(.js) #shuffle {
   text-align: center;
   cursor: pointer;
   list-style: none;
-  /* leaving a name, its hover holds for a moment before it goes (HOLD below) */
-  transition: background-color 0.6s ease 1.2s;
+  transition: background-color 0.35s ease;
 }
 .svc summary::-webkit-details-marker {
   display: none;
@@ -1145,19 +1144,14 @@ html:not(.js) #shuffle {
   font-weight: 500;
   letter-spacing: -0.02em;
   line-height: 1.1;
-  /* HOLD: whatever the pointer leaves stays as it was for 1.2s, then goes back */
   transition:
-    transform 0.8s ease 1.2s,
-    opacity 0.6s ease 1.2s;
+    transform 0.5s cubic-bezier(0.3, 1.4, 0.5, 1),   /* a slight overshoot: it swells, then settles */
+    opacity 0.4s ease;
 }
-/* pointing at a name: it grows at once, with a slight overshoot (it swells,
-   then settles), and the others step back; leaving, it holds, then shrinks back */
+/* pointing at a name: it grows, the others step back; leaving, it shrinks back */
 @media (hover: hover) {
   .svc summary:hover .svc-name {
     transform: scale(1.12);
-    transition:
-      transform 0.6s cubic-bezier(0.3, 1.4, 0.5, 1),
-      opacity 0.3s ease;
   }
   .svc-list:hover summary:not(:hover) .svc-name {
     opacity: 0.4;
@@ -1170,7 +1164,6 @@ html:not(.js) #shuffle {
 @media (hover: hover) {
   .svc summary:hover {
     background-color: #020823;
-    transition: background-color 0.3s ease;
   }
 }
 /* the photo beside the name: on the right, then on the left, in turn */
@@ -1189,8 +1182,8 @@ html:not(.js) #shuffle {
   opacity: 0;
   transform: translateY(-50%) scale(0.85) rotate(var(--tilt));
   transition:
-    opacity 0.5s ease 1.2s,
-    transform 0.8s var(--ease) 1.2s;
+    opacity 0.35s ease,
+    transform 0.5s var(--ease);
 }
 .svc details:nth-child(even) .svc-float {
   --tilt: -3deg;
@@ -1209,15 +1202,11 @@ html:not(.js) #shuffle {
   .svc summary:hover .svc-float {
     opacity: 1;
     transform: translateY(-50%) rotate(var(--tilt));
-    transition:
-      opacity 0.35s ease,
-      transform 0.5s var(--ease);
   }
 }
 /* opened, the photo has moved into the row */
 .svc details[open] .svc-float {
   opacity: 0;
-  transition: opacity 0.35s ease;   /* at once: the photo is on its way into the row */
 }
 /* the opened row: the text, and the photo on the side it floated on. It
    unfolds: its fold is a grid whose one row grows from nothing to the height
