@@ -288,7 +288,7 @@
      the ones beside it less and a beat later, the next ones less again; the
      further ones step back. Leaving the list, the wave settles from there. */
   var names = rows.map(function (d) { return d.querySelector('.svc-name'); }),
-      SWELL = [1.12, 1.05, 1.02], last = 0;
+      SWELL = [1.12, 1.06, 1.025, 1.01], last = 0;
   function wave(at) {
     if (at >= 0) last = at;
     names.forEach(function (n, k) {
@@ -296,9 +296,10 @@
           up = s > (n.swell || 1);   // swelling is almost instant; settling back waits a moment
       n.swell = s;
       n.style.setProperty('--s', s);
-      n.style.setProperty('--o', at < 0 ? 1 : Math.max(0.4, 1 - far * 0.22));
-      n.style.setProperty('--t', up ? '0.2s' : '0.3s');
-      n.style.setProperty('--d', ((up ? 0 : 0.1) + far * 0.03).toFixed(2) + 's');
+      n.style.setProperty('--o', at < 0 ? 1 : [1, 0.75, 0.58, 0.48][far] || 0.42);
+      // the wave spreads and slows as it goes: each step a little longer than the last
+      n.style.setProperty('--t', ((up ? 0.35 : 0.45) + far * 0.05).toFixed(2) + 's');
+      n.style.setProperty('--d', ((up ? 0 : 0.05) + 0.035 * Math.pow(far, 1.3)).toFixed(3) + 's');
     });
   }
   rows.forEach(function (d, i) {
