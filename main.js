@@ -7,7 +7,8 @@
       skip = document.getElementById('skip'),
       calm = matchMedia('(prefers-reduced-motion: reduce)').matches,
       timers = [],
-      split = false;
+      split = false,
+      entering = !calm;   // Home's opening: the logo dark on white until the photos have covered it
 
 
   /* ------------------------------------------------- centre the halves -- */
@@ -201,8 +202,8 @@
   var barC = '';
   function barColour(c) { if (c !== barC) { barC = c; bar.style.backgroundColor = c; } }
 
-  // the logo and the menu wear the tone of the page under the bar; on Home that is
-  // white from the very first frame (its first screen is dark blue until the photos are in)
+  // the logo and the menu wear the tone of the page under the bar; on Home that
+  // is white, except in the opening, where the logo starts dark on the white
   function atmosphere(y) {
     if (active !== studio) return;
     var under = y + barH / 2, j = 1;
@@ -210,7 +211,7 @@
     var sc = SCENES[sceneEls[j - 1].getAttribute('data-scene')];
     barColour('');
     setBase(sc[0]);
-    setTone(sc[1]);
+    setTone(entering ? 'light' : sc[1]);
   }
 
   /* Everything the scroll needs is measured here, on load and resize, so a
@@ -432,9 +433,37 @@
     timers.forEach(clearTimeout);
     place();
     root.classList.add('is-grown');
-    settle(active || target());
-    scrolled();   // on Home, the logo goes low
+    var v = active || target();
+    if (entering && v === studio) enter();
+    else {
+      entering = false;
+      settle(v);
+      scrolled();   // on Home, the logo goes low
+      photos(function () { root.classList.add('photos-in'); });
+    }
     setTimeout(settled, calm ? 0 : 1000);
+  }
+
+  /* Home's opening, once the logo has grown in the middle of the white: the
+     three rows of photos slide in from the sides over it (the top and bottom
+     ones from the right, the middle one from the left) and hide it; then it
+     comes back up from below the screen, white, to sit over the bottom row. */
+  var SLIDE = 1700;   // the rows' slide in, the last one's delay included (CSS .mrow)
+  function enter() {
+    root.classList.add('is-under');   // the logo waits under the page
+    photos(function () {
+      root.classList.add('photos-in');
+      setTimeout(function () {
+        // out of sight below the screen, already white, with no transition...
+        root.classList.add('is-rising');
+        entering = false;
+        scrolled();
+        mark.getBoundingClientRect();
+        // ...then up to its place over the bottom row
+        root.classList.remove('is-rising', 'is-under');
+        settle(studio);
+      }, SLIDE);
+    });
   }
 
   /* Once the logo has settled the services' photos (far down the page) load;
@@ -453,9 +482,10 @@
 
   // the background first: the photos fade in before anything else moves
   requestAnimationFrame(function () { root.classList.add('is-lit'); });
-  // the photos and the white between them show once every photo has loaded
-  var shots = [].slice.call(document.querySelectorAll('.mstrip img')), waiting = shots.length;
-  function arrived() { if (--waiting === 0) root.classList.add('has-photos'); }
+  // the photos slide in only once every one of them has loaded
+  var shots = [].slice.call(document.querySelectorAll('.mstrip img')), waiting = shots.length, onPhotos = [];
+  function photos(f) { if (waiting) onPhotos.push(f); else f(); }
+  function arrived() { if (--waiting === 0) onPhotos.forEach(function (f) { f(); }); }
   shots.forEach(function (im) {
     if (im.complete) arrived();
     else { im.addEventListener('load', arrived); im.addEventListener('error', arrived); }
@@ -472,8 +502,10 @@
     root.classList.add('is-grown');
     settle(target());
     split = true;
+    root.classList.add('photos-in');
     settled();
   } else if (fromLavori) {
+    entering = false;   // back from Lavori the logo goes straight to its place
     // no transitions for the first frame: the logo must already be grown and
     // already in the page's tone, exactly as the Lavori page left it
     var still = [mark].concat([].slice.call(mark.querySelectorAll('img')));

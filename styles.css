@@ -39,8 +39,8 @@ body {
 }
 body {
   margin: 0;
-  /* Home's own dark blue, under its photos: the white logo is on it from the first paint */
-  background: #091956;
+  /* Home opens on white, the logo dark blue on it */
+  background: #ffffff;
   color: var(--ink);
   font-family: var(--font);
   -webkit-font-smoothing: antialiased;
@@ -168,6 +168,18 @@ html.is-grown.is-top .mark {
    bottom row of photos (main.js sets .is-low); the first scroll docks it */
 html.is-grown.is-top.is-low .mark {
   transform: translateY(37.5vh);
+}
+/* Home's opening: the logo waits under the photos sliding in over it, then
+   comes back up from below the screen (main.js) */
+html.is-grown.is-under .mark {
+  z-index: 5;   /* under the pages (.middle) */
+}
+html.is-rising .mark,
+html.is-rising .mark img {
+  transition: none !important;
+}
+html.is-rising .mark {
+  transform: translateY(70vh);
 }
 /* on Studio the page scrolls beneath the logo, so the logo sits above it */
 html.is-grown .mark {
@@ -1594,7 +1606,7 @@ html[data-menu="light"] .corner--tr a {
 .intro.hero {
   position: relative;
   z-index: 1;
-  background: #091956;   /* dark blue until the photos are in, so the white logo always shows */
+  background: #fff;
   height: 100vh;
   height: 100dvh;
   min-height: 0;
@@ -1646,24 +1658,42 @@ html[data-menu="light"] .corner--tr a {
   animation-play-state: paused;
 }
 /* the photos fade in first thing, under the opening logo */
-/* The photos and the white between them come in together, once the photos
-   have loaded (main.js sets .has-photos). The white turns to dark blue at the
-   foot, as the shade over it does: no white ever reaches the bottom edge,
-   where a fast scroll could show it as a line. */
+/* The opening (main.js): the rows slide in from the sides once the photos
+   have loaded, the top and bottom ones from the right, the middle one from
+   the left, each a beat after the one before. With them the white turns to
+   dark blue at the foot, as the shade over it does: no white ever reaches the
+   bottom edge, where a fast scroll could show it as a line. */
+html.js .mrow {
+  transform: translateX(105%);
+}
+html.js .mrow:nth-child(2) {
+  transform: translateX(-105%);
+}
+html.photos-in .mrow,
+html.photos-in .mrow:nth-child(2) {
+  transform: none;
+  transition: transform 1.4s cubic-bezier(0.65, 0, 0.35, 1);
+}
+html.photos-in .mrow:nth-child(2) {
+  transition-delay: 0.15s;
+}
+html.photos-in .mrow:nth-child(3) {
+  transition-delay: 0.3s;
+}
 .hero::before {
   content: "";
   position: absolute;
   inset: 0;
   background: linear-gradient(#fff 45%, #091956);
 }
-html.js .slides,
-html.js .hero::before {
+html.js .hero::before,
+html.js .hero::after {
   opacity: 0;
 }
-html.has-photos .slides,
-html.has-photos .hero::before {
+html.photos-in .hero::before,
+html.photos-in .hero::after {
   opacity: 1;
-  transition: opacity 1s ease;
+  transition: opacity 1s ease 0.8s;
 }
 /* at the foot, the white turns into the dark blue of the page below, under the white logo */
 .hero::after {
