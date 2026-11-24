@@ -1129,7 +1129,7 @@ html:not(.js) #shuffle {
   cursor: pointer;
   list-style: none;
   /* leaving: the band goes a moment later; pointing (below): at once */
-  transition: background-color 0.4s ease 0.3s;
+  transition: background-color 0.25s ease 0.1s;
 }
 .svc summary::-webkit-details-marker {
   display: none;
@@ -1181,8 +1181,8 @@ html:not(.js) #shuffle {
   transform: translateY(-50%) scale(0.85) rotate(var(--tilt));
   /* leaving: it goes a moment later; pointing (below): it comes at once */
   transition:
-    opacity 0.4s ease 0.3s,
-    transform 0.5s var(--ease) 0.3s;
+    opacity 0.25s ease 0.1s,
+    transform 0.3s var(--ease) 0.1s;
 }
 .svc details:nth-child(even) .svc-float {
   --tilt: -3deg;

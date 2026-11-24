@@ -297,8 +297,8 @@
       n.swell = s;
       n.style.setProperty('--s', s);
       n.style.setProperty('--o', at < 0 ? 1 : Math.max(0.4, 1 - far * 0.22));
-      n.style.setProperty('--t', up ? '0.2s' : '0.5s');
-      n.style.setProperty('--d', ((up ? 0 : 0.3) + far * (up ? 0.03 : 0.05)).toFixed(2) + 's');
+      n.style.setProperty('--t', up ? '0.2s' : '0.3s');
+      n.style.setProperty('--d', ((up ? 0 : 0.1) + far * 0.03).toFixed(2) + 's');
     });
   }
   rows.forEach(function (d, i) {
