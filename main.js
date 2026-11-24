@@ -454,7 +454,7 @@
       INTO = { duration: 2200, delay: 300, ease: [0.16, 1, 0.3, 1] },   // the middle row's slide, as in the CSS
       // where each handwritten letter ends, as a share of its half's width (em: e m; studio: s t u d i o)
       LETTERS = [[0.37, 1], [0.18, 0.32, 0.46, 0.69, 0.8, 1]],
-      WIPE = 60;   // each letter goes this fast once the photo's edge is over its middle (one after the other)
+      WIPE = 30;   // a letter goes at once when the first photo's edge is over its middle
   // the time a cubic-bezier ease reaches a given progress (its y), found by halving
   function when(ease, y) {
     function b(p1, p2, s) { return 3 * p1 * s * (1 - s) * (1 - s) + 3 * p2 * s * s * (1 - s) + s * s * s; }
@@ -467,7 +467,8 @@
      middle, then takes the whole letter at once. The edge sweeps the row
      from -5% to 100% of its width on the row's own ease. */
   function lettersAway() {
-    var w = innerWidth, total = INTO.delay + INTO.duration, frames = [{ offset: 0, clipPath: 'inset(0 0 0 0)' }], at = 0;
+    var w = document.querySelector('.mrow').offsetWidth,   // the row's own width: its edge sweeps from -5% to 100% of it
+        total = INTO.delay + INTO.duration, frames = [{ offset: 0, clipPath: 'inset(0 0 0 0)' }], at = 0;
     // from the layout, not the screen: the logo may still be finishing its zoom to full size
     [].forEach.call(mark.querySelectorAll('img'), function (im, h) {
       var left = im.parentNode.offsetLeft + im.offsetLeft, from = left;   // its half's place in the full-width logo
