@@ -1265,7 +1265,7 @@ html:not(.js) #shuffle {
   z-index: 2;
   top: 50%;
   right: 9vw;
-  width: clamp(140px, 14vw, 220px);
+  width: clamp(110px, 10vw, 160px);
   aspect-ratio: 4 / 5;
   overflow: hidden;
   border-radius: 8px;
@@ -1307,7 +1307,7 @@ html:not(.js) #shuffle {
 .svc-body {
   box-sizing: border-box;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 340px);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 260px);
   grid-template-areas: "text pic" "tags pic" "cta pic";
   grid-template-rows: auto auto 1fr;
   column-gap: clamp(28px, 5vw, 72px);
@@ -1319,7 +1319,7 @@ html:not(.js) #shuffle {
   padding: clamp(28px, 4vh, 48px) var(--pad) clamp(40px, 6vh, 72px);
 }
 .svc details:nth-child(even) .svc-body {
-  grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
   grid-template-areas: "pic text" "pic tags" "pic cta";
 }
 .svc-body > div {
@@ -1657,8 +1657,8 @@ html[data-menu="light"] .corner--tr a {
 .intro.hero {
   position: relative;
   z-index: 1;
-  height: 100vh;
-  height: 100dvh;
+  height: 140vh;   /* three rows taller than the screen: larger photos, the third comes in with the scroll */
+  height: 140dvh;
   min-height: 0;
   padding: 0;
   display: block;
@@ -1718,13 +1718,15 @@ html.is-top .slides {
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background: linear-gradient(rgba(9, 25, 86, 0.5), transparent 20%, transparent 50%, rgba(9, 25, 86, 0.85));
+  background: linear-gradient(rgba(9, 25, 86, 0.5), transparent 15vh, transparent 45vh, rgba(9, 25, 86, 0.85) 95vh, rgba(9, 25, 86, 0.3) 115vh, transparent);
 }
 .intro.hero h1 {
   position: absolute;
   z-index: 2;
   left: var(--pad);
-  bottom: calc(var(--pad) + 1vh);
+  top: calc(100vh - var(--pad) - 1vh);   /* the foot of the first screen */
+  top: calc(100dvh - var(--pad) - 1vh);
+  transform: translateY(-100%);
   margin: 0;
   font-size: clamp(2.2rem, 5.6vw, 5.4rem);
 }
