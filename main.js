@@ -256,7 +256,7 @@
       narrow = matchMedia('(max-width: 1100px)'),   // as in the CSS: the services' phone layout
       back = null,
       grow = 0,
-      SHOT = 1300;   // a photo's move, as in the CSS (.svc-shot)
+      SHOT = 900;   // a photo's move, as in the CSS (.svc-shot)
   function glideTo(top) { studio.scrollTo({ top: top, behavior: calm ? 'auto' : 'smooth' }); }
   function centre(i) {
     /* The rows are still opening and closing, so where this one will end up
@@ -296,7 +296,7 @@
     d.addEventListener('toggle', function () {
       if (narrow.matches) return;
       var at = rows.findIndex(function (r) { return r.open; });   // -1: all closed, no photo
-      // in two beats: the open photo goes back to its place, then the new one grows
+      // in two beats: the open photo starts back to its place, halfway the new one grows
       clearTimeout(grow);
       var going = false;
       shots.forEach(function (s, k) {
@@ -309,7 +309,7 @@
       });
       // opening a row closes the open one: two toggle events, the second must wait too
       going = going || shots.some(function (s) { return s.classList.contains('is-back'); });
-      if (at >= 0) grow = setTimeout(function () { shots[at].classList.add('is-on'); }, going ? SHOT * 0.85 : 0);
+      if (at >= 0) grow = setTimeout(function () { shots[at].classList.add('is-on'); }, going ? SHOT * 0.5 : 0);
       if (d.open) {
         if (back === null) back = studio.scrollTop;
         centre(i);
