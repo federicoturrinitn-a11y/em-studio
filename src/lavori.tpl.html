@@ -432,7 +432,7 @@ html.is-project body::before{content:'';position:fixed;z-index:15;top:0;left:0;r
     // the colour of the page it goes to falls like a curtain; the logo turns as it passes
     var c = document.body.appendChild(document.createElement('div'));
     c.className = 'curtain';
-    c.style.background = /#contatti$/.test(href) ? '#091956' : light ? '#ffffff' : '#334eac';
+    c.style.background = /#contatti$/.test(href) ? '#091956' : light ? '#ffffff' : '#091956';
     if (!still) c.animate([{ transform: 'translateY(-100%)' }, { transform: 'none' }],
                           { duration: LEAVE, easing: 'cubic-bezier(0.65, 0, 0.35, 1)', fill: 'forwards' });
     setTimeout(function () { root.classList.toggle('to-dark', !light); }, still ? 0 : LEAVE * 0.5);

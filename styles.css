@@ -39,8 +39,8 @@ body {
 }
 body {
   margin: 0;
-  /* the opening's own blue, so the very first paint is never white */
-  background: #334eac;
+  /* the opening's own dark blue, so the very first paint is never white */
+  background: #091956;
   color: var(--ink);
   font-family: var(--font);
   -webkit-font-smoothing: antialiased;

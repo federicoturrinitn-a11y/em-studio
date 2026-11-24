@@ -169,7 +169,7 @@
      change colour as the edge passes under the bar, so they always match the
      page beneath them. */
   var SCENES = {          // page colour, tone of the type and logo
-    blue:  ['#334eac', 'dark'],
+    blue:  ['#091956', 'dark'],   // the first part: dark blue, like the services after it
     lilac: ['#ffffff', 'light'],   // straight to white after the blue of the first part
     navy:  ['#091956', 'dark'],
     sand:  ['#eee5dc', 'light'],
