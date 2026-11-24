@@ -1168,10 +1168,12 @@ html:not(.js) #shuffle {
 /* the photo beside the name: on the right, then on the left, in turn */
 .svc-float {
   --tilt: 3deg;
+  --x: 9vw;   /* how far in from the edge */
+  --y: 0px;   /* up or down from the middle of the band */
   position: absolute;
   z-index: 2;
-  top: 50%;
-  right: 9vw;
+  top: calc(50% + var(--y));
+  right: var(--x);
   width: clamp(110px, 10vw, 160px);
   aspect-ratio: 4 / 5;
   overflow: hidden;
@@ -1188,8 +1190,15 @@ html:not(.js) #shuffle {
 .svc details:nth-child(even) .svc-float {
   --tilt: -3deg;
   right: auto;
-  left: 9vw;
+  left: var(--x);
 }
+/* each photo at its own distance, height and tilt, so they never line up */
+.svc details:nth-child(1) .svc-float { --x: 6vw;  --y: -18px; --tilt: 4deg; }
+.svc details:nth-child(2) .svc-float { --x: 15vw; --y: 12px;  --tilt: -2deg; }
+.svc details:nth-child(3) .svc-float { --x: 19vw; --y: -6px;  --tilt: 2deg; }
+.svc details:nth-child(4) .svc-float { --x: 5vw;  --y: 20px;  --tilt: -5deg; }
+.svc details:nth-child(5) .svc-float { --x: 12vw; --y: -14px; --tilt: 3deg; }
+.svc details:nth-child(6) .svc-float { --x: 21vw; --y: 8px;   --tilt: -3deg; }
 .svc-float img,
 .svc-pic img {
   position: absolute;
