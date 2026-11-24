@@ -1174,7 +1174,8 @@ html:not(.js) #shuffle {
   position: absolute;
   z-index: 2;
   top: calc(50% + var(--y));
-  left: calc(100% + 50px);   /* always 50px from the end of the words */
+  --gap: 50px;   /* from the words */
+  left: calc(100% + var(--gap));   /* after the words */
   width: clamp(110px, 10vw, 160px);
   aspect-ratio: 4 / 5;
   overflow: hidden;
@@ -1191,14 +1192,16 @@ html:not(.js) #shuffle {
 .svc details:nth-child(even) .svc-float {
   --tilt: -3deg;
   left: auto;
-  right: calc(100% + 50px);   /* before the words, 50px from them */
+  right: calc(100% + var(--gap));   /* before the words */
 }
 /* each photo a little higher or lower, tilted its own way, so they never line up */
 .svc details:nth-child(1) .svc-float { --y: -14px; --tilt: 3deg; }
-.svc details:nth-child(2) .svc-float { --y: 10px;  --tilt: -2deg; }
+/* the two short names: their photo further out, clear of the longer names
+   above and below them (in em, as the names grow with the screen) */
+.svc details:nth-child(2) .svc-float { --y: 10px;  --tilt: -2deg; --gap: calc(1.6em + 30px); }
 .svc details:nth-child(3) .svc-float { --y: -4px;  --tilt: 2deg; }
 .svc details:nth-child(4) .svc-float { --y: 14px;  --tilt: -3deg; }
-.svc details:nth-child(5) .svc-float { --y: -10px; --tilt: 2deg; }
+.svc details:nth-child(5) .svc-float { --y: -10px; --tilt: 2deg; --gap: calc(2.4em + 30px); }
 .svc details:nth-child(6) .svc-float { --y: 6px;   --tilt: -2deg; }
 .svc-float img,
 .svc-pic img {
