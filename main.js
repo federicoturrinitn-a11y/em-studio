@@ -451,9 +451,9 @@
      gradually to its own drift. The logo goes letter by letter as the middle
      row's first photo passes over it; then it comes back up from below the
      screen, white, to sit over the bottom row, and the menu comes in. */
-  var SLIDE = 2500,   // until the middle row has landed (CSS .mrow)
+  var SLIDE = 2200,   // until the middle row has landed (CSS .mrow)
       // the rows' slide, as in the CSS: fast at first, and still moving as it lands
-      INTO = { duration: 2200, delay: 300, ease: [0.2, 0.6, 0.6, 0.9] },
+      INTO = { duration: 1900, delay: 300, ease: [0.2, 0.6, 0.6, 0.9] },
       // where each handwritten letter ends, as a share of its half's width (em: e m; studio: s t u d i o)
       LETTERS = [[0.37, 1], [0.18, 0.32, 0.46, 0.69, 0.8, 1]],
       WIPE = 30;   // a letter goes at once when the first photo's edge is over its middle
