@@ -202,8 +202,8 @@
   var barC = '';
   function barColour(c) { if (c !== barC) { barC = c; bar.style.backgroundColor = c; } }
 
-  // the logo and the menu wear the tone of the page under the bar; at the top of
-  // Home (and in its opening) they are dark, on the white of the first screen
+  // the logo and the menu wear the tone of the page under the bar; in Home's
+  // opening they are dark, on the white, before the photos fill the screen
   function atmosphere(y) {
     if (active !== studio) return;
     var under = y + barH / 2, j = 1;
@@ -211,7 +211,7 @@
     var sc = SCENES[sceneEls[j - 1].getAttribute('data-scene')];
     barColour('');
     setBase(sc[0]);
-    setTone(entering || y <= 8 ? 'light' : sc[1]);
+    setTone(entering ? 'light' : sc[1]);
   }
 
   /* Everything the scroll needs is measured here, on load and resize, so a
@@ -448,108 +448,49 @@
 
   /* Home's opening, once the logo has grown in the middle of the white: a
      small card opens under it and the projects flip through it, slowing down;
-     the logo parts, em to the left of the card and studio to the right; then
-     the card becomes a phone, the halves make room for it, and our projects
-     scroll by on its screen. While the logo crosses the card it is white on
-     the photo: the logo seen in the opening is a pair of copies inside the
-     first screen (a dark one under the card, a white one inside it); the real
-     one takes over in the same place once the opening is done.
-     shortcut: the phone is drawn; a photo of a hand holding a phone, with the
-     feed laid on its screen, would be the real thing. */
-  var phone = document.querySelector('.phone'),
-      feed = phone.querySelector('.feed'),
-      reels = [].slice.call(feed.children),
-      BEAT = 2600,   // each project on the phone's screen
-      sz = {};
-  [['mark--ink', document.querySelector('.hero')], ['mark--light', phone]].forEach(function (c) {
+     then the card opens to the whole first screen, where our projects follow
+     one another. The logo is white wherever the photos are under it: the logo
+     seen in the opening is a pair of copies inside the first screen (a dark
+     one under the card, a white one inside it); the real one takes over in
+     the same place once the opening is done. */
+  var frame = document.querySelector('.frame'),
+      flip = frame.querySelector('.flip'),
+      shows = [].slice.call(frame.querySelectorAll('.show img')),
+      cap = frame.querySelector('.cap'),
+      hero = document.querySelector('.hero'),
+      BEAT = 5000,   // each project on the screen
+      sz = {}, showing = 0, turning = 0;
+  [['mark--ink', hero], ['mark--light', frame]].forEach(function (c) {
     var m = mark.cloneNode(true);
     m.classList.add(c[0]);
     [].forEach.call(m.querySelectorAll('[data-part]'), function (p) { p.removeAttribute('data-part'); });
     c[1].appendChild(m);
   });
-  // the card's and the phone's sizes, and where the halves of the logo go beside them
+  // the card in the middle of the first screen, upright (3:4)
   function measure() {
-    var W = innerWidth, H = innerHeight;
-    sz.narrow = W < 820;
-    sz.cw = Math.max(150, Math.min(260, W * (sz.narrow ? 0.42 : 0.18)));
+    var W = hero.clientWidth, H = hero.clientHeight;
+    sz.cw = Math.max(150, Math.min(260, W * (W < 820 ? 0.42 : 0.18)));
     sz.ch = sz.cw * 4 / 3;
-    sz.ph = Math.min(H * (sz.narrow ? 0.6 : 0.74), 660);
-    sz.pw = sz.ph * 9 / 19.5;
-    sz.W = W;
-    sz.gap = Math.max(28, W * 0.035);
-    sz.E = parts[0].offsetWidth;   // the halves at full size
-    sz.T = parts[1].offsetWidth;
-    sz.py = sz.narrow ? -H * 0.06 : 0;   // on a narrow screen the phone a little higher, the logo under it
-    sz.low = sz.py + sz.ph / 2 + Math.max(18, H * 0.03) + parts[0].offsetHeight * 0.8 / 2;
-    if (root.classList.contains('is-phone')) card(sz.pw, sz.ph, beside(), sz.py);   // after a resize
+    sz.l = (W - sz.cw) / 2; sz.t = (H - sz.ch) / 2;
+    flip.style.cssText = 'left:' + sz.l + 'px;top:' + sz.t + 'px;width:' + sz.cw + 'px;height:' + sz.ch + 'px';
+    sz.card = 'inset(' + sz.t + 'px ' + sz.l + 'px ' + sz.t + 'px ' + sz.l + 'px round 10px)';
   }
-  function card(w, h, x, y) {
-    phone.style.setProperty('--w', w + 'px');
-    phone.style.setProperty('--h', h + 'px');
-    phone.style.setProperty('--px', (x || 0) + 'px');
-    phone.style.setProperty('--py', (y || 0) + 'px');
+  // the projects one after another, with whose they are (not show(): that one changes page)
+  function turn() {
+    shows.forEach(function (im, i) { im.classList.toggle('on', i === showing); });
+    cap.classList.remove('on');
+    setTimeout(function () {
+      cap.innerHTML = '<b>' + shows[showing].getAttribute('data-name') + '</b>' + shows[showing].getAttribute('data-kind');
+      cap.classList.add('on');
+    }, 400);
   }
-  /* The halves beside the card (half its width given; the card stays in the
-     middle) or the phone. Beside the phone the three of them, em, the phone
-     and studio, are centred as one group with the same margin on both sides
-     (studio is twice as wide as em, so the phone moves a little to the left),
-     and the logo gets smaller if they would not fit. On a narrow screen the
-     whole logo goes under the phone. */
-  // the transparent margins inside the two logo images (em: left, right; studio: left, right), so the gaps are the ink's
-  var INK = [2 / 172, 11 / 172, 10 / 348, 3 / 348], hero = document.querySelector('.hero');
-  function beside(half) {
-    var r = root.style, W = sz.W, cx = W / 2, s = 1, g = sz.gap, emLeft, stLeft, centre;
-    if (sz.narrow) {
-      r.setProperty('--se', '0px'); r.setProperty('--ss', '0px');
-      r.setProperty('--low-y', sz.low + 'px'); r.setProperty('--low-s', '0.8');
-      return 0;
-    }
-    if (half != null) {   // beside the card, which is in the middle
-      var e0 = sz.E, t0 = sz.T;
-      emLeft = cx - half - g + e0 * INK[1] - e0;
-      stLeft = cx + half + g - t0 * INK[2];
-      centre = cx;
-    } else {
-      var ev = sz.E * (1 - INK[0] - INK[1]), tv = sz.T * (1 - INK[2] - INK[3]),
-          margin = Math.max(48, W * 0.07);
-      s = Math.min(1, (W - 2 * margin - 2 * g - sz.pw) / (ev + tv));
-      ev *= s; tv *= s;
-      var ink = (W - (ev + g + sz.pw + g + tv)) / 2;   // em's ink starts here, studio's ends as far from the right
-      emLeft = ink - sz.E * s * INK[0];
-      centre = ink + ev + g + sz.pw / 2;
-      stLeft = ink + ev + g + sz.pw + g - sz.T * s * INK[2];
-    }
-    var e = sz.E * s, t = sz.T * s, natural = cx - (e + t) / 2;   // em's left edge with the halves together
-    // the halves' moves are inside the scaled logo, so in its own (unscaled) pixels
-    r.setProperty('--se', (natural - emLeft) / s + 'px');
-    r.setProperty('--ss', (stLeft - (natural + e)) / s + 'px');
-    r.setProperty('--low-y', '0px'); r.setProperty('--low-s', String(s));
-    // the phone is placed in the first screen, which a scrollbar can make narrower than the window the logo is fixed to
-    var box = hero.getBoundingClientRect();
-    return centre - (box.left + box.width / 2);
-  }
-
-  // the feed: a project at a time slides up, with the bars of a story along the top
-  var reel = 0, bars = phone.querySelector('.bars'), what = phone.querySelector('.what'), feeding = 0;
-  reels.forEach(function () { bars.appendChild(document.createElement('span')); });
-  phone.style.setProperty('--beat', BEAT / 1000 + 's');
-  function label() {
-    [].forEach.call(bars.children, function (b, i) { b.className = i < reel ? 'done' : i === reel ? 'now' : ''; });
-    what.textContent = reels[reel].getAttribute('data-name') + ' · ' + reels[reel].getAttribute('data-kind');
-  }
-  function scroll() {
-    reel = (reel + 1) % reels.length;
-    feed.classList.toggle('is-moving', reel !== 0);   // back to the first at once, as a story starts over
-    feed.style.setProperty('--k', reel);
-    label();
-  }
-  // the phone as it is once the opening is done
+  // the first screen as it is once the opening is done
   function ready() {
-    measure();
-    root.classList.add('is-apart', 'is-phone', 'photos-in');
-    card(sz.pw, sz.ph, beside(), sz.py);
-    label();
-    if (!feeding) feeding = setInterval(scroll, BEAT);
+    root.classList.add('is-full', 'photos-in');
+    frame.style.clipPath = '';
+    flip.classList.add('is-done');
+    turn();
+    if (!turning) turning = setInterval(function () { showing = (showing + 1) % shows.length; turn(); }, BEAT);
   }
   addEventListener('resize', measure);
 
@@ -557,13 +498,13 @@
   var later = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
   function enter() {
     measure();
-    card(sz.cw, sz.ch);
-    var flips = [].slice.call(phone.querySelectorAll('.flip img'));
+    var flips = [].slice.call(flip.querySelectorAll('img'));
     flips[0].classList.add('on');
+    shows[0].classList.add('on');   // under the flipbook, for when the card opens
     // a small card opens under the logo, and the projects flip through it, slowing down
-    var opening = phone.animate([{ clipPath: 'inset(50% 50% 50% 50% round 10px)' }, { clipPath: 'inset(0% 0% 0% 0% round 10px)' }],
+    var opening = frame.animate([{ clipPath: 'inset(50% 50% 50% 50% round 10px)' }, { clipPath: sz.card }],
                                 { duration: 700, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)', fill: 'forwards' });
-    opening.onfinish = function () { phone.style.clipPath = 'inset(0 round 10px)'; opening.cancel(); };
+    opening.onfinish = function () { frame.style.clipPath = sz.card; opening.cancel(); };
     var steps = [120, 110, 110, 120, 140, 170, 210, 260], chain = later(750);
     flips.forEach(function (im, i) {
       if (!i) return;
@@ -573,21 +514,19 @@
         return later(steps[i - 1] || 300);
       });
     });
-    chain.then(function () { return later(500); })
-    // the logo parts around the card (on a narrow screen, goes down under where the phone will be)
-    .then(function () {
-      beside(sz.cw / 2);
-      root.classList.add('is-beside');
-      return later(sz.narrow ? 1200 : 1000);
+    // the last: the first of the projects, as it will be on the whole screen
+    chain.then(function () {
+      flip.classList.add('is-done');
+      return later(600);
     })
-    // clear of the card: it becomes a phone, and the halves make room for it
+    // the card opens to the whole first screen
     .then(function () {
-      phone.style.clipPath = '';
-      root.classList.add('is-apart', 'is-phone', 'photos-in');
-      card(sz.pw, sz.ph, beside(), sz.py);
-      return later(1100);
+      var widen = frame.animate([{ clipPath: sz.card }, { clipPath: 'inset(0px 0px 0px 0px round 0px)' }],
+                                { duration: 1300, easing: 'cubic-bezier(0.65, 0, 0.25, 1)', fill: 'forwards' });
+      widen.onfinish = function () { frame.style.clipPath = ''; root.classList.add('is-full'); widen.cancel(); };
+      return later(1350);
     })
-    // done: the real logo takes over in the same place, the feed starts, the menu comes in
+    // done: the real logo takes over in the same place, the projects go on, the menu comes in
     .then(function () {
       entering = false;
       settle(studio);
@@ -595,11 +534,9 @@
       root.classList.remove('is-entering', 'is-opening');
       ready();
       // once the real logo has faded in over the copies: they go, the page may scroll
-      // (its scrollbar narrows the first screen, so the phone is placed again)
       setTimeout(function () {
         root.classList.add('is-revealed');
         root.classList.remove('is-held');
-        measure();
       }, 700);
     });
   }

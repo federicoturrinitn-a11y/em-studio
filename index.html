@@ -16,8 +16,8 @@
     <meta property="og:image" content="https://federicoturrinitn-a11y.github.io/em-studio/img/og.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
     <!-- shortcut: the ?v= is bumped by hand so a browser never pairs a new page with old styles; a build step should stamp it if the site gets one -->
-    <link rel="stylesheet" href="styles.css?v=62" />
-    <script src="main.js?v=47" defer></script>
+    <link rel="stylesheet" href="styles.css?v=64" />
+    <script src="main.js?v=49" defer></script>
   </head>
   <body>
     <!-- the font loads without holding up the first paint: until it arrives the page shows
@@ -80,51 +80,37 @@
          block appearing as it comes in; after that the page carries on down. -->
         <div class="hscroll" id="hscroll" data-scene="blue">
           <div class="sticky">
-            <!-- the first screen, on white: the logo grows, a card opens under it
-                 and the projects flip through it; the logo parts, em to the left and
-                 studio to the right, and the card becomes a phone with our projects
-                 scrolling on its screen (main.js). The page below is dark blue. -->
+            <!-- the first screen: on white the logo grows, a card opens under it
+                 and the projects flip through it; then the card opens to the whole
+                 screen, where our projects follow one another, the logo white over
+                 them (main.js). The page below is dark blue. -->
             <div class="intro hero">
-              <!-- the card, then the phone: the flipbook plays on it, then our
-                   projects scroll by on its screen as on a feed (main.js) -->
-              <a class="phone" href="lavori.html" aria-label="I nostri lavori">
-                <span class="screen">
-                  <span class="feed">
-                    <span class="reel" data-name="Horizon Music Festival" data-kind="Organizzazione eventi"><img src="img/horizon-1.jpg" alt="" /></span>
-                    <span class="reel" data-name="Dolce Riva Night" data-kind="Organizzazione eventi"><img src="img/dolce-riva-1.jpg" alt="" /></span>
-                    <span class="reel" data-name="Calzature Dro" data-kind="Catena di negozi di scarpe"><img src="img/calzature-dro-1.jpg" alt="" /></span>
-                    <span class="reel" data-name="La Lavagna" data-kind="Pizzeria e laboratorio artigianale"><img src="img/la-lavagna-2.jpg" alt="" /></span>
-                    <span class="reel" data-name="Desiree Corona" data-kind="Centro estetico"><img src="img/desiree-corona-1.jpg" alt="" /></span>
-                    <span class="reel" data-name="Garda Host" data-kind="Agenzia affitti turistici"><img src="img/garda-host-2.jpg" alt="" /></span>
-                    <span class="reel" data-name="Sweet Retreat" data-kind="Branding · Appartamenti turistici"><img src="img/sweet-retreat-1.jpg" alt="" /></span>
-                    <span class="reel" data-name="Moor Eventi" data-kind="Organizzazione eventi"><img src="img/moor-1.jpg" alt="" /></span>
-                    <span class="reel" data-name="MC House Group" data-kind="Agenzia immobiliare"><img src="img/mc-house-1.jpg" alt="" /></span>
-                    <span class="reel" data-name="Pallavolo C9" data-kind="Associazione sportiva"><img src="img/pallavolo-c9-2.jpg" alt="" /></span>
-                  </span>
-                  <!-- the flipbook, ending on the feed's first project -->
-                  <span class="flip">
-                    <img src="img/moor-1.jpg" alt="" />
-                    <img src="img/pallavolo-c9-2.jpg" alt="" />
-                    <img src="img/sweet-retreat-1.jpg" alt="" />
-                    <img src="img/la-lavagna-2.jpg" alt="" />
-                    <img src="img/desiree-corona-2.jpg" alt="" />
-                    <img src="img/calzature-dro-3.jpg" alt="" />
-                    <img src="img/like-home-1.jpg" alt="" />
-                    <img src="img/dolce-riva-3.jpg" alt="" />
-                    <img src="img/horizon-1.jpg" alt="" />
-                  </span>
-                  <span class="ui">
-                    <span class="island"></span>
-                    <span class="status"><span>9:41</span><i></i></span>
-                    <span class="bars"></span>
-                    <span class="who"><b>emstudio</b><span class="what"></span></span>
-                    <span class="acts">
-                      <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" /></svg>
-                      <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.2A8 8 0 1 1 20 12z" /></svg>
-                      <svg viewBox="0 0 24 24"><path d="M21 4 10 14M21 4l-7 17-4-7-7-4z" /></svg>
-                    </span>
-                  </span>
+              <!-- the card, then the whole first screen: the flipbook plays on the
+                   card, which then opens to the full screen, where our projects
+                   follow one another (main.js) -->
+              <a class="frame" href="lavori.html" aria-label="I nostri lavori">
+                <span class="show">
+                  <img src="img/la-lavagna-1.jpg" alt="" data-name="La Lavagna" data-kind="Pizzeria e laboratorio artigianale" />
+                  <img class="tall" src="img/dolce-riva-1.jpg" alt="" data-name="Dolce Riva Night" data-kind="Organizzazione eventi" />
+                  <img src="img/atelier-1.jpg" alt="" data-name="Atelier Magazine" data-kind="Magazine arredamento" />
+                  <img class="tall" src="img/calzature-dro-1.jpg" alt="" data-name="Calzature Dro" data-kind="Catena di negozi di scarpe" />
+                  <img src="img/le-tre-terre-1.jpg" alt="" data-name="Le Tre Terre" data-kind="Azienda vitivinicola" />
+                  <img class="tall" src="img/dolce-riva-3.jpg" alt="" data-name="Dolce Riva Night" data-kind="Organizzazione eventi" />
+                  <img src="img/atelier-2.jpg" alt="" data-name="Atelier Magazine" data-kind="Magazine arredamento" />
+                  <img src="img/la-lavagna-3.jpg" alt="" data-name="La Lavagna" data-kind="Pizzeria e laboratorio artigianale" />
                 </span>
+                <!-- the flipbook, on the card; then the card shows the first of the projects above -->
+                <span class="flip">
+                  <img src="img/moor-1.jpg" alt="" />
+                  <img src="img/pallavolo-c9-2.jpg" alt="" />
+                  <img src="img/sweet-retreat-1.jpg" alt="" />
+                  <img src="img/la-lavagna-2.jpg" alt="" />
+                  <img src="img/desiree-corona-2.jpg" alt="" />
+                  <img src="img/calzature-dro-3.jpg" alt="" />
+                  <img src="img/like-home-1.jpg" alt="" />
+                  <img src="img/horizon-1.jpg" alt="" />
+                </span>
+                <span class="cap"></span>
               </a>
               <h1 class="vh">EM Studio — Comunicazione e marketing</h1>
             </div>

@@ -1656,248 +1656,94 @@ html.photos-in .hero::before {
   opacity: 1;
   transition: opacity 1s ease 0.6s;
 }
-/* the card, then the phone: centred, sized by main.js (--w, --h) */
-.phone {
-  --move: cubic-bezier(0.65, 0, 0.25, 1);
-  position: absolute;
-  z-index: 2;
-  left: 50%;
-  top: 50%;
-  width: var(--w, 240px);
-  height: var(--h, 320px);
-  transform: translate(-50%, -50%) translate(var(--px, 0px), var(--py, 0px));   /* --px: centred in the group with the logo */
-  clip-path: inset(50% 50% 50% 50% round 10px);
-  transition:
-    width 1s var(--move),
-    height 1s var(--move),
-    transform 1s var(--move);
-}
-html.is-apart .phone {
-  clip-path: none;
-}
-html.is-apart .phone .mark {
-  display: none;   /* the halves are clear of the card: the white copy has nothing left to do */
-}
-.phone .mark,
-html.is-grown .phone .mark {
-  position: absolute;
-  z-index: 5;
-}
-.phone .screen {
+/* the card, then the whole first screen: it covers the first screen and is
+   cut down to the card by a clip that main.js sets, then lets go */
+.frame {
   position: absolute;
   inset: 0;
-  overflow: hidden;
-  border-radius: var(--rad, 10px);
-  background: #0b0e1a;
-  transition:
-    border-radius 1s var(--move),
-    box-shadow 1s ease;
+  z-index: 2;
+  display: block;
+  color: #fff;
+  text-decoration: none;
+  clip-path: inset(50% 50% 50% 50% round 10px);
 }
-/* the phone's body: a dark bezel, a rim, a soft shadow */
-html.is-phone .phone .screen {
-  --rad: calc(var(--w) * 0.14);
-  box-shadow:
-    0 0 0 calc(var(--w) * 0.03) #12162a,
-    0 0 0 calc(var(--w) * 0.036) #3a4163,
-    0 40px 80px rgba(9, 25, 86, 0.28);
+html.is-full .frame {
+  clip-path: none;
 }
-/* its buttons, on the sides */
-.phone::before,
-.phone::after {
-  content: "";
+.frame .mark,
+html.is-grown .frame .mark {
   position: absolute;
-  width: 3px;
-  border-radius: 2px;
-  background: #3a4163;
-  opacity: 0;
-  transition: opacity 0.6s ease 0.6s;
+  z-index: 5;   /* the white copy of the logo, over the photos */
 }
-.phone::before {
-  right: calc(var(--w) * -0.036 - 3px);
-  top: 24%;
-  height: 12%;
+.frame .flip,
+.frame .show {
+  position: absolute;
+  inset: 0;
 }
-.phone::after {
-  left: calc(var(--w) * -0.036 - 3px);
-  top: 20%;
-  height: 16%;
+.frame .flip {
+  z-index: 2;   /* placed on the card by main.js */
 }
-html.is-phone .phone::before,
-html.is-phone .phone::after {
-  opacity: 1;
-}
-.phone .flip img,
-.phone .reel img {
+.frame .flip img,
+.frame .show img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-/* the flipbook, over the feed until the phone takes over */
-.phone .flip {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-}
-.phone .flip img {
   opacity: 0;
 }
-.phone .flip img.on {
+.frame .flip img.on {
   opacity: 1;
 }
-html.is-phone .phone .flip {
+.frame .flip.is-done {
   display: none;
 }
-/* the feed: one project after the other, filling the screen; main.js
-   scrolls it up a project at a time (--k) */
-.phone .feed {
+/* the projects one after another: each fades in and settles from a slight zoom */
+.frame .show img {
+  transform: scale(1.06);
+  transition:
+    opacity 1.4s ease,
+    transform 7s linear;
+}
+.frame .show img.on {
+  opacity: 1;
+  transform: none;
+}
+.frame .show img.tall {
+  object-position: 50% 30%;   /* upright photos: keep the heads */
+}
+/* a light shade for the white logo and menu, and the foot into the dark blue below */
+.frame .show::after {
+  content: "";
   position: absolute;
   inset: 0;
-  display: flex;
-  flex-direction: column;
-  transform: translateY(calc(var(--k, 0) * -100%));
-}
-.phone .feed.is-moving {
-  transition: transform 0.75s cubic-bezier(0.7, 0, 0.2, 1);
-}
-.phone .reel {
-  position: relative;
-  flex: 0 0 100%;
-  overflow: hidden;
-}
-/* what is written over the photos, as on a social feed */
-.phone .ui {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  pointer-events: none;
+  background: linear-gradient(rgba(9, 25, 86, 0.4), rgba(9, 25, 86, 0.28) 28%, rgba(9, 25, 86, 0.32) 62%, #091956 calc(100% - 4px));
   opacity: 0;
-  transition: opacity 0.6s ease 0.5s;
-  color: #fff;
-  font-family: var(--font);
+  transition: opacity 1.2s ease;
 }
-html.is-phone .phone .ui {
+html.is-full .frame .show::after {
   opacity: 1;
 }
-.phone .ui::before {
-  content: "";
+/* whose project it is, at the foot */
+.frame .cap {
   position: absolute;
-  inset: 0;
-  background: linear-gradient(rgba(0, 0, 0, 0.35), transparent 18%, transparent 58%, rgba(0, 0, 0, 0.6));
+  z-index: 3;
+  left: var(--pad);
+  bottom: calc(var(--pad) + 1.4em);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+  opacity: 0;
+  transition: opacity 0.5s ease;
 }
-.phone .status {
-  position: absolute;
-  top: 3.2%;
-  left: 9%;
-  right: 9%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: calc(var(--w) * 0.045);
+.frame .cap b {
+  display: block;
+  font-size: 13px;
   font-weight: 600;
 }
-.phone .status i {
-  position: relative;
-  display: inline-block;
-  width: 1.9em;
-  height: 0.9em;
-  border: 1.5px solid #fff;
-  border-radius: 3px;
-}
-.phone .status i::after {
-  content: "";
-  position: absolute;
-  inset: 1.5px 30% 1.5px 1.5px;
-  background: #fff;
-  border-radius: 1px;
-}
-.phone .island {
-  position: absolute;
-  top: 2.4%;
-  left: 50%;
-  width: 32%;
-  height: 4.2%;
-  transform: translateX(-50%);
-  border-radius: 999px;
-  background: #000;
-}
-.phone .bars {
-  position: absolute;
-  top: 9%;
-  left: 5%;
-  right: 5%;
-  display: flex;
-  gap: 3px;
-}
-.phone .bars span {
-  flex: 1;
-  height: 2px;
-  border-radius: 2px;
-  background: rgba(255, 255, 255, 0.35);
-  overflow: hidden;
-}
-.phone .bars span::after {
-  content: "";
-  display: block;
-  height: 100%;
-  width: 0;
-  background: #fff;
-}
-.phone .bars span.done::after {
-  width: 100%;
-}
-.phone .bars span.now::after {
-  animation: fill var(--beat, 2.6s) linear forwards;
-}
-@keyframes fill {
-  to {
-    width: 100%;
-  }
-}
-.phone .who {
-  position: absolute;
-  left: 6%;
-  right: 22%;
-  bottom: 5%;
-  font-size: calc(var(--w) * 0.042);
-  line-height: 1.35;
-}
-.phone .who b {
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
-  margin-bottom: 0.35em;
-  font-size: 1.1em;
-}
-.phone .who b::before {
-  content: "em";
-  display: grid;
-  place-items: center;
-  width: 1.9em;
-  height: 1.9em;
-  border-radius: 50%;
-  background: #fff;
-  color: #091956;
-  font-size: 0.8em;
-  font-weight: 600;
-}
-.phone .acts {
-  position: absolute;
-  right: 5%;
-  bottom: 6%;
-  display: grid;
-  gap: calc(var(--w) * 0.05);
-}
-.phone .acts svg {
-  display: block;
-  width: calc(var(--w) * 0.085);
-  height: calc(var(--w) * 0.085);
-  fill: none;
-  stroke: #fff;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+html.is-full .frame .cap.on {
+  opacity: 1;
 }
 /* for screen readers and search engines only */
 .vh {
