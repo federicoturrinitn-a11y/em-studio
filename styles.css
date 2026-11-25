@@ -186,9 +186,10 @@ html.is-beside .mark .part:last-child {
 html.is-entering body > .mark {
   opacity: 0 !important;
 }
-.hero .mark {
+.hero .mark,
+html.is-grown .hero .mark {
   position: absolute;
-  z-index: 1;
+  z-index: 1;   /* under the card: as strong as the rule that lifts the real logo over the page */
 }
 .mark--ink img {
   filter: none !important;
@@ -1677,7 +1678,8 @@ html.is-apart .phone {
 html.is-apart .phone .mark {
   display: none;   /* the halves are clear of the card: the white copy has nothing left to do */
 }
-.phone .mark {
+.phone .mark,
+html.is-grown .phone .mark {
   position: absolute;
   z-index: 5;
 }
