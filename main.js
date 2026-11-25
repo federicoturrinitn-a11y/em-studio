@@ -298,9 +298,9 @@
       n.swell = s;
       n.style.setProperty('--s', s);
       n.style.setProperty('--o', at < 0 ? 1 : [1, 0.75, 0.58, 0.48][far] || 0.42);
-      // the wave spreads and slows as it goes: each step a little longer than the last
-      n.style.setProperty('--t', ((up ? 0.35 : 0.45) + far * 0.05).toFixed(2) + 's');
-      n.style.setProperty('--d', ((up ? 0 : 0.05) + 0.035 * Math.pow(far, 1.3)).toFixed(3) + 's');
+      // quick both ways, the neighbours a breath behind, so it flows under a moving pointer
+      n.style.setProperty('--t', ((up ? 0.22 : 0.3) + far * 0.03).toFixed(2) + 's');
+      n.style.setProperty('--d', (0.02 * Math.pow(far, 1.2)).toFixed(3) + 's');
     });
   }
   rows.forEach(function (d, i) {
@@ -475,28 +475,60 @@
     sz.ch = sz.cw * 4 / 3;
     sz.ph = Math.min(H * (sz.narrow ? 0.6 : 0.74), 660);
     sz.pw = sz.ph * 9 / 19.5;
+    sz.W = W;
     sz.gap = Math.max(28, W * 0.035);
-    sz.mid = (parts[0].offsetWidth - parts[1].offsetWidth) / 2;   // where the halves meet, from the logo's centre
-    sz.low = sz.ph / 2 + Math.max(20, H * 0.04) + parts[0].offsetHeight * 0.6 / 2;
-    if (root.classList.contains('is-phone')) { card(sz.pw, sz.ph); beside(); }
+    sz.E = parts[0].offsetWidth;   // the halves at full size
+    sz.T = parts[1].offsetWidth;
+    sz.py = sz.narrow ? -H * 0.06 : 0;   // on a narrow screen the phone a little higher, the logo under it
+    sz.low = sz.py + sz.ph / 2 + Math.max(18, H * 0.03) + parts[0].offsetHeight * 0.8 / 2;
+    if (root.classList.contains('is-phone')) card(sz.pw, sz.ph, beside(), sz.py);   // after a resize
   }
-  function card(w, h) {
+  function card(w, h, x, y) {
     phone.style.setProperty('--w', w + 'px');
     phone.style.setProperty('--h', h + 'px');
+    phone.style.setProperty('--px', (x || 0) + 'px');
+    phone.style.setProperty('--py', (y || 0) + 'px');
   }
-  // the halves beside the card (half its width given) or the phone; on a narrow screen the whole logo under it
+  /* The halves beside the card (half its width given; the card stays in the
+     middle) or the phone. Beside the phone the three of them, em, the phone
+     and studio, are centred as one group with the same margin on both sides
+     (studio is twice as wide as em, so the phone moves a little to the left),
+     and the logo gets smaller if they would not fit. On a narrow screen the
+     whole logo goes under the phone. */
+  // the transparent margins inside the two logo images (em: left, right; studio: left, right), so the gaps are the ink's
+  var INK = [2 / 172, 11 / 172, 10 / 348, 3 / 348], hero = document.querySelector('.hero');
   function beside(half) {
-    var r = root.style;
+    var r = root.style, W = sz.W, cx = W / 2, s = 1, g = sz.gap, emLeft, stLeft, centre;
     if (sz.narrow) {
       r.setProperty('--se', '0px'); r.setProperty('--ss', '0px');
-      r.setProperty('--low-y', sz.low + 'px'); r.setProperty('--low-s', '0.6');
-    } else {
-      half = half == null ? sz.pw / 2 : half;
-      r.setProperty('--se', sz.mid + half + sz.gap + 'px');
-      r.setProperty('--ss', half + sz.gap - sz.mid + 'px');
-      r.setProperty('--low-y', '0px'); r.setProperty('--low-s', '1');
+      r.setProperty('--low-y', sz.low + 'px'); r.setProperty('--low-s', '0.8');
+      return 0;
     }
+    if (half != null) {   // beside the card, which is in the middle
+      var e0 = sz.E, t0 = sz.T;
+      emLeft = cx - half - g + e0 * INK[1] - e0;
+      stLeft = cx + half + g - t0 * INK[2];
+      centre = cx;
+    } else {
+      var ev = sz.E * (1 - INK[0] - INK[1]), tv = sz.T * (1 - INK[2] - INK[3]),
+          margin = Math.max(48, W * 0.07);
+      s = Math.min(1, (W - 2 * margin - 2 * g - sz.pw) / (ev + tv));
+      ev *= s; tv *= s;
+      var ink = (W - (ev + g + sz.pw + g + tv)) / 2;   // em's ink starts here, studio's ends as far from the right
+      emLeft = ink - sz.E * s * INK[0];
+      centre = ink + ev + g + sz.pw / 2;
+      stLeft = ink + ev + g + sz.pw + g - sz.T * s * INK[2];
+    }
+    var e = sz.E * s, t = sz.T * s, natural = cx - (e + t) / 2;   // em's left edge with the halves together
+    // the halves' moves are inside the scaled logo, so in its own (unscaled) pixels
+    r.setProperty('--se', (natural - emLeft) / s + 'px');
+    r.setProperty('--ss', (stLeft - (natural + e)) / s + 'px');
+    r.setProperty('--low-y', '0px'); r.setProperty('--low-s', String(s));
+    // the phone is placed in the first screen, which a scrollbar can make narrower than the window the logo is fixed to
+    var box = hero.getBoundingClientRect();
+    return centre - (box.left + box.width / 2);
   }
+
   // the feed: a project at a time slides up, with the bars of a story along the top
   var reel = 0, bars = phone.querySelector('.bars'), what = phone.querySelector('.what'), feeding = 0;
   reels.forEach(function () { bars.appendChild(document.createElement('span')); });
@@ -515,14 +547,13 @@
   function ready() {
     measure();
     root.classList.add('is-apart', 'is-phone', 'photos-in');
-    card(sz.pw, sz.ph);
-    beside();
+    card(sz.pw, sz.ph, beside(), sz.py);
     label();
     if (!feeding) feeding = setInterval(scroll, BEAT);
   }
   addEventListener('resize', measure);
 
-  if (entering && target() === studio) root.classList.add('is-opening', 'is-entering');   // no menu yet, the copies of the logo
+  if (entering && target() === studio) root.classList.add('is-opening', 'is-entering', 'is-held');   // no menu yet, the copies of the logo, no scrolling
   var later = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
   function enter() {
     measure();
@@ -553,8 +584,7 @@
     .then(function () {
       phone.style.clipPath = '';
       root.classList.add('is-apart', 'is-phone', 'photos-in');
-      card(sz.pw, sz.ph);
-      beside();
+      card(sz.pw, sz.ph, beside(), sz.py);
       return later(1100);
     })
     // done: the real logo takes over in the same place, the feed starts, the menu comes in
@@ -563,8 +593,14 @@
       settle(studio);
       scrolled();
       root.classList.remove('is-entering', 'is-opening');
-      setTimeout(function () { root.classList.add('is-revealed'); }, 700);   // once the real one has faded in over the copies
       ready();
+      // once the real logo has faded in over the copies: they go, the page may scroll
+      // (its scrollbar narrows the first screen, so the phone is placed again)
+      setTimeout(function () {
+        root.classList.add('is-revealed');
+        root.classList.remove('is-held');
+        measure();
+      }, 700);
     });
   }
 

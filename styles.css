@@ -199,8 +199,8 @@ html.is-entering body > .mark {
 html.is-revealed .hero .mark {
   display: none;
 }
-html.is-entering #studio {
-  overflow: hidden;   /* the copies are in the page: it must not move under them */
+html.is-held #studio {
+  overflow: hidden;   /* the copies are in the page: it must not move under them, nor narrow by a scrollbar */
 }
 /* on Studio the page scrolls beneath the logo, so the logo sits above it */
 html.is-grown .mark {
@@ -1166,7 +1166,7 @@ html:not(.js) #shuffle {
   cursor: pointer;
   list-style: none;
   /* leaving: the band goes a moment later; pointing (below): at once */
-  transition: background-color 0.45s cubic-bezier(0.33, 1, 0.68, 1) 0.05s;
+  transition: background-color 0.3s cubic-bezier(0.33, 1, 0.68, 1);
 }
 .svc summary::-webkit-details-marker {
   display: none;
@@ -1223,8 +1223,8 @@ html:not(.js) #shuffle {
   transform: translateY(-50%) scale(0.85) rotate(var(--tilt));
   /* leaving: it goes a moment later; pointing (below): it comes at once */
   transition:
-    opacity 0.4s cubic-bezier(0.33, 1, 0.68, 1) 0.05s,
-    transform 0.5s cubic-bezier(0.33, 1, 0.68, 1) 0.05s;
+    opacity 0.25s cubic-bezier(0.33, 1, 0.68, 1),
+    transform 0.3s cubic-bezier(0.33, 1, 0.68, 1);
 }
 .svc details:nth-child(even) .svc-float {
   --tilt: -3deg;
@@ -1253,8 +1253,8 @@ html:not(.js) #shuffle {
     opacity: 1;
     transform: translateY(-50%) rotate(var(--tilt));
     transition:
-      opacity 0.25s cubic-bezier(0.22, 1, 0.36, 1),
-      transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+      opacity 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
   }
 }
 /* opened, the photo has moved into the row */
@@ -1643,6 +1643,11 @@ html[data-menu="light"] .corner--tr a {
   inset: 0;
   background: linear-gradient(#fff 72%, #091956 calc(100% - 4px));   /* solid for the last few pixels */
 }
+@media (max-width: 819px) {
+  .hero::before {
+    background: linear-gradient(#fff 84%, #091956 calc(100% - 4px));   /* under the logo, which sits low here */
+  }
+}
 html.js .hero::before {
   opacity: 0;
 }
@@ -1659,11 +1664,12 @@ html.photos-in .hero::before {
   top: 50%;
   width: var(--w, 240px);
   height: var(--h, 320px);
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) translate(var(--px, 0px), var(--py, 0px));   /* --px: centred in the group with the logo */
   clip-path: inset(50% 50% 50% 50% round 10px);
   transition:
     width 1s var(--move),
-    height 1s var(--move);
+    height 1s var(--move),
+    transform 1s var(--move);
 }
 html.is-apart .phone {
   clip-path: none;
