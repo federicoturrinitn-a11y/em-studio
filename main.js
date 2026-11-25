@@ -466,7 +466,8 @@
     c[1].appendChild(m);
   });
   // the card in the middle of the first screen, upright (3:4), and the logo's place
-  // once risen: halfway between the menu and the row of photos
+  // once risen: small, at the top centre, level with the menu (on a narrow screen,
+  // where the menu fills the top, just under it), at the size it docks at
   function measure() {
     var W = hero.clientWidth, H = hero.clientHeight;
     sz.cw = Math.max(150, Math.min(260, W * (W < 820 ? 0.42 : 0.18)));
@@ -474,13 +475,15 @@
     sz.l = (W - sz.cw) / 2; sz.t = (H - sz.ch) / 2;
     flip.style.cssText = 'left:' + sz.l + 'px;top:' + sz.t + 'px;width:' + sz.cw + 'px;height:' + sz.ch + 'px';
     sz.card = 'inset(' + sz.t + 'px ' + sz.l + 'px ' + sz.t + 'px ' + sz.l + 'px round 10px)';
-    var top = bar.offsetHeight * 0.6, foot = strip.offsetTop;   // the strip's top, in the first screen
-    root.style.setProperty('--low-y', ((top + foot) / 2 - H / 2) + 'px');
+    var menu = document.querySelector('.corner--tr').getBoundingClientRect(),
+        y = W < 820 ? menu.bottom + 34 : menu.top + menu.height / 2;
+    root.style.setProperty('--low-y', (y - H / 2) + 'px');
+    root.style.setProperty('--low-s', W <= 640 ? '0.5' : '0.198');   // as --dock-s in the CSS (a little larger on a phone, to read)
   }
   // the first screen as it is once the opening is done
   function ready() {
     measure();
-    root.classList.add('is-full', 'is-strip', 'photos-in');
+    root.classList.add('is-full', 'is-beside', 'is-text', 'is-strip', 'photos-in');
     frame.style.clipPath = '';
     flip.classList.add('is-done');
   }
@@ -517,10 +520,14 @@
       widen.onfinish = function () { frame.style.clipPath = ''; root.classList.add('is-full'); widen.cancel(); };
       return later(1150);
     })
-    // the logo rises to the upper middle, the photos come up along the foot
+    // the logo goes small to the top centre; then the statement and the photos come up
     .then(function () {
-      root.classList.add('is-beside', 'is-strip');
-      return later(1000);
+      root.classList.add('is-beside');
+      return later(650);
+    })
+    .then(function () {
+      root.classList.add('is-text', 'is-strip');
+      return later(900);
     })
     // done: the real logo takes over in the same place, the menu comes in
     .then(function () {
