@@ -9,20 +9,18 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet" />
     <!-- A proposal for the opening of Home, on a page of its own to set beside
-         the current one. On white the logo grows; under it a small window opens
+         the current one. On white the logo grows; under it a small card opens
          and the projects flip through it like a flipbook, slowing down; then the
-         window opens into three tall panels, each with its own projects fading
-         one into the next. The logo is dark on the white and white on the
-         photos at the same instant (a dark copy under the panels, a white copy
-         inside each), so it never changes colour all at once. -->
+         other projects slide out from under the card, fanned like cards spread
+         on a table, and the logo goes down to the foot. Inside the card the logo
+         is white (a white copy clipped to the card over the dark one), so it is
+         dark on the white and white on the photo at the same instant. -->
     <style>
       :root {
         --navy: #091956;
         --blue: #334eac;
-        --pale: #c7cee7;
         --body: #2a3150;
         --pad: clamp(16px, 3.2vw, 46px);
-        --gap: clamp(8px, 0.8vw, 12px);
         --logo-w: min(56vw, 620px);
         --ease: cubic-bezier(0.2, 0.7, 0.1, 1);
       }
@@ -47,7 +45,7 @@
       /* ------------------------------------------------------ the top bar */
       .top {
         position: fixed;
-        z-index: 20;
+        z-index: 50;
         top: 0;
         left: 0;
         right: 0;
@@ -74,15 +72,13 @@
         display: flex;
         gap: 18px;
         opacity: 0;
-        transition: opacity 0.8s ease, color 0.4s ease;
+        transition: opacity 0.8s ease;
       }
       .top nav a {
         font-size: 12px;
         font-weight: 600;
         letter-spacing: 0.06em;
         text-decoration: none;
-        color: #fff;
-        transition: color 0.4s ease;
       }
       .top nav a:hover {
         text-decoration: underline;
@@ -91,16 +87,13 @@
       .is-open .top nav {
         opacity: 1;
       }
-      /* past the photos: a white bar, the small logo and the menu in navy */
+      /* past the cards: a white bar and the small logo */
       .is-past .top {
         background: rgba(255, 255, 255, 0.92);
         padding-block: 14px;
       }
       .is-past .brand {
         opacity: 1;
-      }
-      .is-past .top nav a {
-        color: var(--navy);
       }
 
       /* ----------------------------------------------------- the opening */
@@ -111,7 +104,7 @@
         overflow: hidden;
         background: #fff;
       }
-      /* the logo, in the same place in every layer; main.js moves them all at
+      /* the logo, in the same place in both copies; main.js moves both at
          once through --ly and --ls on the stage */
       .logo {
         position: absolute;
@@ -124,12 +117,8 @@
         pointer-events: none;
         user-select: none;
       }
-      .logo--light {
-        filter: brightness(0) invert(1);
-        z-index: 3;
-      }
       .logo--ink {
-        z-index: 1;
+        z-index: 20;   /* over the cards on the table, under the main card */
         opacity: 0;
         transition:
           transform 1.2s cubic-bezier(0.65, 0, 0.25, 1),
@@ -138,104 +127,132 @@
       .is-lit .logo--ink {
         opacity: 1;
       }
-      /* once the panels cover the page the dark copy steps out, so the thin white
-         gaps between them never show bits of it */
-      .is-open .logo--ink {
-        opacity: 0;
-      }
       .is-lit {
         --ls: 1;
       }
-      /* the panels: each is the whole stage, cut down to its column by a clip
-         (main.js), its photos laid out in that column */
-      .panel {
+      /* the white copy, inside the main card: the card is centred on the stage,
+         so the copy sits where the dark one is */
+      .main .logo {
+        filter: brightness(0) invert(1);
+        z-index: 3;
+        /* the card is lifted by its --y: the copy goes down by as much, to stay on the dark one */
+        transform: translate(-50%, -50%) translateY(calc(var(--ly, 0px) - var(--y, 0px))) scale(var(--ls, 0.2));
+      }
+      /* once the logo is below the card the copy has nothing left to do: the
+         card loses its clip, and gets its shadow back */
+      .is-open .main .logo {
+        display: none;
+      }
+
+      /* the cards: upright photos with rounded corners and a soft shadow, each
+         placed by main.js (--x, --y from the middle, --r its tilt, --w its width) */
+      .card {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: var(--w, 200px);
+        aspect-ratio: 3 / 4;
+        transform: translate(-50%, -50%) translate(var(--x, 0px), var(--y, 0px)) rotate(var(--r, 0deg));
+        text-decoration: none;
+        color: #fff;
+      }
+      .card .face {
         position: absolute;
         inset: 0;
-        z-index: 2;
-        clip-path: inset(50% 50% 50% 50%);
-      }
-      .panel--1 {
-        z-index: 4;   /* the middle one, where the flipbook plays, on top */
-      }
-      .pics {
-        position: absolute;
-        top: 0;
-        bottom: 0;
         overflow: hidden;
+        border-radius: 10px;
+        box-shadow: 0 18px 40px rgba(9, 25, 86, 0.18);
+        background: #e9ecf5;
+        transition: transform 0.45s var(--ease), box-shadow 0.45s ease;
       }
-      .pics img {
+      .card .face img {   /* not the logo's white copy, which is in the main card too */
         position: absolute;
         inset: 0;
         width: 100%;
         height: 100%;
         object-fit: cover;
-        opacity: 0;
       }
-      .pics img.on {
-        opacity: 1;
+      /* the cards on the table, until they spread: hidden under the main card */
+      .table .card {
+        z-index: 10;
+        visibility: hidden;
       }
-      /* in the slideshow each photo fades in and settles from a slight zoom */
-      .is-open .pics img {
-        transition: opacity 1.2s ease, transform 6s linear;
-        transform: scale(1.08);
+      .is-spread .table .card {
+        visibility: visible;
       }
-      .is-open .pics img.on {
-        transform: scale(1);
+      /* once on the table each card drifts a little, each on its own loop */
+      .is-open .table .card .face {
+        animation: drift var(--d, 8s) ease-in-out infinite alternate;
       }
-      /* a shade at the foot, for the logo, and at the top, for the menu */
-      .pics::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(rgba(9, 25, 86, 0.35), transparent 22%, transparent 55%, rgba(9, 25, 86, 0.6));
-        opacity: 0;
-        transition: opacity 1s ease;
+      @keyframes drift {
+        from { translate: 0 -5px; }
+        to { translate: 0 5px; }
       }
-      .is-open .pics::after {
-        opacity: 1;
+      /* pointing at a card lifts it, and says whose project it is */
+      .is-open .card:hover {
+        z-index: 25;
       }
-      /* whose project it is, at the top of each panel */
+      .is-open .card:hover .face {
+        transform: translateY(-10px) scale(1.05);
+        box-shadow: 0 28px 60px rgba(9, 25, 86, 0.28);
+      }
       .cap {
         position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
         z-index: 2;
         margin: 0;
-        color: #fff;
-        font-size: 11px;
+        padding: 48px 14px 12px;
+        background: linear-gradient(transparent, rgba(9, 25, 86, 0.75));
+        font-size: 10.5px;
         font-weight: 500;
-        letter-spacing: 0.08em;
-        line-height: 1.5;
+        letter-spacing: 0.06em;
+        line-height: 1.45;
         opacity: 0;
-        transform: translateY(8px);
-        transition: opacity 0.5s ease, transform 0.6s var(--ease);
+        transition: opacity 0.35s ease;
       }
       .cap b {
         display: block;
-        font-size: 13px;
+        font-size: 12.5px;
         font-weight: 600;
         letter-spacing: 0.02em;
       }
-      .is-open .cap.on {
+      .is-open .card:hover .cap {
         opacity: 1;
-        transform: none;
+      }
+      /* the main card, where the flipbook plays: on top of everything */
+      .main {
+        z-index: 30;
+        clip-path: inset(50% 50% 50% 50% round 10px);
+      }
+      .main .face img {
+        opacity: 0;
+      }
+      .main .face img.on {
+        opacity: 1;
+      }
+      .is-open .main .face img {
+        transition: opacity 1.2s ease;
       }
       .hint {
         position: absolute;
-        z-index: 5;
+        z-index: 40;
         right: var(--pad);
         bottom: var(--pad);
         margin: 0;
         font-size: 10px;
         font-weight: 600;
         letter-spacing: 0.2em;
-        color: #fff;
+        color: var(--navy);
         opacity: 0;
         transition: opacity 0.8s ease 0.6s;
       }
       .is-open .hint {
-        opacity: 0.85;
+        opacity: 0.6;
       }
 
-      /* ------------------------------------------------- after the photos */
+      /* ------------------------------------------------- after the cards */
       .intro {
         max-width: 860px;
         margin: 0 auto;
@@ -316,6 +333,7 @@
         *::before,
         *::after {
           transition-duration: 0.01ms !important;
+          animation: none !important;
         }
       }
     </style>
@@ -336,20 +354,21 @@
         <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">EM Studio — Comunicazione e marketing</h1>
         <img class="logo logo--ink" src="img/logo.png" alt="" />
 
-        <!-- each panel: its photos (data-name and data-kind for the caption) -->
-        <div class="panel panel--0">
-          <div class="pics">
-            <img src="img/dolce-riva-1.jpg" alt="" data-name="Dolce Riva Night" data-kind="Organizzazione eventi" />
-            <img src="img/calzature-dro-1.jpg" alt="" data-name="Calzature Dro" data-kind="Catena di negozi di scarpe" />
-            <img src="img/desiree-corona-1.jpg" alt="" data-name="Desiree Corona" data-kind="Centro estetico" />
-            <img src="img/mc-house-1.jpg" alt="" data-name="MC House Group" data-kind="Agenzia immobiliare" />
-          </div>
-          <p class="cap"></p>
-          <img class="logo logo--light" src="img/logo.png" alt="" />
+        <!-- the cards that spread on the table, each one of our projects -->
+        <div class="table">
+          <a class="card" href="lavori.html"><span class="face"><img src="img/dolce-riva-1.jpg" alt="" /><span class="cap"><b>Dolce Riva Night</b>Organizzazione eventi</span></span></a>
+          <a class="card" href="lavori.html"><span class="face"><img src="img/calzature-dro-1.jpg" alt="" /><span class="cap"><b>Calzature Dro</b>Catena di negozi di scarpe</span></span></a>
+          <a class="card" href="lavori.html"><span class="face"><img src="img/sweet-retreat-1.jpg" alt="" /><span class="cap"><b>Sweet Retreat</b>Appartamenti turistici</span></span></a>
+          <a class="card" href="lavori.html"><span class="face"><img src="img/desiree-corona-1.jpg" alt="" /><span class="cap"><b>Desiree Corona</b>Centro estetico</span></span></a>
+          <a class="card" href="lavori.html"><span class="face"><img src="img/la-lavagna-2.jpg" alt="" /><span class="cap"><b>La Lavagna</b>Pizzeria e laboratorio artigianale</span></span></a>
+          <a class="card" href="lavori.html"><span class="face"><img src="img/garda-host-2.jpg" alt="" /><span class="cap"><b>Garda Host</b>Agenzia affitti turistici</span></span></a>
+          <a class="card" href="lavori.html"><span class="face"><img src="img/mc-house-1.jpg" alt="" /><span class="cap"><b>MC House Group</b>Agenzia immobiliare</span></span></a>
+          <a class="card" href="lavori.html"><span class="face"><img src="img/horizon-3.jpg" alt="" /><span class="cap"><b>Horizon Music Festival</b>Merchandising</span></span></a>
         </div>
-        <div class="panel panel--1">
-          <div class="pics">
-            <!-- the flipbook first (data-flip), then its own slideshow from the last of them -->
+
+        <!-- the main card: the flipbook (data-flip), then its own projects in turn -->
+        <a class="card main" href="lavori.html">
+          <span class="face">
             <img src="img/moor-1.jpg" alt="" data-flip />
             <img src="img/pallavolo-c9-2.jpg" alt="" data-flip />
             <img src="img/sweet-retreat-1.jpg" alt="" data-flip />
@@ -359,23 +378,13 @@
             <img src="img/like-home-1.jpg" alt="" data-flip />
             <img src="img/dolce-riva-3.jpg" alt="" data-flip />
             <img src="img/horizon-1.jpg" alt="" data-name="Horizon Music Festival" data-kind="Organizzazione eventi" />
-            <img src="img/garda-host-2.jpg" alt="" data-name="Garda Host" data-kind="Agenzia affitti turistici" />
-            <img src="img/la-lavagna-2.jpg" alt="" data-name="La Lavagna" data-kind="Pizzeria e laboratorio artigianale" />
-            <img src="img/like-home-1.jpg" alt="" data-name="Like Home Design" data-kind="Agenzia di interior design" />
-          </div>
-          <p class="cap"></p>
-          <img class="logo logo--light" src="img/logo.png" alt="" />
-        </div>
-        <div class="panel panel--2">
-          <div class="pics">
             <img src="img/calzature-dro-2.jpg" alt="" data-name="Calzature Dro" data-kind="Catena di negozi di scarpe" />
-            <img src="img/sweet-retreat-1.jpg" alt="" data-name="Sweet Retreat" data-kind="Appartamenti turistici" />
-            <img src="img/horizon-3.jpg" alt="" data-name="Horizon Music Festival" data-kind="Merchandising" />
             <img src="img/dolce-riva-3.jpg" alt="" data-name="Dolce Riva Night" data-kind="Organizzazione eventi" />
-          </div>
-          <p class="cap"></p>
-          <img class="logo logo--light" src="img/logo.png" alt="" />
-        </div>
+            <img src="img/like-home-1.jpg" alt="" data-name="Like Home Design" data-kind="Agenzia di interior design" />
+            <span class="cap"></span>
+          </span>
+          <img class="logo" src="img/logo.png" alt="" />
+        </a>
         <p class="hint" aria-hidden="true">SCORRI ↓</p>
       </section>
 
@@ -406,140 +415,144 @@
         var root = document.documentElement,
             body = document.body,
             stage = document.getElementById('stage'),
-            panels = [].slice.call(stage.querySelectorAll('.panel')),
+            main = stage.querySelector('.main'),
+            cards = [].slice.call(stage.querySelectorAll('.table .card')),
             calm = matchMedia('(prefers-reduced-motion: reduce)').matches,
             open = false;
 
-        /* Where everything goes, measured on the stage: the small window in the
-           middle (upright, 3:4) and the panels' columns, three across, or one
-           on a phone. Each panel is the whole stage cut down by a clip. */
-        var rects = {};
+        /* Where each card lands, from the middle of the stage: x as a share of
+           the width, y of the height, its tilt and its width (a share of the
+           stage's width). They leave the foot of the stage free for the logo. */
+        var TABLE = [
+          { x: -0.33, y: -0.17, r: -8, w: 0.13 },
+          { x: -0.19, y: 0.12, r: 5, w: 0.12 },
+          { x: -0.41, y: 0.15, r: -3, w: 0.11 },
+          { x: 0.19, y: -0.15, r: 7, w: 0.13 },
+          { x: 0.34, y: 0.1, r: -6, w: 0.12 },
+          { x: -0.12, y: -0.24, r: 10, w: 0.1 },
+          { x: 0.13, y: 0.18, r: -9, w: 0.11 },
+          { x: 0.42, y: -0.2, r: 4, w: 0.1 }
+        ];
+        var size = {};
         function measure() {
-          var W = stage.clientWidth, H = stage.clientHeight,
-              g = parseFloat(getComputedStyle(root).getPropertyValue('--gap')) || 10,
-              n = W < 700 ? 1 : 3,
-              cw = (W - g * (n + 1)) / n,
-              ww = Math.max(150, Math.min(260, W * 0.18)), wh = ww * 4 / 3;
-          rects.window = { l: (W - ww) / 2, t: (H - wh) / 2, w: ww, h: wh };
-          rects.cols = panels.map(function (p, i) {
-            var k = n === 1 ? 0 : i;   // on a phone all three share the one column; only the middle one shows
-            return { l: g + k * (cw + g), t: g, w: cw, h: H - g * 2 };
+          var W = stage.clientWidth, H = stage.clientHeight, phone = W < 700;
+          // the main card: as wide as a fifth of the screen, upright, a little above the middle
+          size.main = Math.max(150, Math.min(300, W * (phone ? 0.46 : 0.19)));
+          size.lift = -H * 0.06;
+          main.style.setProperty('--w', size.main + 'px');
+          cards.forEach(function (c, i) {
+            var t = TABLE[i];
+            c.style.setProperty('--fw', (phone ? Math.min(0.3, t.w * 2.4) : t.w) * W + 'px');
+            c.style.setProperty('--fx', t.x * W * (phone ? 0.85 : 1) + 'px');
+            c.style.setProperty('--fy', t.y * H * (phone ? 1.3 : 1) + size.lift + 'px');
+            c.style.setProperty('--fr', t.r + 'deg');
+            c.style.setProperty('--d', (6 + (i % 4) * 1.3) + 's');
           });
-          panels.forEach(function (p, i) {
-            var c = rects.cols[i], pics = p.querySelector('.pics'), cap = p.querySelector('.cap');
-            pics.style.left = c.l + 'px';
-            pics.style.width = c.w + 'px';
-            pics.style.top = c.t + 'px';
-            pics.style.bottom = (H - c.t - c.h) + 'px';
-            pics.style.borderRadius = '10px';
-            cap.style.left = (c.l + 18) + 'px';
-            cap.style.top = (c.t + 70) + 'px';
-            p.style.display = n === 1 && i !== 1 ? 'none' : '';
-          });
-          // the logo's resting place: at the foot of the stage, clear of the edge
           var logo = stage.querySelector('.logo--ink');
-          rects.low = H / 2 - logo.offsetHeight / 2 - Math.max(28, H * 0.06);
-          if (open) settle();
+          size.low = H / 2 - logo.offsetHeight / 2 - Math.max(28, H * 0.06);
+          if (open) place();
         }
-        function clip(r, round) {
-          var W = stage.clientWidth, H = stage.clientHeight;
-          return 'inset(' + r.t.toFixed(1) + 'px ' + (W - r.l - r.w).toFixed(1) + 'px ' +
-                 (H - r.t - r.h).toFixed(1) + 'px ' + r.l.toFixed(1) + 'px round ' + round + 'px)';
-        }
-        // the panels in their columns and the logo low, with no animation (after a resize)
-        function settle() {
-          panels.forEach(function (p, i) { p.style.clipPath = clip(rects.cols[i], 10); });
-          stage.style.setProperty('--ly', rects.low + 'px');
+        // every card in its place on the table, the main one lifted, the logo low (no animation)
+        function place() {
+          main.style.setProperty('--y', size.lift + 'px');
+          cards.forEach(function (c) {
+            c.style.setProperty('--w', 'var(--fw)');
+            c.style.setProperty('--x', 'var(--fx)');
+            c.style.setProperty('--y', 'var(--fy)');
+            c.style.setProperty('--r', 'var(--fr)');
+          });
+          stage.style.setProperty('--ly', size.low + 'px');
         }
 
-        /* Each panel fades from one of its projects to the next, the three a
-           beat apart, the caption with them. */
-        function slideshow(p, delay) {
-          var imgs = [].slice.call(p.querySelectorAll('.pics img:not([data-flip])')),
-              cap = p.querySelector('.cap'), k = 0;
+        // the main card's own projects in turn, with their caption
+        function slideshow() {
+          var imgs = [].slice.call(main.querySelectorAll('img[data-name]')), cap = main.querySelector('.cap'), k = 0;
           function show() {
             imgs.forEach(function (im, i) { im.classList.toggle('on', i === k); });
-            cap.classList.remove('on');
-            setTimeout(function () {
-              cap.innerHTML = '<b>' + imgs[k].getAttribute('data-name') + '</b>' + imgs[k].getAttribute('data-kind');
-              cap.classList.add('on');
-            }, 350);
+            cap.innerHTML = '<b>' + imgs[k].getAttribute('data-name') + '</b>' + imgs[k].getAttribute('data-kind');
           }
           show();
-          setTimeout(function () {
-            setInterval(function () { k = (k + 1) % imgs.length; show(); }, 4800);
-          }, delay);
+          setInterval(function () { k = (k + 1) % imgs.length; show(); }, 4500);
         }
 
         function finish() {
           open = true;
-          root.classList.add('is-open');
+          root.classList.add('is-open', 'is-spread');
           body.classList.remove('is-held');
-          settle();
-          panels.forEach(function (p, i) { slideshow(p, i * 1600); });
+          main.style.clipPath = 'none';
+          place();
+          slideshow();
         }
 
-        var later = function (f, ms) { return new Promise(function (r) { setTimeout(function () { f && f(); r(); }, ms); }); };
+        var later = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
 
         function play() {
           measure();
           if (calm) {
-            panels.forEach(function (p) { p.querySelector('.pics img:not([data-flip])').classList.add('on'); });
             root.classList.add('is-lit');
+            main.style.clipPath = 'inset(0 round 10px)';
             return finish();
           }
-          var mid = panels[1], flips = [].slice.call(mid.querySelectorAll('.pics img[data-flip]')),
-              first = mid.querySelector('.pics img:not([data-flip])');
+          var flips = [].slice.call(main.querySelectorAll('img[data-flip]')),
+              first = main.querySelector('img[data-name]');
           // 1 — on white, the logo grows in the middle
-          setTimeout(function () { root.classList.add('is-lit'); }, 30);   // after a first frame at the small size
-          later(null, 1300)
-          // 2 — a small window opens under it, and the projects flip through it, slowing down
+          setTimeout(function () { root.classList.add('is-lit'); }, 30);
+          later(1300)
+          // 2 — a small card opens under it, and the projects flip through it, slowing down
           .then(function () {
             flips[0].classList.add('on');
-            mid.animate([{ clipPath: 'inset(50% 50% 50% 50% round 10px)' }, { clipPath: clip(rects.window, 10) }],
-                        { duration: 700, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)', fill: 'forwards' });
-            var steps = [120, 110, 110, 120, 140, 170, 210, 260], chain = later(null, 750);
+            var opening = main.animate([{ clipPath: 'inset(50% 50% 50% 50% round 10px)' }, { clipPath: 'inset(0% 0% 0% 0% round 10px)' }],
+                                       { duration: 700, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)', fill: 'forwards' });
+            opening.onfinish = function () { main.style.clipPath = 'inset(0 round 10px)'; opening.cancel(); };
+            var steps = [120, 110, 110, 120, 140, 170, 210, 260], chain = later(750);
             flips.concat(first).forEach(function (im, i) {
               if (!i) return;
               chain = chain.then(function () {
-                (flips[i - 1] || im).classList.remove('on');
+                flips[i - 1].classList.remove('on');
                 im.classList.add('on');
-                return later(null, steps[i - 1] || 300);
+                return later(steps[i - 1] || 300);
               });
             });
             return chain;
           })
-          .then(function () { return later(null, 450); })
-          // 3 — the window opens into the three panels, the side ones sliding out from behind the middle one
+          .then(function () { return later(450); })
+          // 3 — the other projects slide out from under it, one after another, fanned
+          //     on the table, and the card and the logo make room
           .then(function () {
-            panels.forEach(function (p, i) {
-              p.querySelector('.pics img:not([data-flip])').classList.add('on');
-              var a = p.animate([{ clipPath: clip(rects.window, 10) }, { clipPath: clip(rects.cols[i], 10) }],
-                                { duration: 1200, easing: 'cubic-bezier(0.7, 0, 0.2, 1)', fill: 'forwards' });
-              // landed: the clip goes into the style, and every animation on the panel (the window's too) lets go
-              a.onfinish = function () {
-                p.style.clipPath = clip(rects.cols[i], 10);
-                p.getAnimations().forEach(function (x) { x.cancel(); });
-              };
+            root.classList.add('is-spread');
+            main.style.transition = 'transform 1.2s cubic-bezier(0.65, 0, 0.25, 1)';   // with the logo, so the white copy stays on it
+            main.style.setProperty('--y', size.lift + 'px');
+            stage.style.setProperty('--ly', size.low + 'px');
+            cards.forEach(function (c, i) {
+              c.animate([
+                { transform: 'translate(-50%, -50%) translate(0px, ' + size.lift + 'px) rotate(0deg)', width: size.main * 0.92 + 'px' },
+                { transform: 'translate(-50%, -50%) translate(' + c.style.getPropertyValue('--fx') + ', ' + c.style.getPropertyValue('--fy') + ') rotate(' + c.style.getPropertyValue('--fr') + ')',
+                  width: c.style.getPropertyValue('--fw') }
+              ], { duration: 1200, delay: 120 + i * 70, easing: 'cubic-bezier(0.2, 0.9, 0.3, 1.12)', fill: 'backwards' });
+              c.style.setProperty('--w', 'var(--fw)');
+              c.style.setProperty('--x', 'var(--fx)');
+              c.style.setProperty('--y', 'var(--fy)');
+              c.style.setProperty('--r', 'var(--fr)');
             });
-            return later(null, 1150);
+            return later(1200 + cards.length * 70);
           })
-          // 4 — the logo, white on the photos now, goes down to the foot; the menu and the captions come in
+          // 4 — the menu, the captions and the drift come in
           .then(finish);
         }
 
-        // the bar turns white once the photos are scrolled away
+        // the bar turns white once the cards are scrolled away
         new IntersectionObserver(function (es) {
           root.classList.toggle('is-past', !es[0].isIntersecting);
         }, { rootMargin: '-80px 0px 0px 0px' }).observe(stage);
 
         addEventListener('resize', measure);
-        // start once the photos are in, so the flipbook never shows an empty frame
+        // start once the photos are in, so the flipbook never shows an empty card
         var imgs = [].slice.call(stage.querySelectorAll('img')), left = imgs.length, started = false;
         function go() { if (!started) { started = true; play(); } }
+        function one() { if (--left <= 0) go(); }
         imgs.forEach(function (im) {
           if (im.complete) left--;
-          else im.addEventListener('load', function () { if (--left === 0) go(); }), im.addEventListener('error', function () { if (--left === 0) go(); });
+          else { im.addEventListener('load', one); im.addEventListener('error', one); }
         });
         if (left <= 0) go();
         setTimeout(go, 4000);   // a slow connection: start anyway
