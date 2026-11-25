@@ -202,8 +202,8 @@
   var barC = '';
   function barColour(c) { if (c !== barC) { barC = c; bar.style.backgroundColor = c; } }
 
-  // the logo and the menu wear the tone of the page under the bar; on Home that
-  // is white, except in the opening, where the logo starts dark on the white
+  // the logo and the menu wear the tone of the page under the bar; at the top of
+  // Home (and in its opening) they are dark, on the white of the first screen
   function atmosphere(y) {
     if (active !== studio) return;
     var under = y + barH / 2, j = 1;
@@ -211,7 +211,7 @@
     var sc = SCENES[sceneEls[j - 1].getAttribute('data-scene')];
     barColour('');
     setBase(sc[0]);
-    setTone(entering ? 'light' : sc[1]);
+    setTone(entering || y <= 8 ? 'light' : sc[1]);
   }
 
   /* Everything the scroll needs is measured here, on load and resize, so a
@@ -224,8 +224,8 @@
 
   function scrolled() {
     var y = studio.scrollTop, home = split && active === studio;
-    // at the very top of Home the whole logo sits low over the photos; the first scroll docks it top left, over the bar
-    root.classList.toggle('is-low', home && y <= 8);
+    // at the very top of Home the logo parts around the phone; the first scroll docks it top left, over the bar
+    if (!entering) root.classList.toggle('is-beside', home && y <= 8);
     atmosphere(y);
     root.classList.toggle('is-docked', home && y > 8);
   }
@@ -437,104 +437,134 @@
     if (entering && v === studio) enter();
     else {
       entering = false;
+      root.classList.remove('is-entering', 'is-opening');
+      root.classList.add('is-revealed');
+      ready();
       settle(v);
-      scrolled();   // on Home, the logo goes low
-      photos(function () { root.classList.add('photos-in'); });
+      scrolled();   // on Home, the logo parts around the phone
     }
     setTimeout(settled, calm ? 0 : 1000);
   }
 
-  /* Home's opening, once the logo has grown in the middle of the white: the
-     three rows of photos slide in from the sides (the top and bottom ones from
-     the right, the middle one from the left), each row whole, its photos still
-     within it; landed, it carries on at the speed it arrived with and slows
-     gradually to its own drift. The logo goes letter by letter as the middle
-     row's first photo passes over it; then it comes back up from below the
-     screen, white, to sit over the bottom row, and the menu comes in. */
-  var SLIDE = 2200,   // until the middle row has landed (CSS .mrow)
-      // the rows' slide, as in the CSS: fast at first, and still moving as it lands
-      INTO = { duration: 1900, delay: 300, ease: [0.2, 0.6, 0.6, 0.9] },
-      // where each handwritten letter ends, as a share of its half's width (em: e m; studio: s t u d i o)
-      LETTERS = [[0.37, 1], [0.18, 0.32, 0.46, 0.69, 0.8, 1]],
-      WIPE = 30;   // a letter goes at once when the first photo's edge is over its middle
-  // the time a cubic-bezier ease reaches a given progress (its y), found by halving
-  function when(ease, y) {
-    function b(p1, p2, s) { return 3 * p1 * s * (1 - s) * (1 - s) + 3 * p2 * s * s * (1 - s) + s * s * s; }
-    var lo = 0, hi = 1;
-    for (var k = 0; k < 30; k++) { var s = (lo + hi) / 2; if (b(ease[1], ease[3], s) < y) lo = s; else hi = s; }
-    return b(ease[0], ease[2], lo);
+  /* Home's opening, once the logo has grown in the middle of the white: a
+     small card opens under it and the projects flip through it, slowing down;
+     the logo parts, em to the left of the card and studio to the right; then
+     the card becomes a phone, the halves make room for it, and our projects
+     scroll by on its screen. While the logo crosses the card it is white on
+     the photo: the logo seen in the opening is a pair of copies inside the
+     first screen (a dark one under the card, a white one inside it); the real
+     one takes over in the same place once the opening is done.
+     shortcut: the phone is drawn; a photo of a hand holding a phone, with the
+     feed laid on its screen, would be the real thing. */
+  var phone = document.querySelector('.phone'),
+      feed = phone.querySelector('.feed'),
+      reels = [].slice.call(feed.children),
+      BEAT = 2600,   // each project on the phone's screen
+      sz = {};
+  [['mark--ink', document.querySelector('.hero')], ['mark--light', phone]].forEach(function (c) {
+    var m = mark.cloneNode(true);
+    m.classList.add(c[0]);
+    [].forEach.call(m.querySelectorAll('[data-part]'), function (p) { p.removeAttribute('data-part'); });
+    c[1].appendChild(m);
+  });
+  // the card's and the phone's sizes, and where the halves of the logo go beside them
+  function measure() {
+    var W = innerWidth, H = innerHeight;
+    sz.narrow = W < 820;
+    sz.cw = Math.max(150, Math.min(260, W * (sz.narrow ? 0.42 : 0.18)));
+    sz.ch = sz.cw * 4 / 3;
+    sz.ph = Math.min(H * (sz.narrow ? 0.6 : 0.74), 660);
+    sz.pw = sz.ph * 9 / 19.5;
+    sz.gap = Math.max(28, W * 0.035);
+    sz.mid = (parts[0].offsetWidth - parts[1].offsetWidth) / 2;   // where the halves meet, from the logo's centre
+    sz.low = sz.ph / 2 + Math.max(20, H * 0.04) + parts[0].offsetHeight * 0.6 / 2;
+    if (root.classList.contains('is-phone')) { card(sz.pw, sz.ph); beside(); }
   }
-  /* The logo goes letter by letter as the middle row's edge passes over it:
-     a clip that holds at the start of each letter until the edge reaches its
-     middle, then takes the whole letter at once. The edge sweeps the row
-     from -5% to 100% of its width on the row's own ease. */
-  function lettersAway() {
-    var w = document.querySelector('.mrow').offsetWidth,   // the row's own width: its edge sweeps from -5% to 100% of it
-        total = INTO.delay + INTO.duration, frames = [{ offset: 0, clipPath: 'inset(0 0 0 0)' }], at = 0;
-    // from the layout, not the screen: the logo may still be finishing its zoom to full size
-    [].forEach.call(mark.querySelectorAll('img'), function (im, h) {
-      var left = im.parentNode.offsetLeft + im.offsetLeft, from = left;   // its half's place in the full-width logo
-      LETTERS[h].forEach(function (end) {
-        var to = left + im.offsetWidth * end, mid = (from + to) / 2,
-            t = INTO.delay + INTO.duration * when(INTO.ease, Math.min(1, (mid / w + 0.05) / 1.05)),
-            o1 = Math.max(at, t / total), o2 = Math.min(1, o1 + WIPE / total);
-        frames.push({ offset: o1, clipPath: 'inset(0 0 0 ' + from.toFixed(1) + 'px)' },
-                    { offset: o2, clipPath: 'inset(0 0 0 ' + to.toFixed(1) + 'px)' });
-        at = o2; from = to;
+  function card(w, h) {
+    phone.style.setProperty('--w', w + 'px');
+    phone.style.setProperty('--h', h + 'px');
+  }
+  // the halves beside the card (half its width given) or the phone; on a narrow screen the whole logo under it
+  function beside(half) {
+    var r = root.style;
+    if (sz.narrow) {
+      r.setProperty('--se', '0px'); r.setProperty('--ss', '0px');
+      r.setProperty('--low-y', sz.low + 'px'); r.setProperty('--low-s', '0.6');
+    } else {
+      half = half == null ? sz.pw / 2 : half;
+      r.setProperty('--se', sz.mid + half + sz.gap + 'px');
+      r.setProperty('--ss', half + sz.gap - sz.mid + 'px');
+      r.setProperty('--low-y', '0px'); r.setProperty('--low-s', '1');
+    }
+  }
+  // the feed: a project at a time slides up, with the bars of a story along the top
+  var reel = 0, bars = phone.querySelector('.bars'), what = phone.querySelector('.what'), feeding = 0;
+  reels.forEach(function () { bars.appendChild(document.createElement('span')); });
+  phone.style.setProperty('--beat', BEAT / 1000 + 's');
+  function label() {
+    [].forEach.call(bars.children, function (b, i) { b.className = i < reel ? 'done' : i === reel ? 'now' : ''; });
+    what.textContent = reels[reel].getAttribute('data-name') + ' · ' + reels[reel].getAttribute('data-kind');
+  }
+  function scroll() {
+    reel = (reel + 1) % reels.length;
+    feed.classList.toggle('is-moving', reel !== 0);   // back to the first at once, as a story starts over
+    feed.style.setProperty('--k', reel);
+    label();
+  }
+  // the phone as it is once the opening is done
+  function ready() {
+    measure();
+    root.classList.add('is-apart', 'is-phone', 'photos-in');
+    card(sz.pw, sz.ph);
+    beside();
+    label();
+    if (!feeding) feeding = setInterval(scroll, BEAT);
+  }
+  addEventListener('resize', measure);
+
+  if (entering && target() === studio) root.classList.add('is-opening', 'is-entering');   // no menu yet, the copies of the logo
+  var later = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
+  function enter() {
+    measure();
+    card(sz.cw, sz.ch);
+    var flips = [].slice.call(phone.querySelectorAll('.flip img'));
+    flips[0].classList.add('on');
+    // a small card opens under the logo, and the projects flip through it, slowing down
+    var opening = phone.animate([{ clipPath: 'inset(50% 50% 50% 50% round 10px)' }, { clipPath: 'inset(0% 0% 0% 0% round 10px)' }],
+                                { duration: 700, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)', fill: 'forwards' });
+    opening.onfinish = function () { phone.style.clipPath = 'inset(0 round 10px)'; opening.cancel(); };
+    var steps = [120, 110, 110, 120, 140, 170, 210, 260], chain = later(750);
+    flips.forEach(function (im, i) {
+      if (!i) return;
+      chain = chain.then(function () {
+        flips[i - 1].classList.remove('on');
+        im.classList.add('on');
+        return later(steps[i - 1] || 300);
       });
     });
-    frames.push({ offset: 1, clipPath: 'inset(0 0 0 100%)' });
-    return mark.animate(frames, { duration: total, fill: 'forwards' });
-  }
-  /* While a row slides in its photos hold still within it; once it lands they
-     take over at the speed the row arrived with (the ease's slope at its end),
-     keep it a moment, then slow gradually to their own drift. */
-  function rush() {
-    var e = INTO.ease, landing = (1 - e[3]) / (1 - e[2]), HOLD = 800, EASE = 4000;
-    [].forEach.call(document.querySelectorAll('.mrow'), function (row, k) {
-      var strip = row.firstElementChild, a = strip.getAnimations()[0];
-      if (!a) return;
-      a.playbackRate = 0;
-      /* the first photo in must be whole: a photo's edge exactly on the row's
-         leading edge (its left side for the rows from the right, its right side
-         for the middle one, which slides the other way) */
-      var ims = strip.children, third = strip.offsetWidth / 3, dur = a.effect.getTiming().duration;
-      if (k !== 1) a.currentTime = 0;   // the strip at its start: a photo begins at the left edge
-      else {
-        var tile = ims[0].offsetWidth, pitch = ims[1].offsetLeft - ims[0].offsetLeft,
-            off = row.offsetWidth - tile - pitch * Math.ceil((row.offsetWidth - tile) / pitch);   // in (-pitch, 0]
-        a.currentTime = dur * (1 + off / third) % dur;   // played in reverse: at time t it sits at -third * (1 - t / dur)
-      }
-      var arrive = landing * row.offsetWidth * 1.05 / INTO.duration,           // px per ms as it lands
-          drift = strip.offsetWidth / 3 / a.effect.getTiming().duration,      // px per ms of its own slide
-          fast = arrive / drift;
-      setTimeout(function () {
-        var t0 = performance.now();
-        (function slow() {
-          var q = Math.min(1, Math.max(0, (performance.now() - t0 - HOLD) / EASE));
-          a.playbackRate = 1 + (fast - 1) * Math.pow(1 - q, 2);
-          if (q < 1) requestAnimationFrame(slow);
-        })();
-      }, (k === 1 ? INTO.delay : 0) + INTO.duration);
-    });
-  }
-  if (entering && target() === studio) root.classList.add('is-opening');   // no menu yet
-  function enter() {
-    photos(function () {
-      root.classList.add('photos-in');
-      rush();
-      var cover = lettersAway();
-      setTimeout(function () {
-        cover.cancel();
-        // out of sight below the screen, already white, with no transition...
-        root.classList.add('is-rising');
-        entering = false;
-        scrolled();
-        mark.getBoundingClientRect();
-        // ...then up to its place over the bottom row
-        root.classList.remove('is-rising', 'is-opening');   // and the menu comes in
-        settle(studio);
-      }, SLIDE);
+    chain.then(function () { return later(500); })
+    // the logo parts around the card (on a narrow screen, goes down under where the phone will be)
+    .then(function () {
+      beside(sz.cw / 2);
+      root.classList.add('is-beside');
+      return later(sz.narrow ? 1200 : 1000);
+    })
+    // clear of the card: it becomes a phone, and the halves make room for it
+    .then(function () {
+      phone.style.clipPath = '';
+      root.classList.add('is-apart', 'is-phone', 'photos-in');
+      card(sz.pw, sz.ph);
+      beside();
+      return later(1100);
+    })
+    // done: the real logo takes over in the same place, the feed starts, the menu comes in
+    .then(function () {
+      entering = false;
+      settle(studio);
+      scrolled();
+      root.classList.remove('is-entering', 'is-opening');
+      setTimeout(function () { root.classList.add('is-revealed'); }, 700);   // once the real one has faded in over the copies
+      ready();
     });
   }
 
@@ -552,18 +582,7 @@
   var fromLavori = false;
   try { fromLavori = sessionStorage.getItem('em-from') === 'lavori'; sessionStorage.removeItem('em-from'); } catch (e) {}
 
-  // the background first: the photos fade in before anything else moves
   requestAnimationFrame(function () { root.classList.add('is-lit'); });
-  // the photos slide in only once every one of them has loaded
-  var shots = [].slice.call(document.querySelectorAll('.mstrip img')), waiting = shots.length, onPhotos = [];
-  function photos(f) { if (waiting) onPhotos.push(f); else f(); }
-  function arrived() { if (--waiting === 0) onPhotos.forEach(function (f) { f(); }); }
-  shots.forEach(function (im) {
-    if (im.complete) arrived();
-    else { im.addEventListener('load', arrived); im.addEventListener('error', arrived); }
-  });
-  // each sliding row of photos holds its set three times over, so it never runs out (CSS .mstrip)
-  [].forEach.call(document.querySelectorAll('.mstrip'), function (s) { s.innerHTML += s.innerHTML + s.innerHTML; });
   // and it stops drifting while it is scrolled out of sight
   var glow = document.querySelector('.sticky');
   if (glow && window.IntersectionObserver) new IntersectionObserver(function (es) {
@@ -574,7 +593,9 @@
     root.classList.add('is-grown');
     settle(target());
     split = true;
-    root.classList.add('photos-in');
+    root.classList.add('is-revealed');
+    ready();
+    scrolled();
     settled();
   } else if (fromLavori) {
     entering = false;   // back from Lavori the logo goes straight to its place

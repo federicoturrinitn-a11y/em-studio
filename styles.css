@@ -164,19 +164,43 @@ html.is-grown.is-top .mark {
   transition-duration: 0.8s;
 }
 
-/* on Home, before the page scrolls, the whole logo sits low, over the
-   bottom row of photos (main.js sets .is-low); the first scroll docks it */
-html.is-grown.is-top.is-low .mark {
-  transform: translateY(37.5vh);
+/* On Home, before the page scrolls, the logo parts around the phone: em to
+   its left, studio to its right (main.js sets .is-beside and --se, --ss); on
+   a narrow screen it stays whole, smaller, under the phone (--low-y, --low-s).
+   The first scroll docks it top left, whole again. */
+html.is-grown.is-beside .mark,
+html.is-grown.is-top.is-beside .mark {
+  transform: translateY(var(--low-y, 0px)) scale(var(--low-s, 1));
+  transition-duration: 1s;
 }
-/* Home's opening: once the photos have covered the logo it comes back up
-   from below the screen (main.js) */
-html.is-rising .mark,
-html.is-rising .mark img {
-  transition: none !important;
+html.is-beside .mark .part:first-child {
+  transform: translateX(calc(-1 * var(--se, 0px)));
 }
-html.is-rising .mark {
-  transform: translateY(70vh);
+html.is-beside .mark .part:last-child {
+  transform: translateX(var(--ss, 0px));
+}
+/* Home's opening: the logo you see is a copy inside the first screen, under
+   the card (and a white one inside the card, over the photos), so the card
+   covers it; the real one, fixed over the page, takes over once the opening
+   is done, in the very same place (main.js) */
+html.is-entering body > .mark {
+  opacity: 0 !important;
+}
+.hero .mark {
+  position: absolute;
+  z-index: 1;
+}
+.mark--ink img {
+  filter: none !important;
+}
+.mark--light img {
+  filter: brightness(0) invert(1) !important;
+}
+html.is-revealed .hero .mark {
+  display: none;
+}
+html.is-entering #studio {
+  overflow: hidden;   /* the copies are in the page: it must not move under them */
 }
 /* on Studio the page scrolls beneath the logo, so the logo sits above it */
 html.is-grown .mark {
@@ -1600,10 +1624,8 @@ html[data-menu="light"] .corner--tr a {
 }
 
 /* ==========================================  HOME, FIRST SCREEN  ===== */
-/* the cover of each project, all the same size and evenly spaced, in three
-   rows sliding past: the top and bottom ones to the left, the middle one to
-   the right. Each row holds its photos three times over (main.js) and slides
-   by one set, so the loop never shows a seam. */
+/* On white, the logo and the phone; the foot fades into the dark blue of the
+   page below. */
 .intro.hero {
   position: relative;
   z-index: 1;
@@ -1615,94 +1637,259 @@ html[data-menu="light"] .corner--tr a {
   display: block;
   overflow: hidden;
 }
-.slides {
-  --gap: clamp(8px, 0.9vw, 14px);
-  --row: calc((100vh - var(--gap) * 2) / 2);   /* half a row, a row, half a row: the screen */
-  --row: calc((100dvh - var(--gap) * 2) / 2);
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(var(--row) / -2);
-  display: grid;
-  grid-template-rows: repeat(3, var(--row));
-  gap: var(--gap);
-}
-.mrow {
-  min-height: 0;
-  overflow: hidden;
-}
-.mstrip {
-  display: flex;
-  width: max-content;
-  height: 100%;
-  animation: slide 80s linear infinite;
-  will-change: transform;
-}
-.mrow:nth-child(2) .mstrip {
-  animation-direction: reverse;
-}
-.mstrip img {
-  flex: none;
-  height: 100%;
-  width: auto;
-  aspect-ratio: 3 / 2;
-  margin-right: var(--gap);   /* inside the strip's width, so one set is exactly a third */
-  border-radius: 10px;
-  object-fit: cover;
-}
-@keyframes slide {
-  to {
-    transform: translateX(calc(-100% / 3));
-  }
-}
-.sticky.is-away .mstrip {
-  animation-play-state: paused;
-}
-/* the photos fade in first thing, under the opening logo */
-/* The opening (main.js): the rows slide in from the sides once the photos
-   have loaded, the top and bottom ones from the right, the middle one from
-   the left: the top and bottom ones together, the middle one a beat later. With them the white turns to
-   dark blue at the foot, as the shade over it does: no white ever reaches the
-   bottom edge, where a fast scroll could show it as a line. */
-html.js .mrow {
-  transform: translateX(105%);
-}
-html.js .mrow:nth-child(2) {
-  transform: translateX(-105%);
-}
-/* fast at first, then slowing; landed, the photos carry on at that speed (main.js) */
-html.photos-in .mrow,
-html.photos-in .mrow:nth-child(2) {
-  transform: none;
-  transition: transform 1.9s cubic-bezier(0.2, 0.6, 0.6, 0.9);   /* still moving as it lands (main.js INTO) */
-}
-/* in two beats: the top and bottom rows together, then the middle one */
-html.photos-in .mrow:nth-child(2) {
-  transition-delay: 0.3s;
-}
 .hero::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(#fff 45%, #091956);
+  background: linear-gradient(#fff 72%, #091956 calc(100% - 4px));   /* solid for the last few pixels */
 }
-html.js .hero::before,
-html.js .hero::after {
+html.js .hero::before {
   opacity: 0;
 }
-html.photos-in .hero::before,
-html.photos-in .hero::after {
+html.photos-in .hero::before {
   opacity: 1;
-  transition: opacity 1s ease 0.8s;
+  transition: opacity 1s ease 0.6s;
 }
-/* at the foot, the white turns into the dark blue of the page below, under the white logo */
-.hero::after {
+/* the card, then the phone: centred, sized by main.js (--w, --h) */
+.phone {
+  --move: cubic-bezier(0.65, 0, 0.25, 1);
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 50%;
+  width: var(--w, 240px);
+  height: var(--h, 320px);
+  transform: translate(-50%, -50%);
+  clip-path: inset(50% 50% 50% 50% round 10px);
+  transition:
+    width 1s var(--move),
+    height 1s var(--move);
+}
+html.is-apart .phone {
+  clip-path: none;
+}
+html.is-apart .phone .mark {
+  display: none;   /* the halves are clear of the card: the white copy has nothing left to do */
+}
+.phone .mark {
+  position: absolute;
+  z-index: 5;
+}
+.phone .screen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: var(--rad, 10px);
+  background: #0b0e1a;
+  transition:
+    border-radius 1s var(--move),
+    box-shadow 1s ease;
+}
+/* the phone's body: a dark bezel, a rim, a soft shadow */
+html.is-phone .phone .screen {
+  --rad: calc(var(--w) * 0.14);
+  box-shadow:
+    0 0 0 calc(var(--w) * 0.03) #12162a,
+    0 0 0 calc(var(--w) * 0.036) #3a4163,
+    0 40px 80px rgba(9, 25, 86, 0.28);
+}
+/* its buttons, on the sides */
+.phone::before,
+.phone::after {
+  content: "";
+  position: absolute;
+  width: 3px;
+  border-radius: 2px;
+  background: #3a4163;
+  opacity: 0;
+  transition: opacity 0.6s ease 0.6s;
+}
+.phone::before {
+  right: calc(var(--w) * -0.036 - 3px);
+  top: 24%;
+  height: 12%;
+}
+.phone::after {
+  left: calc(var(--w) * -0.036 - 3px);
+  top: 20%;
+  height: 16%;
+}
+html.is-phone .phone::before,
+html.is-phone .phone::after {
+  opacity: 1;
+}
+.phone .flip img,
+.phone .reel img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* the flipbook, over the feed until the phone takes over */
+.phone .flip {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+.phone .flip img {
+  opacity: 0;
+}
+.phone .flip img.on {
+  opacity: 1;
+}
+html.is-phone .phone .flip {
+  display: none;
+}
+/* the feed: one project after the other, filling the screen; main.js
+   scrolls it up a project at a time (--k) */
+.phone .feed {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(calc(var(--k, 0) * -100%));
+}
+.phone .feed.is-moving {
+  transition: transform 0.75s cubic-bezier(0.7, 0, 0.2, 1);
+}
+.phone .reel {
+  position: relative;
+  flex: 0 0 100%;
+  overflow: hidden;
+}
+/* what is written over the photos, as on a social feed */
+.phone .ui {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s ease 0.5s;
+  color: #fff;
+  font-family: var(--font);
+}
+html.is-phone .phone .ui {
+  opacity: 1;
+}
+.phone .ui::before {
   content: "";
   position: absolute;
   inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background: linear-gradient(transparent 45%, #091956 calc(100% - 4px));   /* solid for the last few pixels */
+  background: linear-gradient(rgba(0, 0, 0, 0.35), transparent 18%, transparent 58%, rgba(0, 0, 0, 0.6));
+}
+.phone .status {
+  position: absolute;
+  top: 3.2%;
+  left: 9%;
+  right: 9%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: calc(var(--w) * 0.045);
+  font-weight: 600;
+}
+.phone .status i {
+  position: relative;
+  display: inline-block;
+  width: 1.9em;
+  height: 0.9em;
+  border: 1.5px solid #fff;
+  border-radius: 3px;
+}
+.phone .status i::after {
+  content: "";
+  position: absolute;
+  inset: 1.5px 30% 1.5px 1.5px;
+  background: #fff;
+  border-radius: 1px;
+}
+.phone .island {
+  position: absolute;
+  top: 2.4%;
+  left: 50%;
+  width: 32%;
+  height: 4.2%;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: #000;
+}
+.phone .bars {
+  position: absolute;
+  top: 9%;
+  left: 5%;
+  right: 5%;
+  display: flex;
+  gap: 3px;
+}
+.phone .bars span {
+  flex: 1;
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.35);
+  overflow: hidden;
+}
+.phone .bars span::after {
+  content: "";
+  display: block;
+  height: 100%;
+  width: 0;
+  background: #fff;
+}
+.phone .bars span.done::after {
+  width: 100%;
+}
+.phone .bars span.now::after {
+  animation: fill var(--beat, 2.6s) linear forwards;
+}
+@keyframes fill {
+  to {
+    width: 100%;
+  }
+}
+.phone .who {
+  position: absolute;
+  left: 6%;
+  right: 22%;
+  bottom: 5%;
+  font-size: calc(var(--w) * 0.042);
+  line-height: 1.35;
+}
+.phone .who b {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin-bottom: 0.35em;
+  font-size: 1.1em;
+}
+.phone .who b::before {
+  content: "em";
+  display: grid;
+  place-items: center;
+  width: 1.9em;
+  height: 1.9em;
+  border-radius: 50%;
+  background: #fff;
+  color: #091956;
+  font-size: 0.8em;
+  font-weight: 600;
+}
+.phone .acts {
+  position: absolute;
+  right: 5%;
+  bottom: 6%;
+  display: grid;
+  gap: calc(var(--w) * 0.05);
+}
+.phone .acts svg {
+  display: block;
+  width: calc(var(--w) * 0.085);
+  height: calc(var(--w) * 0.085);
+  fill: none;
+  stroke: #fff;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 /* for screen readers and search engines only */
 .vh {

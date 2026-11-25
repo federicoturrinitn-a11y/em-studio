@@ -16,8 +16,8 @@
     <meta property="og:image" content="https://federicoturrinitn-a11y.github.io/em-studio/img/og.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
     <!-- shortcut: the ?v= is bumped by hand so a browser never pairs a new page with old styles; a build step should stamp it if the site gets one -->
-    <link rel="stylesheet" href="styles.css?v=57" />
-    <script src="main.js?v=43" defer></script>
+    <link rel="stylesheet" href="styles.css?v=58" />
+    <script src="main.js?v=44" defer></script>
   </head>
   <body>
     <!-- the font loads without holding up the first paint: until it arrives the page shows
@@ -80,38 +80,52 @@
          block appearing as it comes in; after that the page carries on down. -->
         <div class="hscroll" id="hscroll" data-scene="blue">
           <div class="sticky">
-            <!-- the first screen: the cover of each project, all the same size,
-                 in three rows sliding past (top and bottom to the left, middle
-                 to the right; main.js repeats each row so it never runs out).
-                 The middle row is centred, the other two cut in half by the
-                 screen's edges; the logo sits over the bottom one -->
+            <!-- the first screen, on white: the logo grows, a card opens under it
+                 and the projects flip through it; the logo parts, em to the left and
+                 studio to the right, and the card becomes a phone with our projects
+                 scrolling on its screen (main.js). The page below is dark blue. -->
             <div class="intro hero">
-              <div class="slides" aria-hidden="true">
-                <div class="mrow"><div class="mstrip">
-                  <img src="img/home/horizon-1.jpg" width="720" height="480" alt="" decoding="async" />
-                  <img src="img/home/dolce-riva-1.jpg" width="720" height="480" alt="" decoding="async" />
-                  <img src="img/home/calzature-dro-1.jpg" width="720" height="480" alt="" decoding="async" />
-                  <img src="img/home/pedretti-1.jpg" width="720" height="480" alt="" decoding="async" />
-                  <img src="img/home/mc-house-1.jpg" width="720" height="480" alt="" decoding="async" />
-                  <img src="img/home/gruppo-toscano-1.jpg" width="720" height="480" alt="" decoding="async" />
-                </div></div>
-                <div class="mrow"><div class="mstrip">
-                  <img src="img/home/pallavolo-c9-1.jpg" width="720" height="480" alt="" decoding="async" />
-                  <img src="img/home/gp-servizi-1.jpg" width="720" height="480" alt="" decoding="async" />
-                  <img src="img/home/garda-host-1.jpg" width="720" height="480" alt="" decoding="async" />
-                  <img src="img/home/papillon-1.jpg" width="720" height="480" alt="" decoding="async" />
-                  <img src="img/home/moor-1.jpg" width="720" height="480" alt="" decoding="async" />
-                  <img src="img/home/atelier-1.jpg" width="720" height="480" alt="" decoding="async" />
-                </div></div>
-                <div class="mrow"><div class="mstrip">
-                  <img src="img/home/desiree-corona-1.jpg" width="720" height="480" alt="" decoding="async" />
-                  <img src="img/home/like-home-1.jpg" width="720" height="480" alt="" decoding="async" />
-                  <img src="img/home/sweet-retreat-1.jpg" width="720" height="480" alt="" decoding="async" />
-                  <img src="img/home/le-tre-terre-1.jpg" width="720" height="480" alt="" decoding="async" />
-                  <img src="img/home/la-lavagna-1.jpg" width="720" height="480" alt="" decoding="async" />
-                  <img src="img/home/garda-trentino-1.jpg" width="720" height="480" alt="" decoding="async" />
-                </div></div>
-              </div>
+              <!-- the card, then the phone: the flipbook plays on it, then our
+                   projects scroll by on its screen as on a feed (main.js) -->
+              <a class="phone" href="lavori.html" aria-label="I nostri lavori">
+                <span class="screen">
+                  <span class="feed">
+                    <span class="reel" data-name="Horizon Music Festival" data-kind="Organizzazione eventi"><img src="img/horizon-1.jpg" alt="" /></span>
+                    <span class="reel" data-name="Dolce Riva Night" data-kind="Organizzazione eventi"><img src="img/dolce-riva-1.jpg" alt="" /></span>
+                    <span class="reel" data-name="Calzature Dro" data-kind="Catena di negozi di scarpe"><img src="img/calzature-dro-1.jpg" alt="" /></span>
+                    <span class="reel" data-name="La Lavagna" data-kind="Pizzeria e laboratorio artigianale"><img src="img/la-lavagna-2.jpg" alt="" /></span>
+                    <span class="reel" data-name="Desiree Corona" data-kind="Centro estetico"><img src="img/desiree-corona-1.jpg" alt="" /></span>
+                    <span class="reel" data-name="Garda Host" data-kind="Agenzia affitti turistici"><img src="img/garda-host-2.jpg" alt="" /></span>
+                    <span class="reel" data-name="Sweet Retreat" data-kind="Branding · Appartamenti turistici"><img src="img/sweet-retreat-1.jpg" alt="" /></span>
+                    <span class="reel" data-name="Moor Eventi" data-kind="Organizzazione eventi"><img src="img/moor-1.jpg" alt="" /></span>
+                    <span class="reel" data-name="MC House Group" data-kind="Agenzia immobiliare"><img src="img/mc-house-1.jpg" alt="" /></span>
+                    <span class="reel" data-name="Pallavolo C9" data-kind="Associazione sportiva"><img src="img/pallavolo-c9-2.jpg" alt="" /></span>
+                  </span>
+                  <!-- the flipbook, ending on the feed's first project -->
+                  <span class="flip">
+                    <img src="img/moor-1.jpg" alt="" />
+                    <img src="img/pallavolo-c9-2.jpg" alt="" />
+                    <img src="img/sweet-retreat-1.jpg" alt="" />
+                    <img src="img/la-lavagna-2.jpg" alt="" />
+                    <img src="img/desiree-corona-2.jpg" alt="" />
+                    <img src="img/calzature-dro-3.jpg" alt="" />
+                    <img src="img/like-home-1.jpg" alt="" />
+                    <img src="img/dolce-riva-3.jpg" alt="" />
+                    <img src="img/horizon-1.jpg" alt="" />
+                  </span>
+                  <span class="ui">
+                    <span class="island"></span>
+                    <span class="status"><span>9:41</span><i></i></span>
+                    <span class="bars"></span>
+                    <span class="who"><b>emstudio</b><span class="what"></span></span>
+                    <span class="acts">
+                      <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" /></svg>
+                      <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.2A8 8 0 1 1 20 12z" /></svg>
+                      <svg viewBox="0 0 24 24"><path d="M21 4 10 14M21 4l-7 17-4-7-7-4z" /></svg>
+                    </span>
+                  </span>
+                </span>
+              </a>
               <h1 class="vh">EM Studio — Comunicazione e marketing</h1>
             </div>
             <div class="track" id="track">
