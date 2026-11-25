@@ -16,8 +16,8 @@
     <meta property="og:image" content="https://federicoturrinitn-a11y.github.io/em-studio/img/og.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
     <!-- shortcut: the ?v= is bumped by hand so a browser never pairs a new page with old styles; a build step should stamp it if the site gets one -->
-    <link rel="stylesheet" href="styles.css?v=64" />
-    <script src="main.js?v=49" defer></script>
+    <link rel="stylesheet" href="styles.css?v=65" />
+    <script src="main.js?v=50" defer></script>
   </head>
   <body>
     <!-- the font loads without holding up the first paint: until it arrives the page shows
@@ -81,25 +81,13 @@
         <div class="hscroll" id="hscroll" data-scene="blue">
           <div class="sticky">
             <!-- the first screen: on white the logo grows, a card opens under it
-                 and the projects flip through it; then the card opens to the whole
-                 screen, where our projects follow one another, the logo white over
-                 them (main.js). The page below is dark blue. -->
+                 and the projects flip through it; the card turns dark blue and fills
+                 the screen, the logo rises to the upper middle and a row of five
+                 photos comes up along the foot (main.js) -->
             <div class="intro hero">
-              <!-- the card, then the whole first screen: the flipbook plays on the
-                   card, which then opens to the full screen, where our projects
-                   follow one another (main.js) -->
-              <a class="frame" href="lavori.html" aria-label="I nostri lavori">
-                <span class="show">
-                  <img src="img/la-lavagna-1.jpg" alt="" data-name="La Lavagna" data-kind="Pizzeria e laboratorio artigianale" />
-                  <img class="tall" src="img/dolce-riva-1.jpg" alt="" data-name="Dolce Riva Night" data-kind="Organizzazione eventi" />
-                  <img src="img/atelier-1.jpg" alt="" data-name="Atelier Magazine" data-kind="Magazine arredamento" />
-                  <img class="tall" src="img/calzature-dro-1.jpg" alt="" data-name="Calzature Dro" data-kind="Catena di negozi di scarpe" />
-                  <img src="img/le-tre-terre-1.jpg" alt="" data-name="Le Tre Terre" data-kind="Azienda vitivinicola" />
-                  <img class="tall" src="img/dolce-riva-3.jpg" alt="" data-name="Dolce Riva Night" data-kind="Organizzazione eventi" />
-                  <img src="img/atelier-2.jpg" alt="" data-name="Atelier Magazine" data-kind="Magazine arredamento" />
-                  <img src="img/la-lavagna-3.jpg" alt="" data-name="La Lavagna" data-kind="Pizzeria e laboratorio artigianale" />
-                </span>
-                <!-- the flipbook, on the card; then the card shows the first of the projects above -->
+              <!-- the card: the flipbook plays on it; its last picture is the dark
+                   blue itself, and it opens to fill the first screen (main.js) -->
+              <span class="frame" aria-hidden="true">
                 <span class="flip">
                   <img src="img/moor-1.jpg" alt="" />
                   <img src="img/pallavolo-c9-2.jpg" alt="" />
@@ -110,8 +98,15 @@
                   <img src="img/like-home-1.jpg" alt="" />
                   <img src="img/horizon-1.jpg" alt="" />
                 </span>
-                <span class="cap"></span>
-              </a>
+              </span>
+              <!-- along the foot, five of our projects, picked for colours that sit with the blue -->
+              <div class="strip">
+                <a href="lavori.html" style="--i: 0"><img src="img/gp-servizi-1.jpg" alt="G&amp;P Servizi" /></a>
+                <a href="lavori.html" style="--i: 1"><img src="img/dolce-riva-3.jpg" alt="Dolce Riva Night" /></a>
+                <a href="lavori.html" style="--i: 2"><img src="img/calzature-dro-1.jpg" alt="Calzature Dro" /></a>
+                <a href="lavori.html" style="--i: 3"><img src="img/sweet-retreat-1.jpg" alt="Sweet Retreat" /></a>
+                <a href="lavori.html" style="--i: 4"><img src="img/desiree-corona-3.jpg" alt="Desiree Corona" /></a>
+              </div>
               <h1 class="vh">EM Studio — Comunicazione e marketing</h1>
             </div>
             <div class="track" id="track">

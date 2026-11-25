@@ -448,25 +448,25 @@
 
   /* Home's opening, once the logo has grown in the middle of the white: a
      small card opens under it and the projects flip through it, slowing down;
-     then the card opens to the whole first screen, where our projects follow
-     one another. The logo is white wherever the photos are under it: the logo
-     seen in the opening is a pair of copies inside the first screen (a dark
-     one under the card, a white one inside it); the real one takes over in
-     the same place once the opening is done. */
+     the last picture is the dark blue itself, and the card opens to fill the
+     first screen; the logo rises to the upper middle, and a row of five of
+     our projects comes up along the foot. The logo is white wherever the blue
+     is under it: the logo seen in the opening is a pair of copies inside the
+     first screen (a dark one under the card, a white one inside it); the real
+     one takes over in the same place once the opening is done. */
   var frame = document.querySelector('.frame'),
       flip = frame.querySelector('.flip'),
-      shows = [].slice.call(frame.querySelectorAll('.show img')),
-      cap = frame.querySelector('.cap'),
+      strip = document.querySelector('.strip'),
       hero = document.querySelector('.hero'),
-      BEAT = 5000,   // each project on the screen
-      sz = {}, showing = 0, turning = 0;
+      sz = {};
   [['mark--ink', hero], ['mark--light', frame]].forEach(function (c) {
     var m = mark.cloneNode(true);
     m.classList.add(c[0]);
     [].forEach.call(m.querySelectorAll('[data-part]'), function (p) { p.removeAttribute('data-part'); });
     c[1].appendChild(m);
   });
-  // the card in the middle of the first screen, upright (3:4)
+  // the card in the middle of the first screen, upright (3:4), and the logo's place
+  // once risen: halfway between the menu and the row of photos
   function measure() {
     var W = hero.clientWidth, H = hero.clientHeight;
     sz.cw = Math.max(150, Math.min(260, W * (W < 820 ? 0.42 : 0.18)));
@@ -474,23 +474,15 @@
     sz.l = (W - sz.cw) / 2; sz.t = (H - sz.ch) / 2;
     flip.style.cssText = 'left:' + sz.l + 'px;top:' + sz.t + 'px;width:' + sz.cw + 'px;height:' + sz.ch + 'px';
     sz.card = 'inset(' + sz.t + 'px ' + sz.l + 'px ' + sz.t + 'px ' + sz.l + 'px round 10px)';
-  }
-  // the projects one after another, with whose they are (not show(): that one changes page)
-  function turn() {
-    shows.forEach(function (im, i) { im.classList.toggle('on', i === showing); });
-    cap.classList.remove('on');
-    setTimeout(function () {
-      cap.innerHTML = '<b>' + shows[showing].getAttribute('data-name') + '</b>' + shows[showing].getAttribute('data-kind');
-      cap.classList.add('on');
-    }, 400);
+    var top = bar.offsetHeight * 0.6, foot = strip.offsetTop;   // the strip's top, in the first screen
+    root.style.setProperty('--low-y', ((top + foot) / 2 - H / 2) + 'px');
   }
   // the first screen as it is once the opening is done
   function ready() {
-    root.classList.add('is-full', 'photos-in');
+    measure();
+    root.classList.add('is-full', 'is-strip', 'photos-in');
     frame.style.clipPath = '';
     flip.classList.add('is-done');
-    turn();
-    if (!turning) turning = setInterval(function () { showing = (showing + 1) % shows.length; turn(); }, BEAT);
   }
   addEventListener('resize', measure);
 
@@ -500,7 +492,6 @@
     measure();
     var flips = [].slice.call(flip.querySelectorAll('img'));
     flips[0].classList.add('on');
-    shows[0].classList.add('on');   // under the flipbook, for when the card opens
     // a small card opens under the logo, and the projects flip through it, slowing down
     var opening = frame.animate([{ clipPath: 'inset(50% 50% 50% 50% round 10px)' }, { clipPath: sz.card }],
                                 { duration: 700, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)', fill: 'forwards' });
@@ -514,19 +505,24 @@
         return later(steps[i - 1] || 300);
       });
     });
-    // the last: the first of the projects, as it will be on the whole screen
+    // the last picture: the blue itself
     chain.then(function () {
       flip.classList.add('is-done');
-      return later(600);
+      return later(450);
     })
-    // the card opens to the whole first screen
+    // the blue card opens to fill the first screen
     .then(function () {
       var widen = frame.animate([{ clipPath: sz.card }, { clipPath: 'inset(0px 0px 0px 0px round 0px)' }],
-                                { duration: 1300, easing: 'cubic-bezier(0.65, 0, 0.25, 1)', fill: 'forwards' });
+                                { duration: 1100, easing: 'cubic-bezier(0.65, 0, 0.25, 1)', fill: 'forwards' });
       widen.onfinish = function () { frame.style.clipPath = ''; root.classList.add('is-full'); widen.cancel(); };
-      return later(1350);
+      return later(1150);
     })
-    // done: the real logo takes over in the same place, the projects go on, the menu comes in
+    // the logo rises to the upper middle, the photos come up along the foot
+    .then(function () {
+      root.classList.add('is-beside', 'is-strip');
+      return later(1000);
+    })
+    // done: the real logo takes over in the same place, the menu comes in
     .then(function () {
       entering = false;
       settle(studio);
@@ -537,6 +533,7 @@
       setTimeout(function () {
         root.classList.add('is-revealed');
         root.classList.remove('is-held');
+        measure();
       }, 700);
     });
   }

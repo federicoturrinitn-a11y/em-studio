@@ -1656,15 +1656,14 @@ html.photos-in .hero::before {
   opacity: 1;
   transition: opacity 1s ease 0.6s;
 }
-/* the card, then the whole first screen: it covers the first screen and is
-   cut down to the card by a clip that main.js sets, then lets go */
+/* the card, then the whole first screen: dark blue, cut down to the card by a
+   clip that main.js sets, then lets go */
 .frame {
   position: absolute;
   inset: 0;
   z-index: 2;
   display: block;
-  color: #fff;
-  text-decoration: none;
+  background: #091956;
   clip-path: inset(50% 50% 50% 50% round 10px);
 }
 html.is-full .frame {
@@ -1673,18 +1672,13 @@ html.is-full .frame {
 .frame .mark,
 html.is-grown .frame .mark {
   position: absolute;
-  z-index: 5;   /* the white copy of the logo, over the photos */
-}
-.frame .flip,
-.frame .show {
-  position: absolute;
-  inset: 0;
+  z-index: 5;   /* the white copy of the logo, over the card */
 }
 .frame .flip {
+  position: absolute;
   z-index: 2;   /* placed on the card by main.js */
 }
-.frame .flip img,
-.frame .show img {
+.frame .flip img {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -1696,54 +1690,65 @@ html.is-grown .frame .mark {
   opacity: 1;
 }
 .frame .flip.is-done {
-  display: none;
+  display: none;   /* the last picture of the flipbook: the blue itself */
 }
-/* the projects one after another: each fades in and settles from a slight zoom */
-.frame .show img {
-  transform: scale(1.06);
-  transition:
-    opacity 1.4s ease,
-    transform 7s linear;
-}
-.frame .show img.on {
-  opacity: 1;
-  transform: none;
-}
-.frame .show img.tall {
-  object-position: 50% 30%;   /* upright photos: keep the heads */
-}
-/* a light shade for the white logo and menu, and the foot into the dark blue below */
-.frame .show::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(rgba(9, 25, 86, 0.4), rgba(9, 25, 86, 0.28) 28%, rgba(9, 25, 86, 0.32) 62%, #091956 calc(100% - 4px));
-  opacity: 0;
-  transition: opacity 1.2s ease;
-}
-html.is-full .frame .show::after {
-  opacity: 1;
-}
-/* whose project it is, at the foot */
-.frame .cap {
+/* the row of photos along the foot: they come up one after the other */
+.strip {
+  --gap: clamp(8px, 0.8vw, 12px);
   position: absolute;
   z-index: 3;
   left: var(--pad);
-  bottom: calc(var(--pad) + 1.4em);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  line-height: 1.5;
+  right: var(--pad);
+  bottom: var(--pad);
+  height: min(36vh, calc((100vw - var(--pad) * 2 - var(--gap) * 4) / 5 * 1.3));
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--gap);
+}
+.strip a {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
   opacity: 0;
-  transition: opacity 0.5s ease;
+  transform: translateY(48px);
+  transition:
+    opacity 0.8s ease calc(var(--i) * 0.09s),
+    transform 1.1s cubic-bezier(0.2, 0.7, 0.1, 1) calc(var(--i) * 0.09s);
 }
-.frame .cap b {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
-}
-html.is-full .frame .cap.on {
+html.is-strip .strip a {
   opacity: 1;
+  transform: none;
+}
+.strip img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.1, 1);
+}
+/* a touch of the blue over each, so the five sit together on it; it lifts on hover */
+.strip a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(9, 25, 86, 0.14);
+  transition: background-color 0.4s ease;
+}
+.strip a:hover img {
+  transform: scale(1.05);
+}
+.strip a:hover::after {
+  background: transparent;
+}
+@media (max-width: 819px) {
+  .strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    height: 30vh;
+  }
+  .strip a:nth-child(n + 4) {
+    display: none;
+  }
 }
 /* for screen readers and search engines only */
 .vh {
